@@ -1,0 +1,113 @@
+﻿@model Entities.Concrete.CPU
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h2 class="text-center mb-4">Create CPU</h2>
+<div class="container">
+    <div class="row justify-content-center">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="mb-3 row">
+                <label asp-for="Brand" class="col-3 form-label"></label>
+                <div class="col-9">
+                    <input asp-for="Brand" class="form-control" />
+                    <span asp-validation-for="Brand" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label asp-for="ModelName" class="col-3 form-label"></label>
+                <div class="col-9">
+                    <input asp-for="ModelName" class="form-control" />
+                    <span asp-validation-for="ModelName" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label asp-for="CoreCount" class="col-3 form-label"></label>
+                <div class="col-9">
+                    <input asp-for="CoreCount" class="form-control" />
+                    <span asp-validation-for="CoreCount" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label asp-for="ThreadCount" class="col-3 form-label"></label>
+                <div class="col-9">
+                    <input asp-for="ThreadCount" class="form-control" />
+                    <span asp-validation-for="ThreadCount" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label asp-for="BaseClockSpeed" class="col-3 form-label"></label>
+                <div class="col-9">
+                    <input asp-for="BaseClockSpeed" class="form-control" />
+                    <span asp-validation-for="BaseClockSpeed" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label asp-for="MaxTurboFrequency" class="col-3 form-label"></label>
+                <div class="col-9">
+                    <input asp-for="MaxTurboFrequency" class="form-control" />
+                    <span asp-validation-for="MaxTurboFrequency" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label asp-for="CacheSize" class="col-3 form-label"></label>
+                <div class="col-9">
+                    <input asp-for="CacheSize" class="form-control" />
+                    <span asp-validation-for="CacheSize" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label asp-for="SocketType" class="col-3 form-label"></label>
+                <div class="col-9">
+                    <input asp-for="SocketType" class="form-control" />
+                    <span asp-validation-for="SocketType" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label asp-for="IntegratedGraphics" class="col-3 form-label"></label>
+                <div class="col-9">
+                    <input asp-for="IntegratedGraphics" class="form-control" />
+                    <span asp-validation-for="IntegratedGraphics" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label asp-for="MemorySupport" class="col-3 form-label"></label>
+                <div class="col-9">
+                    <input asp-for="MemorySupport" class="form-control" />
+                    <span asp-validation-for="MemorySupport" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label asp-for="Tdp" class="col-3 form-label"></label>
+                <div class="col-9">
+                    <input asp-for="Tdp" class="form-control" />
+                    <span asp-validation-for="Tdp" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label asp-for="LaunchDate" class="col-3 form-label"></label>
+                <div class="col-9">
+                    <input asp-for="LaunchDate" class="form-control" />
+                    <span asp-validation-for="LaunchDate" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label asp-for="Price" class="col-3 form-label"></label>
+                <div class="col-9">
+                    <input asp-for="Price" class="form-control" />
+                    <span asp-validation-for="Price" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

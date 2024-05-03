@@ -1,0 +1,47 @@
+﻿@model Entities.Concrete.Image
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h2 class="text-center mb-4">Create CPU</h2>
+<div class="container">
+    <div class="row justify-content-center">
+        <form asp-action="Create" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="mb-3 row">
+                <label asp-for="ProductId" class="col-3 form-label"></label>
+                <div class="col-9">
+                    <input asp-for="ProductId" class="form-control" />
+                    <span asp-validation-for="ProductId" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="mb-3 row">
+                <label asp-for="Type" class="col-3 form-label"></label>
+                <div class="col-9">
+                    <input asp-for="Type" class="form-control" />
+                    <span asp-validation-for="Type" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="mb-3 row">
+                <label asp-for="File" class="col-3 form-label"></label>
+                <div class="col-9">
+                    <input type="file" name="File" id="File" class="form-control" multiple/>
+                    <span asp-validation-for="File" class="text-danger"></span>
+                </div>
+            </div>        
+            <div class="mb-3 row">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+    <div class="row">
+        <a asp-action="Index">Back to List</a>
+    </div>
+</div>
+
+
+

@@ -1,3 +1,11 @@
+using Core.Utils;
+using DataAccess.EntityFramework.Abstract;
+using DataAccess.EntityFramework.Concrete;
+using Microsoft.Extensions.DependencyInjection;
+using Services.Abstract;
+using Services.Concrete;
+using Services.Validation;
+
 namespace TechStore
 {
     public class Program
@@ -5,11 +13,28 @@ namespace TechStore
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+            builder.Services.AddScoped<ICPUDal, CPUDal>();
+            builder.Services.AddScoped<ICPUService, CPUService>();
+
+            builder.Services.AddScoped<IGPUDal, GPUDal>();
+            builder.Services.AddScoped<IGPUService, GPUService>();
+
+            builder.Services.AddScoped<IImageDal, ImageDal>();
+            builder.Services.AddScoped<IImageService, ImageService>();
+
+            builder.Services.AddScoped<IEntityFrameworkDal, EntityFrameworkDal>();
+            builder.Services.AddScoped<IEntityFrameworkService, EntityFrameworkService>();
+
+            builder.Services.AddSingleton<CPUValidator>();
+
+            
+
 
             var app = builder.Build();
+
+            DbContextInfo.Initialize(app.Services);
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
@@ -26,9 +51,18 @@ namespace TechStore
 
             app.UseAuthorization();
 
-            app.MapControllerRoute(
+
+            app.MapAreaControllerRoute(
                 name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");
+                areaName: "Products",
+                pattern: "{controller=Home}/{action=Index}");
+
+            app.MapAreaControllerRoute(
+                name: "AdminAccess",
+                areaName: "Admin",
+                pattern: "admin/{controller=Home}/{action=Index}/{id?}");
+
+
 
             app.Run();
         }

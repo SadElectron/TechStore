@@ -1,0 +1,95 @@
+﻿@model Entities.Concrete.GPU
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>GPU</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Brand" class="control-label"></label>
+                <input asp-for="Brand" class="form-control" />
+                <span asp-validation-for="Brand" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ModelName" class="control-label"></label>
+                <input asp-for="ModelName" class="form-control" />
+                <span asp-validation-for="ModelName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="GraphicEngine" class="control-label"></label>
+                <input asp-for="GraphicEngine" class="form-control" />
+                <span asp-validation-for="GraphicEngine" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="VramSize" class="control-label"></label>
+                <input asp-for="VramSize" class="form-control" />
+                <span asp-validation-for="VramSize" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="VramType" class="control-label"></label>
+                <input asp-for="VramType" class="form-control" />
+                <span asp-validation-for="VramType" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="BaseClockSpeed" class="control-label"></label>
+                <input asp-for="BaseClockSpeed" class="form-control" />
+                <span asp-validation-for="BaseClockSpeed" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="BoostClockSpeed" class="control-label"></label>
+                <input asp-for="BoostClockSpeed" class="form-control" />
+                <span asp-validation-for="BoostClockSpeed" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MemoryBusWidth" class="control-label"></label>
+                <input asp-for="MemoryBusWidth" class="form-control" />
+                <span asp-validation-for="MemoryBusWidth" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Tdp" class="control-label"></label>
+                <input asp-for="Tdp" class="form-control" />
+                <span asp-validation-for="Tdp" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PowerConnectors" class="control-label"></label>
+                <input asp-for="PowerConnectors" class="form-control" />
+                <span asp-validation-for="PowerConnectors" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Interface" class="control-label"></label>
+                <input asp-for="Interface" class="form-control" />
+                <span asp-validation-for="Interface" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DisplayPorts" class="control-label"></label>
+                <input asp-for="DisplayPorts" class="form-control" />
+                <span asp-validation-for="DisplayPorts" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="LaunchDate" class="control-label"></label>
+                <input asp-for="LaunchDate" class="form-control" />
+                <span asp-validation-for="LaunchDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Price" class="control-label"></label>
+                <input asp-for="Price" class="form-control" />
+                <span asp-validation-for="Price" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

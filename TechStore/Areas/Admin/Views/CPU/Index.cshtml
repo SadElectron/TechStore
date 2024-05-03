@@ -1,0 +1,43 @@
+﻿@model List<Entities.Concrete.CPU>;
+
+<h2 class="text-center mb-4">Cpu List</h2>
+<div class="container">
+    <div class="row justify-content-center">
+        <table class="table table-hover">
+            <thead class="thead-light">
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Brand</th>
+                    <th scope="col">Model</th>
+                    <th scope="col">Price</th>
+                    <th scope="col"><a href="Cpu/Create" class="btn btn-sm btn-primary" role="button">Add Cpu</a></th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    int i = 0;
+                }
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <th scope="row">@(++i)</th>
+                        <td>@item.Brand</td>
+                        <td>@item.ModelName</td>
+                        <td>@item.Price</td>
+                        <td>
+                            <a href="Cpu/Update/@item.Id" class="btn btn-sm btn-primary" role="button">Update</a>
+                            <a href="Image/Update/@item.Id?type=cpu" class="btn btn-sm btn-primary" role="button">Edit Images</a>
+                        </td>
+                        <td>
+                            <a href="Cpu/Delete/@item.Id" class="btn btn-sm btn-danger" role="button">Delete</a>
+                        </td>
+                    </tr>
+     
+                }
+            </tbody>
+        </table>
+
+    </div>
+
+</div>

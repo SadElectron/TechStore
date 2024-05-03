@@ -1,0 +1,97 @@
+﻿@model Entities.Concrete.CPU
+<h2 class="text-center mb-4">Delete Cpu</h2>
+<div class="container">
+    <div class="row justify-content-center">
+        <form asp-action="Delete">
+            <div class="mb-3 row">
+                <input type="hidden" class="form-control" id="Id" name="id" value="@Model.Id">
+            </div>
+            <div class="mb-3 row">
+                <label for="Brand" class="col-3 form-label">Brand</label>
+                <div class="col-9">
+                    <input asp-for="Brand" class="form-control" value="@Model.Brand" readonly>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="Model" class="col-3 form-label">Model</label>
+                <div class="col-9">
+                    <input asp-for="ModelName" class="form-control" value="@Model.ModelName" readonly>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="CoreCount" class="col-3 form-label">Core count</label>
+                <div class="col-9">
+                    <input asp-for="CoreCount" class="form-control" value="@Model.CoreCount" readonly>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="ThreadCount" class="col-3 form-label">Thread count</label>
+                <div class="col-9">
+                    <input asp-for="ThreadCount" class="form-control" value="@Model.ThreadCount" readonly>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="BaseClockSpeed" class="col-3 form-label">Base clock speed</label>
+                <div class="col-9">
+                    <input asp-for="BaseClockSpeed" class="form-control" value="@Model.BaseClockSpeed" readonly>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="MaxTurboFrequency" class="col-3 form-label">Max turbo frequency</label>
+                <div class="col-9">
+                    <input asp-for="MaxTurboFrequency" class="form-control" value="@Model.MaxTurboFrequency" readonly>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="CacheSize" class="col-3 form-label">Cache size</label>
+                <div class="col-9">
+                    <input asp-for="CacheSize" class="form-control" value="@Model.CacheSize" readonly>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="SocketType" class="col-3 form-label">Socket type</label>
+                <div class="col-9">
+                    <input asp-for="SocketType" class="form-control" value="@Model.SocketType" readonly>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="IntegratedGraphics" class="col-3 form-label">Integrated graphics</label>
+                <div class="col-9">
+                    <input asp-for="IntegratedGraphics" class="form-control" value="@Model.IntegratedGraphics" readonly>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="MemorySupport" class="col-3 form-label">Memory support</label>
+                <div class="col-9">
+                    <input asp-for="MemorySupport" class="form-control" value="@Model.MemorySupport" readonly>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="Tdp" class="col-3 form-label">Tdp</label>
+                <div class="col-9">
+                    <input asp-for="Tdp" class="form-control" value="@Model.Tdp" readonly>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="LaunchDate" class="col-3 form-label">Launch date</label>
+                <div class="col-9">
+                    <input asp-for="LaunchDate" class="form-control" value="@Model.LaunchDate" readonly>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="Price" class="col-3 col-3 form-label">Price</label>
+                <div class="col-9">
+                    <input asp-for="Price" class="form-control" value="@Model.Price" readonly>
+                </div>
+            </div>
+
+
+            <div class="mb-3 row">
+                <button type="submit" class="btn btn-danger">Delete</button>
+            </div>
+
+        </form>
+
+    </div>
+
+</div>

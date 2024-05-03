@@ -1,0 +1,113 @@
+﻿@model IEnumerable<Entities.Concrete.GPU>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Brand)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ModelName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.GraphicEngine)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.VramSize)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.VramType)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.BaseClockSpeed)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.BoostClockSpeed)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.MemoryBusWidth)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Tdp)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PowerConnectors)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Interface)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DisplayPorts)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LaunchDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Price)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Brand)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ModelName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.GraphicEngine)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.VramSize)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.VramType)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.BaseClockSpeed)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.BoostClockSpeed)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MemoryBusWidth)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Tdp)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PowerConnectors)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Interface)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DisplayPorts)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.LaunchDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Price)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
