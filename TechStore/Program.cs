@@ -1,4 +1,3 @@
-using Core.Utils;
 using DataAccess.EntityFramework.Abstract;
 using DataAccess.EntityFramework.Concrete;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,7 +33,6 @@ namespace TechStore
 
             var app = builder.Build();
 
-            DbContextInfo.Initialize(app.Services);
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())

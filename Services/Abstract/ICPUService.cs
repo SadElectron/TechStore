@@ -15,6 +15,5 @@ namespace Services.Abstract
         public Task UpdateAsync(CPU entity);
         public Task DeleteAsync(CPU entity);
         public Task<int> GetRecordCountAsync();
-        public Task<CPU> GetWithImagesAsync(Guid id);
     }
 }

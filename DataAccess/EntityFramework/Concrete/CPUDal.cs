@@ -28,12 +28,5 @@ namespace DataAccess.EntityFramework.Concrete
             return base.GetAsync(filter);
         }
 
-        public Task<CPU> GetWithImagesAsync(Expression<Func<CPU, bool>> filter)
-        {
-            using (var context = new EfDbContext())
-            {
-                return context.CPUs.Include(c => c.Images).SingleOrDefaultAsync(filter);
-            }
-        }
     }
 }

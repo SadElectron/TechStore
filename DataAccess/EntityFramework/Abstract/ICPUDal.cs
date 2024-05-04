@@ -13,7 +13,6 @@ namespace DataAccess.EntityFramework.Abstract
     {
         public Task<int> GetRecordCountAsync();
         public Task<CPU> GetAsync(Expression<Func<CPU, bool>> filter);
-        public Task<CPU> GetWithImagesAsync(Expression<Func<CPU, bool>> filter);
 
     }
 }

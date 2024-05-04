@@ -46,8 +46,6 @@ namespace Entities.Concrete
 
         public double Price { get; set; }
 
-        public ICollection<Image> Images { get; set; } = new List<Image>();
-
         // Add additional fields as needed, based on your specific requirements
     }
 }

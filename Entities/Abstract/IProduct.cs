@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Entities.Concrete;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,8 +10,6 @@ namespace Entities.Abstract
     public interface IProduct
     {
         Guid Id { get; set; }
-        string Brand { get; set; }
-        string ModelName { get; set; }
 
     }
 }

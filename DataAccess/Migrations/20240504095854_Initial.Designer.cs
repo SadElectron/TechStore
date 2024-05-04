@@ -11,14 +11,14 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccess.Migrations
 {
     [DbContext(typeof(EfDbContext))]
-    [Migration("20240502111119_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20240504095854_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "8.0.1");
+            modelBuilder.HasAnnotation("ProductVersion", "8.0.4");
 
             modelBuilder.Entity("Entities.Concrete.CPU", b =>
                 {
@@ -81,7 +81,7 @@ namespace DataAccess.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("dba4c197-72f2-4c2a-a751-912919fd7811"),
+                            Id = new Guid("27eac8e5-59bf-41d5-830b-6a5b5131b5b4"),
                             BaseClockSpeed = "3.3 GHz",
                             Brand = "Intel",
                             CacheSize = "12 MB",
@@ -98,7 +98,7 @@ namespace DataAccess.Migrations
                         },
                         new
                         {
-                            Id = new Guid("2716d97e-d59c-4342-916d-a930278b79eb"),
+                            Id = new Guid("44c4e17f-3f9c-433c-b9b5-3b7fbf771154"),
                             BaseClockSpeed = "4.0 GHz",
                             Brand = "AMD",
                             CacheSize = "40 MB",
@@ -115,7 +115,7 @@ namespace DataAccess.Migrations
                         },
                         new
                         {
-                            Id = new Guid("50a85ed7-2761-441d-9fc0-93aecdd1ffca"),
+                            Id = new Guid("d00b83c3-6ef2-422f-88e8-883b95dfd0c0"),
                             BaseClockSpeed = "2.5 GHz",
                             Brand = "Intel",
                             CacheSize = "18 MB",
@@ -132,7 +132,7 @@ namespace DataAccess.Migrations
                         },
                         new
                         {
-                            Id = new Guid("ec4512e8-ccce-48b5-86b1-1888d93c5cee"),
+                            Id = new Guid("1ca9f9a0-cb57-40ed-ab19-31f0bf0a9647"),
                             BaseClockSpeed = "3.7 GHz",
                             Brand = "AMD",
                             CacheSize = "38 MB",
@@ -149,7 +149,7 @@ namespace DataAccess.Migrations
                         },
                         new
                         {
-                            Id = new Guid("4e286288-9e84-40aa-b01b-9f7d6b8c859f"),
+                            Id = new Guid("13cab3be-62ca-4b99-9440-d0748611876d"),
                             BaseClockSpeed = "3.6 GHz",
                             Brand = "Intel",
                             CacheSize = "25 MB",
@@ -166,7 +166,7 @@ namespace DataAccess.Migrations
                         },
                         new
                         {
-                            Id = new Guid("080e60f6-7c67-423f-9396-726f5166384d"),
+                            Id = new Guid("4bbd9ac1-2d10-4746-b66c-8973191466fc"),
                             BaseClockSpeed = "3.7 GHz",
                             Brand = "AMD",
                             CacheSize = "64 MB",
@@ -183,7 +183,7 @@ namespace DataAccess.Migrations
                         },
                         new
                         {
-                            Id = new Guid("e06f3824-7e4d-4b54-b96d-b772ad0b6e6a"),
+                            Id = new Guid("a821c299-0749-4078-be86-e8522132fba7"),
                             BaseClockSpeed = "3.5 GHz",
                             Brand = "Intel",
                             CacheSize = "20 MB",
@@ -200,7 +200,7 @@ namespace DataAccess.Migrations
                         },
                         new
                         {
-                            Id = new Guid("ec8d2113-75a7-4694-bd7e-1e6cefb4ba66"),
+                            Id = new Guid("000fb8a0-bb82-430b-a701-9704d52d62cd"),
                             BaseClockSpeed = "3.5 GHz",
                             Brand = "AMD",
                             CacheSize = "32 MB",
@@ -217,7 +217,7 @@ namespace DataAccess.Migrations
                         },
                         new
                         {
-                            Id = new Guid("a7722d03-3619-4f92-94a6-afd43dc430da"),
+                            Id = new Guid("824663d5-8b1c-4416-9843-c1c2af263e0e"),
                             BaseClockSpeed = "2.5 GHz",
                             Brand = "Intel",
                             CacheSize = "18 MB",
@@ -234,7 +234,7 @@ namespace DataAccess.Migrations
                         },
                         new
                         {
-                            Id = new Guid("08a0c8af-7396-4394-a32b-0ed201760864"),
+                            Id = new Guid("85e953ce-eae2-47e9-9481-28fb9b36d7d7"),
                             BaseClockSpeed = "3.6 GHz",
                             Brand = "AMD",
                             CacheSize = "19 MB",
@@ -251,7 +251,7 @@ namespace DataAccess.Migrations
                         },
                         new
                         {
-                            Id = new Guid("fe96a5bd-f62a-4b0c-84f9-939af5c828c2"),
+                            Id = new Guid("10722dda-ee63-4bdb-9e60-4e4585ce623e"),
                             BaseClockSpeed = "3.3 GHz",
                             Brand = "Intel",
                             CacheSize = "12 MB",
@@ -268,7 +268,7 @@ namespace DataAccess.Migrations
                         },
                         new
                         {
-                            Id = new Guid("861c47c1-b755-4dbd-b4d2-bf5b2c23194f"),
+                            Id = new Guid("657602c4-5a87-4431-ad77-3eb17e2dbc7a"),
                             BaseClockSpeed = "3.8 GHz",
                             Brand = "AMD",
                             CacheSize = "36 MB",
@@ -352,7 +352,7 @@ namespace DataAccess.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("e7daf64c-07c3-4707-b34b-ef4726d0450c"),
+                            Id = new Guid("b7c2d317-ed38-4d0c-9e17-c9fb58a11878"),
                             BaseClockSpeed = "2475 MHz",
                             BoostClockSpeed = "2490 MHz",
                             Brand = "MSI",
@@ -370,7 +370,7 @@ namespace DataAccess.Migrations
                         },
                         new
                         {
-                            Id = new Guid("97a7bd3a-647e-4a47-b27b-85104ec67dfc"),
+                            Id = new Guid("6df2957d-a948-4506-9c86-b26d176f63cc"),
                             BaseClockSpeed = "2400 MHz",
                             BoostClockSpeed = "2600 MHz",
                             Brand = "Gigabyte",
@@ -388,7 +388,7 @@ namespace DataAccess.Migrations
                         },
                         new
                         {
-                            Id = new Guid("0af79d02-9c43-40e7-ac5e-cc8b278d899e"),
+                            Id = new Guid("d51cc6cc-a02b-4980-8513-62177e751fdc"),
                             BaseClockSpeed = "2530 MHz",
                             BoostClockSpeed = "2575 MHz",
                             Brand = "ASUS",
@@ -406,7 +406,7 @@ namespace DataAccess.Migrations
                         },
                         new
                         {
-                            Id = new Guid("89824f68-8f43-4a35-91c3-681740046713"),
+                            Id = new Guid("0e92b88a-d90d-43d2-9bf9-f06093a34e4c"),
                             BaseClockSpeed = "2300 MHz",
                             BoostClockSpeed = "2700 MHz",
                             Brand = "PowerColor",
@@ -424,7 +424,7 @@ namespace DataAccess.Migrations
                         },
                         new
                         {
-                            Id = new Guid("7d20cbad-c22f-4847-9e0a-83226d7dddcd"),
+                            Id = new Guid("ce532c24-81d2-4258-9212-a396d17265b7"),
                             BaseClockSpeed = "1410 MHz",
                             BoostClockSpeed = "1700 MHz",
                             Brand = "EVGA",
@@ -442,7 +442,7 @@ namespace DataAccess.Migrations
                         },
                         new
                         {
-                            Id = new Guid("53ae14f0-9ff6-471d-a1d0-4fcd1e9fb3ca"),
+                            Id = new Guid("2a481176-a2fa-4673-b1ca-feb4040ee676"),
                             BaseClockSpeed = "2580 MHz",
                             BoostClockSpeed = "2670 MHz",
                             Brand = "XFX",
@@ -460,7 +460,7 @@ namespace DataAccess.Migrations
                         },
                         new
                         {
-                            Id = new Guid("2a9622d9-dc98-40fa-84d4-396e947267e1"),
+                            Id = new Guid("946b7c5a-2e29-4f51-b9c3-de11c818630d"),
                             BaseClockSpeed = "1720 MHz",
                             BoostClockSpeed = "1807 MHz",
                             Brand = "PNY",
@@ -478,7 +478,7 @@ namespace DataAccess.Migrations
                         },
                         new
                         {
-                            Id = new Guid("a1beed27-1428-42e3-843d-290fcc9e516b"),
+                            Id = new Guid("04054bab-7e06-4bd4-80e9-6b7fea7260a8"),
                             BaseClockSpeed = "2100 MHz",
                             BoostClockSpeed = "2045 MHz",
                             Brand = "ASRock",
@@ -496,7 +496,7 @@ namespace DataAccess.Migrations
                         },
                         new
                         {
-                            Id = new Guid("67734159-2235-4179-8bbc-fe36c8dbed95"),
+                            Id = new Guid("7307efc2-8541-4a1e-b3f4-1a664629d684"),
                             BaseClockSpeed = "1580 MHz",
                             BoostClockSpeed = "1830 MHz",
                             Brand = "Inno3D",
@@ -514,7 +514,7 @@ namespace DataAccess.Migrations
                         },
                         new
                         {
-                            Id = new Guid("40e077e2-b9a3-4b4c-82ad-d0fcc946ea9d"),
+                            Id = new Guid("0f3f6e76-4d49-459d-af0b-f4ca67d11293"),
                             BaseClockSpeed = "2420 MHz",
                             BoostClockSpeed = "2680 MHz",
                             Brand = "MSI",
@@ -550,34 +550,7 @@ namespace DataAccess.Migrations
 
                     b.HasKey("ImageId");
 
-                    b.HasIndex("ProductId");
-
                     b.ToTable("Images");
-                });
-
-            modelBuilder.Entity("Entities.Concrete.Image", b =>
-                {
-                    b.HasOne("Entities.Concrete.CPU", null)
-                        .WithMany("Images")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Entities.Concrete.GPU", null)
-                        .WithMany("Images")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Entities.Concrete.CPU", b =>
-                {
-                    b.Navigation("Images");
-                });
-
-            modelBuilder.Entity("Entities.Concrete.GPU", b =>
-                {
-                    b.Navigation("Images");
                 });
 #pragma warning restore 612, 618
         }

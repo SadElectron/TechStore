@@ -1,5 +1,4 @@
-﻿using Core.Utils;
-using Entities;
+﻿using Entities;
 using Entities.Concrete;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Sqlite;
@@ -9,6 +8,7 @@ using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
 using static System.Net.WebRequestMethods;
@@ -36,16 +36,7 @@ namespace DataAccess.EntityFramework
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
-            modelBuilder.Entity<GPU>().HasMany(g => g.Images)
-                .WithOne()
-                .HasForeignKey(i => i.ProductId)
-                .IsRequired();
-
-            modelBuilder.Entity<CPU>().HasMany(c => c.Images)
-                .WithOne()
-                .HasForeignKey(i => i.ProductId)
-                .IsRequired();
+                
 
             modelBuilder.Entity<CPU>().HasData(cpuArray);
 

@@ -1,6 +1,6 @@
-﻿@model ImageCpuModel;
+﻿@model ImageUpdateModel;
 
-<h2 class="text-center mb-4">@Model.ToString() Image List</h2>
+<h2 class="text-center mb-4">@Model.ProductName Image List</h2>
 <div class="container">
     <div class="row justify-content-center">
         <table class="table table-hover">
@@ -9,7 +9,7 @@
                     <th scope="col">#</th>
                     <th scope="col">Type</th>
                     <th scope="col">Image</th>
-                    <th scope="col"><a href="../Create" class="btn btn-sm btn-primary" role="button">Add Image</a></th>
+                    <th scope="col"><a href="../Create/@Model.ProductId?productType=@Model.ProductType" class="btn btn-sm btn-primary" role="button">Add Image</a></th>
                     <th scope="col"></th>
                 </tr>
             </thead>
@@ -19,23 +19,22 @@
                 }
                 @foreach (var item in Model.Images)
                 {
-                    <tr>
+                    <tr class="text-center">
                         <th scope="row">@(++i)</th>
                         <td>
-                            <select class="form-select" aria-label="Default select example">
-                                @if (item.Type == false)
-                                {
-                                    <option value="0" selected>Mini</option>
-                                    <option value="1">Large</option>
-                                }else
-                                {
-                                    <option value="0">Mini</option>
-                                    <option value="1" selected>Large</option>
-                                }
 
-                            </select>
+                            @if (item.Type == false)
+                            {
+                                @("Mini")
+                            }
+                            else
+                            {
+                                @("Large")
+                            }
+
+
                         </td>
-                        <td><img src="data:image/png;base64, @item.File"></td>
+                        <td><img class="img-thumbnail mx-auto d-block" style="max-width:200px; height:auto;" src="data:image/jpeg;base64, @Convert.ToBase64String(item.File)"></td>
                         <td>
                             <a href="Image/Delete/@item.ImageId" class="btn btn-sm btn-danger" role="button">Delete</a>
                         </td>

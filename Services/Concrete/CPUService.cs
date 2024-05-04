@@ -47,9 +47,5 @@ namespace Services.Concrete
             return _cpudal.GetRecordCountAsync();
         }
 
-        public Task<CPU> GetWithImagesAsync(Guid id)
-        {
-            return _cpudal.GetWithImagesAsync(c => c.Id == id);
-        }
     }
 }

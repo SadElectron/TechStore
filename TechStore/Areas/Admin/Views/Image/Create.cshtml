@@ -1,15 +1,15 @@
-﻿@model Entities.Concrete.Image
+﻿@model ImageCreateModel
 
 @{
     ViewData["Title"] = "Create";
 }
 
-<h2 class="text-center mb-4">Create CPU</h2>
+<h2 class="text-center mb-4">Create Image</h2>
 <div class="container">
     <div class="row justify-content-center">
         <form asp-action="Create" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
+            <input type="text" name="ProductType" value="@Model.ProductType" hidden/>
             <div class="mb-3 row">
                 <label asp-for="ProductId" class="col-3 form-label"></label>
                 <div class="col-9">
@@ -19,18 +19,20 @@
             </div>
 
             <div class="mb-3 row">
-                <label asp-for="Type" class="col-3 form-label"></label>
+                <label asp-for="ImageType" class="col-3 form-label"></label>
                 <div class="col-9">
-                    <input asp-for="Type" class="form-control" />
-                    <span asp-validation-for="Type" class="text-danger"></span>
+                    <select name="ImageType" id="ImageType" class="form-select" aria-label="Select Image Type">
+                        <option value="false" selected>Small</option>
+                        <option value="true">Large</option>
+                    </select>
+                    <span asp-validation-for="ImageType" class="text-danger"></span>
                 </div>
             </div>
 
             <div class="mb-3 row">
-                <label asp-for="File" class="col-3 form-label"></label>
+                <label for="Files" class="col-3 form-label">Files</label>
                 <div class="col-9">
-                    <input type="file" name="File" id="File" class="form-control" multiple/>
-                    <span asp-validation-for="File" class="text-danger"></span>
+                    <input type="file" name="Files" id="Files" class="form-control" multiple/>
                 </div>
             </div>        
             <div class="mb-3 row">
