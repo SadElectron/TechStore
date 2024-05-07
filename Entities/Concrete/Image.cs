@@ -9,9 +9,9 @@ namespace Entities.Concrete
 {
     public class Image : IEntity
     {
-        public Guid ImageId { get; set; }
+        public Guid Id { get; set; }
         public Guid ProductId { get; set; }
-        public bool Type { get; set; }
+        public Thumbnail? Thumbnail { get; set; }
         public required byte[] File{ get; set; }
     }
 }

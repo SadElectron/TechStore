@@ -21,6 +21,7 @@ namespace DataAccess.EntityFramework
         public DbSet<GPU> GPUs { get; set; }
         public DbSet<CPU> CPUs { get; set; }
         public DbSet<Image> Images { get; set; }
+        public DbSet<Thumbnail> Thumbnails { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -36,7 +37,11 @@ namespace DataAccess.EntityFramework
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-                
+
+            modelBuilder.Entity<Image>().HasOne(i => i.Thumbnail)
+                .WithOne(t => t.Image)
+                .HasForeignKey<Thumbnail>(t => t.ImageId)
+                .IsRequired(false);
 
             modelBuilder.Entity<CPU>().HasData(cpuArray);
 

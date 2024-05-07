@@ -3,8 +3,7 @@ using Entities.Concrete;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services.Abstract;
-using TechStore.Models;
-using System.IO;
+using TechStore.Areas.Admin.Models;
 
 namespace TechStore.Areas.Admin.Controllers
 {

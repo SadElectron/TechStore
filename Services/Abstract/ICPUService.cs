@@ -11,7 +11,7 @@ namespace Services.Abstract
     {
         public Task<List<CPU>> GetAllAsync();
         public Task<CPU> GetByIdAsync(Guid id);
-        public Task AddAsync(CPU entity);
+        public Task<CPU> AddAsync(CPU entity);
         public Task UpdateAsync(CPU entity);
         public Task DeleteAsync(CPU entity);
         public Task<int> GetRecordCountAsync();

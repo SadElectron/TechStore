@@ -1,4 +1,4 @@
-﻿@model Entities.Concrete.CPU
+﻿@model CpuModel
 
 @{
     ViewData["Title"] = "Create";
@@ -7,97 +7,105 @@
 <h2 class="text-center mb-4">Create CPU</h2>
 <div class="container">
     <div class="row justify-content-center">
-        <form asp-action="Create">
+        <form asp-action="Create" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="mb-3 row">
-                <label asp-for="Brand" class="col-3 form-label"></label>
+                <label asp-for="Cpu.Brand" class="col-3 form-label"></label>
                 <div class="col-9">
-                    <input asp-for="Brand" class="form-control" />
-                    <span asp-validation-for="Brand" class="text-danger"></span>
+                    <input asp-for="Cpu.Brand" class="form-control" />
+                    <span asp-validation-for="Cpu.Brand" class="text-danger"></span>
                 </div>
             </div>
             <div class="mb-3 row">
-                <label asp-for="ModelName" class="col-3 form-label"></label>
+                <label asp-for="Cpu.ModelName" class="col-3 form-label"></label>
                 <div class="col-9">
-                    <input asp-for="ModelName" class="form-control" />
-                    <span asp-validation-for="ModelName" class="text-danger"></span>
+                    <input asp-for="Cpu.ModelName" class="form-control" />
+                    <span asp-validation-for="Cpu.ModelName" class="text-danger"></span>
                 </div>
             </div>
             <div class="mb-3 row">
-                <label asp-for="CoreCount" class="col-3 form-label"></label>
+                <label asp-for="Cpu.CoreCount" class="col-3 form-label"></label>
                 <div class="col-9">
-                    <input asp-for="CoreCount" class="form-control" />
-                    <span asp-validation-for="CoreCount" class="text-danger"></span>
+                    <input asp-for="Cpu.CoreCount" class="form-control" />
+                    <span asp-validation-for="Cpu.CoreCount" class="text-danger"></span>
                 </div>
             </div>
             <div class="mb-3 row">
-                <label asp-for="ThreadCount" class="col-3 form-label"></label>
+                <label asp-for="Cpu.ThreadCount" class="col-3 form-label"></label>
                 <div class="col-9">
-                    <input asp-for="ThreadCount" class="form-control" />
-                    <span asp-validation-for="ThreadCount" class="text-danger"></span>
+                    <input asp-for="Cpu.ThreadCount" class="form-control" />
+                    <span asp-validation-for="Cpu.ThreadCount" class="text-danger"></span>
                 </div>
             </div>
             <div class="mb-3 row">
-                <label asp-for="BaseClockSpeed" class="col-3 form-label"></label>
+                <label asp-for="Cpu.BaseClockSpeed" class="col-3 form-label"></label>
                 <div class="col-9">
-                    <input asp-for="BaseClockSpeed" class="form-control" />
-                    <span asp-validation-for="BaseClockSpeed" class="text-danger"></span>
+                    <input asp-for="Cpu.BaseClockSpeed" class="form-control" />
+                    <span asp-validation-for="Cpu.BaseClockSpeed" class="text-danger"></span>
                 </div>
             </div>
             <div class="mb-3 row">
-                <label asp-for="MaxTurboFrequency" class="col-3 form-label"></label>
+                <label asp-for="Cpu.MaxTurboFrequency" class="col-3 form-label"></label>
                 <div class="col-9">
-                    <input asp-for="MaxTurboFrequency" class="form-control" />
-                    <span asp-validation-for="MaxTurboFrequency" class="text-danger"></span>
+                    <input asp-for="Cpu.MaxTurboFrequency" class="form-control" />
+                    <span asp-validation-for="Cpu.MaxTurboFrequency" class="text-danger"></span>
                 </div>
             </div>
             <div class="mb-3 row">
-                <label asp-for="CacheSize" class="col-3 form-label"></label>
+                <label asp-for="Cpu.CacheSize" class="col-3 form-label"></label>
                 <div class="col-9">
-                    <input asp-for="CacheSize" class="form-control" />
-                    <span asp-validation-for="CacheSize" class="text-danger"></span>
+                    <input asp-for="Cpu.CacheSize" class="form-control" />
+                    <span asp-validation-for="Cpu.CacheSize" class="text-danger"></span>
                 </div>
             </div>
             <div class="mb-3 row">
-                <label asp-for="SocketType" class="col-3 form-label"></label>
+                <label asp-for="Cpu.SocketType" class="col-3 form-label"></label>
                 <div class="col-9">
-                    <input asp-for="SocketType" class="form-control" />
-                    <span asp-validation-for="SocketType" class="text-danger"></span>
+                    <input asp-for="Cpu.SocketType" class="form-control" />
+                    <span asp-validation-for="Cpu.SocketType" class="text-danger"></span>
                 </div>
             </div>
             <div class="mb-3 row">
-                <label asp-for="IntegratedGraphics" class="col-3 form-label"></label>
+                <label asp-for="Cpu.IntegratedGraphics" class="col-3 form-label"></label>
                 <div class="col-9">
-                    <input asp-for="IntegratedGraphics" class="form-control" />
-                    <span asp-validation-for="IntegratedGraphics" class="text-danger"></span>
+                    <input asp-for="Cpu.IntegratedGraphics" class="form-control" />
+                    <span asp-validation-for="Cpu.IntegratedGraphics" class="text-danger"></span>
                 </div>
             </div>
             <div class="mb-3 row">
-                <label asp-for="MemorySupport" class="col-3 form-label"></label>
+                <label asp-for="Cpu.MemorySupport" class="col-3 form-label"></label>
                 <div class="col-9">
-                    <input asp-for="MemorySupport" class="form-control" />
-                    <span asp-validation-for="MemorySupport" class="text-danger"></span>
+                    <input asp-for="Cpu.MemorySupport" class="form-control" />
+                    <span asp-validation-for="Cpu.MemorySupport" class="text-danger"></span>
                 </div>
             </div>
             <div class="mb-3 row">
-                <label asp-for="Tdp" class="col-3 form-label"></label>
+                <label asp-for="Cpu.Tdp" class="col-3 form-label"></label>
                 <div class="col-9">
-                    <input asp-for="Tdp" class="form-control" />
-                    <span asp-validation-for="Tdp" class="text-danger"></span>
+                    <input asp-for="Cpu.Tdp" class="form-control" />
+                    <span asp-validation-for="Cpu.Tdp" class="text-danger"></span>
                 </div>
             </div>
             <div class="mb-3 row">
-                <label asp-for="LaunchDate" class="col-3 form-label"></label>
+                <label asp-for="Cpu.LaunchDate" class="col-3 form-label"></label>
                 <div class="col-9">
-                    <input asp-for="LaunchDate" class="form-control" />
-                    <span asp-validation-for="LaunchDate" class="text-danger"></span>
+                    <input asp-for="Cpu.LaunchDate" class="form-control" />
+                    <span asp-validation-for="Cpu.LaunchDate" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="mb-3 row">
+                <label asp-for="Images" class="col-3 form-label"></label>
+                <div class="col-9">
+                    <input class="form-control" type="file" name="Images" id="Images" multiple/>
+                    <span asp-validation-for="Images" class="text-danger"></span>
                 </div>
             </div>
             <div class="mb-3 row">
-                <label asp-for="Price" class="col-3 form-label"></label>
+                <label asp-for="Cpu.Price" class="col-3 form-label"></label>
                 <div class="col-9">
-                    <input asp-for="Price" class="form-control" />
-                    <span asp-validation-for="Price" class="text-danger"></span>
+                    <input asp-for="Cpu.Price" class="form-control" />
+                    <span asp-validation-for="Cpu.Price" class="text-danger"></span>
                 </div>
             </div>
             <div class="mb-3 row">

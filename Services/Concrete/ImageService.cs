@@ -23,9 +23,16 @@ namespace Services.Concrete
             return _imageDal.AddAsync(entity);
         }
 
+        public Task<List<Image>> BulkAddAsync(List<Image> Images)
+        {
+            return _imageDal.BulkAddAsync(Images);
+        }
+
         public async Task<int> DeleteAsync(Guid id)
         {
-            var image = await _imageDal.GetAsync<Image>(i => i.ImageId == id);
+            var image = await _imageDal.GetAsync(i => i.Id == id);
+            
+            
 
             return await _imageDal.DeleteAsync(image);
         }
@@ -35,9 +42,9 @@ namespace Services.Concrete
             return _imageDal.GetAllAsync(filter);
         }
 
-        public Task<Image> GetAsync(Expression<Func<Image, bool>> filter)
+        public Task<Image?> GetAsync(Guid id)
         {
-            throw new NotImplementedException();
+            return _imageDal.GetAsync(i => i.Id == id);
         }
 
         public Task<int> GetRecordCountAsync<Image>()

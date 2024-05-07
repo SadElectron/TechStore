@@ -17,7 +17,7 @@ namespace Services.Concrete
         {
             _cpudal = cpudal;
         }
-        public Task AddAsync(CPU entity)
+        public Task<CPU> AddAsync(CPU entity)
         {
             return _cpudal.AddAsync(entity);
         }

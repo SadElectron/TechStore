@@ -27,8 +27,9 @@ namespace TechStore
             builder.Services.AddScoped<IEntityFrameworkService, EntityFrameworkService>();
 
             builder.Services.AddSingleton<CPUValidator>();
+            builder.Services.AddSingleton<GPUValidator>();
 
-            
+
 
 
             var app = builder.Build();

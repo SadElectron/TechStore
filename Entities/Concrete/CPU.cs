@@ -13,26 +13,19 @@ namespace Entities.Concrete
         [Key]
         public Guid Id { get; set; }
 
-        
         public required string Brand { get; set; }
 
-        
         public required string ModelName { get; set; }
 
-        
         public int CoreCount { get; set; }
 
-        
         public int ThreadCount { get; set; }
-
         
         public required string BaseClockSpeed { get; set; } 
 
         public required string MaxTurboFrequency { get; set; } 
-
         
         public required string CacheSize { get; set; }
-
         
         public required string SocketType { get; set; }
 

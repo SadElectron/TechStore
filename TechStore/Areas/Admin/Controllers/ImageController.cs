@@ -1,9 +1,8 @@
 ﻿using Entities.Abstract;
+using Entities.Concrete;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Services.Abstract;
-using System.Drawing;
 using TechStore.Areas.Admin.Models;
 using TechStore.Areas.Admin.Models.Image;
 
@@ -14,20 +13,18 @@ namespace TechStore.Areas.Admin.Controllers
     {
         private readonly ILogger<ImageController> _logger;
         private readonly IImageService _imageService;
-        private readonly ICPUService _cpuService;
 
-        public ImageController(ILogger<ImageController> logger, IImageService imageService, ICPUService cpuService)
+        public ImageController(ILogger<ImageController> logger, IImageService imageService)
         {
             _logger = logger;
             _imageService = imageService;
-            _cpuService = cpuService;
         }
 
         // GET: Admin/Image
         [HttpGet("[Controller]/id")]
         public async Task<IActionResult> GetImage(Guid id)
         {
-            var image = await _imageService.GetAsync(i => i.ImageId == id);
+            var image = await _imageService.GetAsync(id);
 
             if (image == null)
             {
@@ -37,108 +34,43 @@ namespace TechStore.Areas.Admin.Controllers
             return File(image.File, "image/png");
         }
 
-
-
-        // GET: Admin/Image/Create/{id}
-        public IActionResult Create(Guid id, string productType)
+        public async Task<IActionResult> Delete(Guid id)
         {
-            if (!id.Equals(Guid.Empty))
+            var image = await _imageService.GetAsync(id);
+            if(image == null)
             {
-                var image = new ImageCreateModel(id, false, productType);
-                
-                return View(image);
+                return NotFound();
             }
-            return BadRequest();
+            await _imageService.DeleteAsync(id);
+            return Ok();
         }
+
 
         // POST: Admin/Image/Create
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(ImageCreateModel collection, IFormFileCollection Files)
+        public async Task<IActionResult> Create(Guid productId, IFormFileCollection Files)
         {
-            if (!collection.ProductId.Equals(Guid.Empty))
+            if (!productId.Equals(Guid.Empty) && Files.Count > 0)
             {
-                
+                var imageList = new List<Image>();
                 foreach (var file in Files)
                 {
                     var meoryStream = new MemoryStream();
                     await file.CopyToAsync(meoryStream);
                     var imageArray = meoryStream.ToArray();
-                    var image = new Entities.Concrete.Image { 
-                        ProductId = collection.ProductId,
-                        Type = collection.ImageType,
-                        File = imageArray
-                    };
-                    await _imageService.AddAsync(image);
-                    
+                    imageList.Add(new Image { 
+                        ProductId = productId,
+                        File = imageArray,
+                        Thumbnail = null
+                    });
+                                     
                 }
-                return RedirectToAction("Update", new {id = collection.ProductId, productType = collection.ProductType});
+                await _imageService.BulkAddAsync(imageList);
+                return Created(string.Empty, imageList);
             }
 
-            return BadRequest(collection);
-        }
-
-        // GET: Admin/Image/Update/5
-        [HttpGet("Admin/Image/Update/{id}")]
-        public async Task<IActionResult> Update(Guid id, string productType)
-        {
-            var imageUpdateModel = new ImageUpdateModel();
-            switch (productType.ToLower())
-            {
-                case "cpu":
-                    var cpu = await _cpuService.GetByIdAsync(id);
-                    var images = await _imageService.GetAllAsync(i  => i.ProductId == id);
-                    imageUpdateModel.ProductId = id;
-                    imageUpdateModel.ProductName = $"{cpu.Brand} {cpu.ModelName}";
-                    imageUpdateModel.ProductType = productType;
-                    imageUpdateModel.Images = images;
-                    return View(imageUpdateModel);
-                    
-                case "gpu":
-
-                    break;
-
-                default:
-                    break;
-            }
-            
             return BadRequest();
         }
-
-        // POST: Admin/Image/Update/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Update(Guid id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        // GET: Admin/Image/Delete/5
-        public IActionResult Delete(Guid id)
-        {
-            return View();
-        }
-
-        // POST: Admin/Image/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Delete(Guid id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
+        
     }
 }

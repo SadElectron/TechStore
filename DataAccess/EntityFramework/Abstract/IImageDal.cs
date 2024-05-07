@@ -10,5 +10,6 @@ namespace DataAccess.EntityFramework.Abstract
 {
     public interface IImageDal : IEfDbContextBase<Image>
     {
+        Task<List<Image>> BulkAddAsync(List<Image> Images);
     }
 }

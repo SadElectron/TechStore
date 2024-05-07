@@ -9,12 +9,14 @@ using DataAccess.EntityFramework;
 using Entities.Concrete;
 using Services.Abstract;
 using SQLitePCL;
+using Services.Validation;
 
 namespace TechStore.Areas.Admin.Controllers
 {
     public class GPUController : Controller
     {
         private readonly IGPUService _gpuService;
+        private readonly GPUValidator _gpuValidator;
 
         public GPUController(IGPUService gPUService)
         {
@@ -57,15 +59,15 @@ namespace TechStore.Areas.Admin.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Brand,ModelName,Chipset,VramSize,VramType,BaseClockSpeed,BoostClockSpeed,MemoryBusWidth,Tdp,PowerConnectors,Interface,DisplayPorts,LaunchDate,Price")] GPU gPU)
+        public async Task<IActionResult> Create(GPU gpu)
         {
-            if (ModelState.IsValid)
+            var validationResult = _gpuValidator.Validate(gpu);
+            if (validationResult.IsValid)
             {
-                gPU.Id = Guid.NewGuid();
-                await _gpuService.AddAsync(gPU);
+                await _gpuService.AddAsync(gpu);
                 return RedirectToAction(nameof(Index));
             }
-            return View(gPU);
+            return BadRequest(validationResult.ToString());
         }
 
         // GET: GPU/Edit/5

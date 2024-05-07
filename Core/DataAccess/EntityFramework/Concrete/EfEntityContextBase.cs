@@ -25,21 +25,21 @@ namespace Core.DataAccess.EntityFramework.Concrete
             }
         }
 
-        public Task<U> GetAsync<U>(Expression<Func<U, bool>> filter) where U : class, IEntity
+        public Task<TEntity?> GetAsync(Expression<Func<TEntity, bool>> filter)
         {
             using (var context = new TContext())
             {
-                return context.Set<U>().SingleOrDefaultAsync(filter);
+                return context.Set<TEntity>().SingleOrDefaultAsync(filter);
             }
         }
 
-        public Task AddAsync(TEntity entity)
+        public async Task<TEntity> AddAsync(TEntity entity)
         {
             using (var context = new TContext())
             {
-                var addedEntity = context.Entry(entity);
-                addedEntity.State = EntityState.Added;
-                return context.SaveChangesAsync();
+                var addedEntity = await context.Set<TEntity>().AddAsync(entity);
+                await context.SaveChangesAsync();
+                return addedEntity.Entity;
             }
         }
 

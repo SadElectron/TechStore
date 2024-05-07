@@ -1,9 +1,9 @@
 ﻿using Entities.Concrete;
-using Microsoft.AspNetCore.Http;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Services.Abstract;
 using Services.Validation;
-using TechStore.Models;
+using TechStore.Areas.Admin.Models.Cpu;
 
 namespace TechStore.Areas.Admin.Controllers
 {
@@ -36,41 +36,72 @@ namespace TechStore.Areas.Admin.Controllers
         // POST: Admin/CPUController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CPU cpu)
+        public async Task<IActionResult> Create([FromServices]IImageService imageService, CpuModel cpuModel, IFormFileCollection Images)
+        {
+            
+            
+            var cpuValidationResult = _cpuValidator.Validate(cpuModel.Cpu);
+            if (cpuValidationResult.IsValid)
+            {
+                var addedCpuModel = new CpuModel();
+                addedCpuModel.Cpu = await _cpuService.AddAsync(cpuModel.Cpu);
+                if (Images != null)
+                {
+                    var imageEntities = new List<Image>();
+                    foreach (var image in Images)
+                    {
+                        MemoryStream ms = new();
+                        image.CopyTo(ms);
+                        imageEntities.Add(new Image {
+                            ProductId = addedCpuModel.Cpu.Id,
+                            File = ms.ToArray(),
+                            Thumbnail = null
+                        });
+                    }
+                    addedCpuModel.Images = await imageService.BulkAddAsync(imageEntities);
+                }
+                return RedirectToAction("Details", addedCpuModel);
+
+            }
+
+            return BadRequest(cpuValidationResult.Errors.Select(f => f.ErrorMessage).ToList());
+            
+        }
+        public IActionResult Details(CPU cpu)
         {
             var validationResult = _cpuValidator.Validate(cpu);
             if (validationResult.IsValid)
-            {                
-                await _cpuService.AddAsync(cpu);
-                return RedirectToAction("Details", cpu);
+            {
+                return View(cpu);
             }
-            return BadRequest(validationResult.ToString());
-            
+            return BadRequest(validationResult.Errors);
         }
 
         // GET: Admin/CPU/Update/5
-        public async Task<IActionResult> Update(Guid id)
+        public async Task<IActionResult> Update([FromServices]IImageService imageService, Guid id)
         {
             
             var cpu = await _cpuService.GetByIdAsync(id);
-            if(cpu == null)
+            if (cpu == null)
             {
                 return NotFound();
             }
+            var images = await imageService.GetAllAsync(i => i.ProductId == id);
+            var model = new CpuModel { Cpu = cpu, Images = images };
             
-            return View(cpu);
+            return View(model);
         }
 
         // POST: Admin/CPUController/Update/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Update(CPU cpu)
+        public async Task<IActionResult> Update(CpuModel cpuModel, IFormFileCollection Images)
         {
-            var validationResult = _cpuValidator.Validate(cpu);
+            var validationResult = _cpuValidator.Validate(cpuModel.Cpu);
             if (validationResult.IsValid)
             {
-                await _cpuService.UpdateAsync(cpu);
-                return RedirectToAction("Update", cpu);
+                await _cpuService.UpdateAsync(cpuModel.Cpu);
+                return RedirectToAction("Update", cpuModel);
             }
             return BadRequest(validationResult.ToString());
         }
@@ -81,7 +112,7 @@ namespace TechStore.Areas.Admin.Controllers
             var cpu = await _cpuService.GetByIdAsync(id);
             if (cpu == null)
             {
-                return NotFound();
+                return BadRequest();
             }
 
             return View(cpu);

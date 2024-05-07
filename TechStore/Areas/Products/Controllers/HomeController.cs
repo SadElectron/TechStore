@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using TechStore.Models;
 
+
 namespace TechStore.Areas.Products.Controllers
 {
     [Area("Products")]

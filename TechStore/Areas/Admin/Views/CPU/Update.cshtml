@@ -1,96 +1,142 @@
-﻿@model Entities.Concrete.CPU
+﻿@model CpuModel
 <h2 class="text-center mb-4">Update Cpu</h2>
 <div class="container">
     <div class="row justify-content-center">
         <form asp-action="Update">
             <div class="mb-3 row">
-                <input type="hidden" class="form-control" id="Id" name="id" value="@Model.Id">
+                <input type="hidden" class="form-control" id="Id" name="id" value="@Model.Cpu.Id">
             </div>
             <div class="mb-3 row">
                 <label for="Brand" class="col-3 form-label">Brand</label>
                 <div class="col-9">
-                    <input asp-for="Brand" class="form-control"  value="@Model.Brand">
+                    <input asp-for="@Model.Cpu.Brand" class="form-control" value="@Model.Cpu.Brand">
                 </div>
             </div>
             <div class="mb-3 row">
                 <label for="Model" class="col-3 form-label">Model</label>
                 <div class="col-9">
-                    <input asp-for="ModelName" class="form-control" value="@Model.ModelName">
+                    <input asp-for="@Model.Cpu.ModelName" class="form-control" value="@Model.Cpu.ModelName">
                 </div>
             </div>
             <div class="mb-3 row">
                 <label for="CoreCount" class="col-3 form-label">Core count</label>
                 <div class="col-9">
-                    <input asp-for="CoreCount" class="form-control"  value="@Model.CoreCount">
+                    <input asp-for="@Model.Cpu.CoreCount" class="form-control" value="@Model.Cpu.CoreCount">
                 </div>
             </div>
             <div class="mb-3 row">
                 <label for="ThreadCount" class="col-3 form-label">Thread count</label>
                 <div class="col-9">
-                    <input asp-for="ThreadCount" class="form-control"  value="@Model.ThreadCount">
+                    <input asp-for="@Model.Cpu.ThreadCount" class="form-control" value="@Model.Cpu.ThreadCount">
                 </div>
             </div>
             <div class="mb-3 row">
                 <label for="BaseClockSpeed" class="col-3 form-label">Base clock speed</label>
                 <div class="col-9">
-                    <input asp-for="BaseClockSpeed" class="form-control"  value="@Model.BaseClockSpeed">
+                    <input asp-for="@Model.Cpu.BaseClockSpeed" class="form-control" value="@Model.Cpu.BaseClockSpeed">
                 </div>
             </div>
             <div class="mb-3 row">
                 <label for="MaxTurboFrequency" class="col-3 form-label">Max turbo frequency</label>
                 <div class="col-9">
-                    <input asp-for="MaxTurboFrequency" class="form-control" value="@Model.MaxTurboFrequency">
+                    <input asp-for="@Model.Cpu.MaxTurboFrequency" class="form-control" value="@Model.Cpu.MaxTurboFrequency">
                 </div>
             </div>
             <div class="mb-3 row">
                 <label for="CacheSize" class="col-3 form-label">Cache size</label>
                 <div class="col-9">
-                    <input asp-for="CacheSize" class="form-control" value="@Model.CacheSize">
+                    <input asp-for="@Model.Cpu.CacheSize" class="form-control" value="@Model.Cpu.CacheSize">
                 </div>
             </div>
             <div class="mb-3 row">
                 <label for="SocketType" class="col-3 form-label">Socket type</label>
                 <div class="col-9">
-                    <input asp-for="SocketType" class="form-control" value="@Model.SocketType">
+                    <input asp-for="@Model.Cpu.SocketType" class="form-control" value="@Model.Cpu.SocketType">
                 </div>
             </div>
             <div class="mb-3 row">
                 <label for="IntegratedGraphics" class="col-3 form-label">Integrated graphics</label>
                 <div class="col-9">
-                    <input asp-for="IntegratedGraphics" class="form-control"  value="@Model.IntegratedGraphics">
+                    <input asp-for="@Model.Cpu.IntegratedGraphics" class="form-control" value="@Model.Cpu.IntegratedGraphics">
                 </div>
             </div>
             <div class="mb-3 row">
                 <label for="MemorySupport" class="col-3 form-label">Memory support</label>
                 <div class="col-9">
-                    <input asp-for="MemorySupport" class="form-control" value="@Model.MemorySupport">
+                    <input asp-for="@Model.Cpu.MemorySupport" class="form-control" value="@Model.Cpu.MemorySupport">
                 </div>
             </div>
             <div class="mb-3 row">
                 <label for="Tdp" class="col-3 form-label">Tdp</label>
                 <div class="col-9">
-                    <input asp-for="Tdp" class="form-control" value="@Model.Tdp">
+                    <input asp-for="@Model.Cpu.Tdp" class="form-control" value="@Model.Cpu.Tdp">
                 </div>
             </div>
             <div class="mb-3 row">
                 <label for="LaunchDate" class="col-3 form-label">Launch date</label>
                 <div class="col-9">
-                    <input asp-for="LaunchDate" class="form-control" value="@Model.LaunchDate">
+                    <input asp-for="@Model.Cpu.LaunchDate" class="form-control" value="@Model.Cpu.LaunchDate">
                 </div>
             </div>
             <div class="mb-3 row">
                 <label for="Price" class="col-3 col-3 form-label">Price</label>
                 <div class="col-9">
-                    <input asp-for="Price" class="form-control" value="@Model.Price">
+                    <input asp-for="@Model.Cpu.Price" class="form-control" value="@Model.Cpu.Price">
                 </div>
             </div>
-
-            
             <div class="mb-3 row">
                 <button type="submit" class="btn btn-primary">Update</button>
             </div>
-
         </form>
+            <!--Images-->
+            <div class="mb-3 row">
+                <div class="accordion" id="accordionPanelsStayOpenExample">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
+                                Images
+                            </button>
+                        </h2>
+                        <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse">
+                            <div class="accordion-body">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">#</th>
+                                            <th scope="col">Id</th>
+                                            <th scope="col">Image</th>
+                                            <th scope="col"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @{
+                                            if (Model.Images != null)
+                                            {
+                                                int i = 0;
+                                                foreach (var image in Model.Images)
+                                                {
+
+                                                    <tr>
+                                                        <th scope="row">@(i++)</th>
+                                                        <td>@image.Id</td>
+                                                        <td><img src="data:image /jpeg;base64,@Convert.ToBase64String(image.File)" style="max-width:100px; height:auto" alt="Image" /></td>
+                                                    <td><button class="btn btn-danger" id="DeleteImageButton" onclick="DeleteImage(event,'@image.Id')">Delete</button></td>
+                                                    </tr>
+                                                }
+                                            }
+                                        }
+
+                                    </tbody>
+                                </table>
+                                <div class="row mb-3">
+                                <button class="btn btn-primary" id="AddImage">Add Image</button>
+                                </div>
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>      
 
     </div>
 
