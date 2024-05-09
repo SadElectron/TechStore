@@ -4,7 +4,7 @@
     <div class="row justify-content-center">
         <form asp-action="Update">
             <div class="mb-3 row">
-                <input type="hidden" class="form-control" id="Id" name="id" value="@Model.Cpu.Id">
+                <input type="hidden" class="form-control" id="Cpu_Id" name="Cpu.Id" value="@Model.Cpu.Id">
             </div>
             <div class="mb-3 row">
                 <label for="Brand" class="col-3 form-label">Brand</label>
@@ -99,7 +99,7 @@
                         </h2>
                         <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse">
                             <div class="accordion-body">
-                                <table class="table">
+                                <table id="ImageTable" class="table">
                                     <thead>
                                         <tr>
                                             <th scope="col">#</th>

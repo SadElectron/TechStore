@@ -13,93 +13,93 @@
             <table class="table table-hover">
                 <thead>
                     <tr>
-                        <th>Row Number</th>
-                        <th>Property Name</th>
+                        <th>#</th>
+                        <th>Name</th>
                         <th>Value</th>
                     </tr>
                 </thead>
                 <tbody>
                     <!-- Row 1: ID -->
                     <tr>
-                        <td>1</td>
+                        <th scope="row">1</th>
                         <td>ID</td>
                         <td>@Model.Cpu.Id</td>
                     </tr>
                     <!-- Row 2: Brand -->
                     <tr>
-                        <td>2</td>
+                        <th scope="row">2</th>
                         <td>Brand</td>
                         <td>@Model.Cpu.Brand</td>
                     </tr>
                     <!-- Row 3: Model Name -->
                     <tr>
-                        <td>3</td>
+                        <th scope="row">3</th>
                         <td>Model Name</td>
                         <td>@Model.Cpu.ModelName</td>
                     </tr>
                     <!-- Row 4: Core Count -->
                     <tr>
-                        <td>4</td>
+                        <th scope="row">4</th>
                         <td>Core Count</td>
                         <td>@Model.Cpu.CoreCount</td>
                     </tr>
                     <!-- Row 5: Thread Count -->
                     <tr>
-                        <td>5</td>
+                        <th scope="row">5</th>
                         <td>Thread Count</td>
                         <td>@Model.Cpu.ThreadCount</td>
                     </tr>
                     <!-- Row 6: Base Clock Speed -->
                     <tr>
-                        <td>6</td>
+                        <th scope="row">6</th>
                         <td>Base Clock Speed</td>
                         <td>@Model.Cpu.BaseClockSpeed</td>
                     </tr>
                     <!-- Row 7: Max Turbo Frequency -->
                     <tr>
-                        <td>7</td>
+                        <th scope="row">7</th>
                         <td>Max Turbo Frequency</td>
                         <td>@Model.Cpu.MaxTurboFrequency</td>
                     </tr>
                     <!-- Row 8: Cache Size -->
                     <tr>
-                        <td>8</td>
+                        <th scope="row">8</th>
                         <td>Cache Size</td>
                         <td>@Model.Cpu.CacheSize</td>
                     </tr>
                     <!-- Row 9: Socket Type -->
                     <tr>
-                        <td>9</td>
+                        <th scope="row">9</th>
                         <td>Socket Type</td>
                         <td>@Model.Cpu.SocketType</td>
                     </tr>
                     <!-- Row 10: Integrated Graphics -->
                     <tr>
-                        <td>10</td>
+                        <th scope="row">10</th>
                         <td>Integrated Graphics</td>
                         <td>@Model.Cpu.IntegratedGraphics</td>
                     </tr>
                     <!-- Row 11: Memory Support -->
                     <tr>
-                        <td>11</td>
+                        <th scope="row">11</th>
                         <td>Memory Support</td>
                         <td>@Model.Cpu.MemorySupport</td>
                     </tr>
                     <!-- Row 12: TDP -->
                     <tr>
-                        <td>12</td>
+                        <th scope="row">12</th>
                         <td>TDP</td>
                         <td>@Model.Cpu.Tdp</td>
                     </tr>
                     <!-- Row 13: Launch Date -->
                     <tr>
-                        <td>13</td>
+                        <th scope="row">13</th>
                         <td>Launch Date</td>
                         <td>@Model.Cpu.LaunchDate</td>
                     </tr>
                     <!-- Row 14: Price -->
                     <tr>
-                        <td>14</td>
+                        <th scope="row">14</th>
                         <td>Price</td>
                         <td>@Model.Cpu.Price</td>
                     </tr>
@@ -119,14 +119,13 @@
                         </h2>
                         <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse">
                             <div class="accordion-body">
-                                <table class="table">
+                                <table class="table table-hover">
                                     <thead>
                                         <tr>
                                             <th scope="col">#</th>
                                             <th scope="col">Id</th>
                                             <th scope="col">Image</th>
-                                            <th scope="col">File</th>
-                                            <th scope="col"></th>
+
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -138,11 +137,10 @@
                                                 {
 
                                                     <tr>
-                                                        <th scope="row">@i++;</th>
+                                                        <th scope="row">@(++i)</th>
                                                         <td>@image.Id</td>
                                                         <td><img src="data:image /jpeg;base64,@Convert.ToBase64String(image.File)" style="max-width:100px; height:auto" alt="Image" /></td>
-                                                        <td><input type="file" class="form-control" name="Images" /></td>
-                                                        <td><a class="btn btn-danger" href="">Delete</a></td>
+
                                                     </tr>
                                                 }
                                             }
@@ -150,7 +148,6 @@
 
                                     </tbody>
                                 </table>
-                                <a class="btn btn-primary" href="">Add Image</a>
                             </div>
                         </div>
                     </div>
@@ -163,7 +160,7 @@
         
     </div>
     <div>
-        <a asp-action="Edit" asp-route-id="@Model.Cpu.Id">Edit</a> |
+        <a asp-action="Update" asp-route-id="@Model.Cpu.Id">Edit</a> |
         <a asp-action="Index">Back to List</a>
     </div>
 </div>

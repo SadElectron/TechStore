@@ -39,7 +39,6 @@ namespace TechStore.Areas.Admin.Controllers
         public async Task<IActionResult> Create([FromServices]IImageService imageService, CpuModel cpuModel, IFormFileCollection Images)
         {
             
-            
             var cpuValidationResult = _cpuValidator.Validate(cpuModel.Cpu);
             if (cpuValidationResult.IsValid)
             {
@@ -60,19 +59,20 @@ namespace TechStore.Areas.Admin.Controllers
                     }
                     addedCpuModel.Images = await imageService.BulkAddAsync(imageEntities);
                 }
-                return RedirectToAction("Details", addedCpuModel);
+                return RedirectToAction("Details", addedCpuModel.Cpu);
 
             }
 
             return BadRequest(cpuValidationResult.Errors.Select(f => f.ErrorMessage).ToList());
             
         }
-        public IActionResult Details(CPU cpu)
+        public IActionResult Details([ModelBinder(BinderType = typeof(CpuModelBinder))]CpuModel cpuModel)
         {
-            var validationResult = _cpuValidator.Validate(cpu);
+            var validationResult = _cpuValidator.Validate(cpuModel.Cpu);
             if (validationResult.IsValid)
             {
-                return View(cpu);
+
+                return View(new CpuModel { Cpu = cpuModel.Cpu, Images = cpuModel.Images });
             }
             return BadRequest(validationResult.Errors);
         }
@@ -95,13 +95,15 @@ namespace TechStore.Areas.Admin.Controllers
         // POST: Admin/CPUController/Update/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Update(CpuModel cpuModel, IFormFileCollection Images)
+        public async Task<IActionResult> Update(CpuModel cpuModel)
         {
             var validationResult = _cpuValidator.Validate(cpuModel.Cpu);
             if (validationResult.IsValid)
             {
                 await _cpuService.UpdateAsync(cpuModel.Cpu);
-                return RedirectToAction("Update", cpuModel);
+                          
+
+                return RedirectToAction("Details", cpuModel.Cpu);
             }
             return BadRequest(validationResult.ToString());
         }

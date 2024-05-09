@@ -19,17 +19,12 @@ window.onload = () => {
             input.style.display = 'none'; // Hide the input element
             input.click();
             input.addEventListener('change', function () {
-                // Do something with the selected files, e.g., upload them
-                console.log(input.files);
                 const files = input.files;
-
-                // Create a new FormData object
                 const formData = new FormData();
                 formData.append("productId", document.getElementById("Id").value);
-                // Append each file to the FormData object
                 for (let i = 0; i < files.length; i++) {
                     formData.append('Files', files[i]);
-                    
+
                 }
 
                 // Fetch request options
@@ -41,32 +36,33 @@ window.onload = () => {
                     //     'Authorization': 'Bearer ' + token
                     // }
                 };
-                
-                for (const pair of options.body.entries()) {
-                    console.log(pair[0], pair[1]); // pair[0] is the key, pair[1] is the value
-                }
-                // Make the fetch request
                 fetch(`https://localhost:7091/admin/Image/Create`, options)
                     .then(response => {
                         if (!response.ok) {
                             throw new Error('Network response was not ok');
                         }
                         return response.json();
-                    })
-                    .then(data => {
-                        console.log('Files uploaded successfully:', data);
-                    })
-                    .catch(error => {
+                    }).then(data => {
+                        let tableBody = document.getElementById('ImageTable').tBodies[0];
+                        let index = tableBody.rows.length;
+                        data.forEach(i => {
+                            index++;
+                            let row = tableBody.insertRow();
+                            row.outerHTML = `
+                                <th scope="row">${index}</th>
+                                <td>${i.id}</td>
+                                <td><img src="data:image /jpeg;base64,${i.file}" style="max-width:100px; height:auto" alt="Image"></td>
+                                <td><button class="btn btn-danger" id="DeleteImageButton" onclick="DeleteImage(event,${i.id})">Delete</button></td>
+                                `;
+                        })
+                    }).catch(error => {
                         console.error('There was a problem with the fetch operation:', error);
                     });
             });
-            
+
 
         });
 
     }
 
 }
-
-
-
