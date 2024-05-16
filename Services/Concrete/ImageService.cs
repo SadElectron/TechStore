@@ -28,6 +28,11 @@ namespace Services.Concrete
             return _imageDal.BulkAddAsync(Images);
         }
 
+        public Task<bool> DeleteAllAsync(Guid productId)
+        {
+            return _imageDal.DeleteAllAsync(i  => i.ProductId == productId);
+        }
+
         public async Task<int> DeleteAsync(Guid id)
         {
             var image = await _imageDal.GetAsync(i => i.Id == id);

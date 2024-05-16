@@ -9,14 +9,14 @@ using System.Threading.Tasks;
 
 namespace Core.DataAccess.EntityFramework.Abstract
 {
-    public interface IEfDbContextBase<T> where T : class, IEntity
+    public interface IEfDbContextBase 
     {
-        public Task<List<U>> GetAllAsync<U>(Expression<Func<U, bool>>? filter) where U : class, IEntity;
-        public Task<T?> GetAsync(Expression<Func<T, bool>> filter);
-        public Task<T> AddAsync(T entity);
-        public Task UpdateAsync(T entity);
-        public Task<int> DeleteAsync(T entity);
-        public Task<int> GetRecordCountAsync<U>() where U : class, IEntity;
+        Task<List<T>> GetAllAsync<T>(Expression<Func<T, bool>>? filter) where T : class, IEntity;
+        Task<T?> GetAsync<T>(Expression<Func<T, bool>> filter) where T : class, IEntity;
+        Task<T> AddAsync<T>(T entity) where T : class, IEntity;
+        Task UpdateAsync<T>(T entity) where T : class, IEntity;
+        Task<int> DeleteAsync<T>(T entity) where T : class, IEntity;
+        Task<int> GetRecordCountAsync<T>() where T : class, IEntity;
     }
 
 

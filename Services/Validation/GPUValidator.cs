@@ -27,5 +27,6 @@ namespace Services.Validation
             RuleFor(gpu => gpu.LaunchDate).NotEmpty().WithMessage("Launch date is required.");
             RuleFor(gpu => gpu.Price).GreaterThan(0).WithMessage("Price must be greater than 0.");
         }
+
     }
 }

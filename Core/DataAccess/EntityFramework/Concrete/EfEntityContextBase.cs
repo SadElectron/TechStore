@@ -11,49 +11,49 @@ using System.Threading.Tasks;
 
 namespace Core.DataAccess.EntityFramework.Concrete
 {
-    public class EfEntityContextBase<TEntity, TContext> : IEfDbContextBase<TEntity>
-        where TEntity : class, IEntity
+    public class EfEntityContextBase<TContext> : IEfDbContextBase
         where TContext : DbContext, new()
     {
-        public Task<List<U>> GetAllAsync<U>(Expression<Func<U, bool>>? filter) where U : class, IEntity
+        public Task<List<T>> GetAllAsync<T>(Expression<Func<T, bool>>? filter) where T : class, IEntity
         {
             using (var context = new TContext())
             {
                 return filter == null
-                    ? context.Set<U>().ToListAsync()
-                    : context.Set<U>().Where(filter).ToListAsync();
+                    ? context.Set<T>().ToListAsync()
+                    : context.Set<T>().Where(filter).ToListAsync();
             }
         }
 
-        public Task<TEntity?> GetAsync(Expression<Func<TEntity, bool>> filter)
+        public Task<T?> GetAsync<T>(Expression<Func<T, bool>> filter) where T : class, IEntity
         {
             using (var context = new TContext())
             {
-                return context.Set<TEntity>().SingleOrDefaultAsync(filter);
+                return context.Set<T>().SingleOrDefaultAsync(filter);
             }
         }
 
-        public async Task<TEntity> AddAsync(TEntity entity)
+        public async Task<T> AddAsync<T>(T entity) where T : class, IEntity
         {
             using (var context = new TContext())
             {
-                var addedEntity = await context.Set<TEntity>().AddAsync(entity);
+                var addedEntity = await context.Set<T>().AddAsync(entity);
                 await context.SaveChangesAsync();
                 return addedEntity.Entity;
             }
         }
 
-        public Task UpdateAsync(TEntity entity)
+        public Task UpdateAsync<T>(T entity) where T : class, IEntity
         {
             using (var context = new TContext())
             {
+                
                 var updatedEntity = context.Entry(entity);
                 updatedEntity.State = EntityState.Modified;
                 return context.SaveChangesAsync();
             }
         }
 
-        public Task<int> DeleteAsync(TEntity entity)
+        public Task<int> DeleteAsync<T>(T entity) where T : class, IEntity
         {
             using (var context = new TContext())
             {
@@ -63,11 +63,11 @@ namespace Core.DataAccess.EntityFramework.Concrete
             }
         }
 
-        public Task<int> GetRecordCountAsync<U>() where U : class, IEntity
+        public Task<int> GetRecordCountAsync<T>() where T : class, IEntity
         {
             using (var context = new TContext())
             {
-                return context.Set<U>().CountAsync();
+                return context.Set<T>().CountAsync();
             }
         }
     }

@@ -1,105 +1,103 @@
-﻿@model Entities.Concrete.GPU
+﻿@model GpuModel
+<h2 class="text-center mb-4">Delete Gpu</h2>
+<div class="container">
+    <div class="row justify-content-center">
+        <form asp-action="Delete">
+            <div class="mb-3 row">
+                <input type="hidden" class="form-control" id="Id" name="Gpu.Id" value="@Model.Gpu.Id">
+            </div>
+            <div class="mb-3 row">
+                <label for="Brand" class="col-3 form-label">Brand</label>
+                <div class="col-9">
+                    <input asp-for="Gpu.Brand" class="form-control" value="@Model.Gpu.Brand" readonly>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="Model" class="col-3 form-label">Model</label>
+                <div class="col-9">
+                    <input asp-for="Gpu.ModelName" class="form-control" value="@Model.Gpu.ModelName" readonly>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="CoreCount" class="col-3 form-label">Graphics engine</label>
+                <div class="col-9">
+                    <input asp-for="Gpu.GraphicEngine" class="form-control" value="@Model.Gpu.GraphicEngine" readonly>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="ThreadCount" class="col-3 form-label">Vram size</label>
+                <div class="col-9">
+                    <input asp-for="Gpu.VramSize" class="form-control" value="@Model.Gpu.VramSize" readonly>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="BaseClockSpeed" class="col-3 form-label">Vram type</label>
+                <div class="col-9">
+                    <input asp-for="Gpu.VramType" class="form-control" value="@Model.Gpu.VramType" readonly>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="MaxTurboFrequency" class="col-3 form-label">Base clock speed</label>
+                <div class="col-9">
+                    <input asp-for="Gpu.BaseClockSpeed" class="form-control" value="@Model.Gpu.BaseClockSpeed" readonly>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="CacheSize" class="col-3 form-label">Boost clock speed</label>
+                <div class="col-9">
+                    <input asp-for="Gpu.BoostClockSpeed" class="form-control" value="@Model.Gpu.BoostClockSpeed" readonly>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="SocketType" class="col-3 form-label">Memory bus width</label>
+                <div class="col-9">
+                    <input asp-for="Gpu.MemoryBusWidth" class="form-control" value="@Model.Gpu.MemoryBusWidth" readonly>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="IntegratedGraphics" class="col-3 form-label">Tdp</label>
+                <div class="col-9">
+                    <input asp-for="Gpu.Tdp" class="form-control" value="@Model.Gpu.Tdp" readonly>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="MemorySupport" class="col-3 form-label">Power connectors</label>
+                <div class="col-9">
+                    <input asp-for="Gpu.PowerConnectors" class="form-control" value="@Model.Gpu.PowerConnectors" readonly>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="Tdp" class="col-3 form-label">Interface</label>
+                <div class="col-9">
+                    <input asp-for="Gpu.Interface" class="form-control" value="@Model.Gpu.Interface" readonly>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="LaunchDate" class="col-3 form-label">Display ports</label>
+                <div class="col-9">
+                    <input asp-for="Gpu.DisplayPorts" class="form-control" value="@Model.Gpu.DisplayPorts" readonly>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="LaunchDate" class="col-3 form-label">Launch date</label>
+                <div class="col-9">
+                    <input asp-for="Gpu.LaunchDate" class="form-control" value="@Model.Gpu.LaunchDate" readonly>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="Price" class="col-3 col-3 form-label">Price</label>
+                <div class="col-9">
+                    <input asp-for="Gpu.Price" class="form-control" value="@Model.Gpu.Price" readonly>
+                </div>
+            </div>
 
-@{
-    ViewData["Title"] = "Delete";
-}
 
-<h1>Delete</h1>
+            <div class="mb-3 row">
+                <button type="submit" class="btn btn-danger">Delete</button>
+            </div>
 
-<h3>Are you sure you want to delete this?</h3>
-<div>
-    <h4>GPU</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Brand)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Brand)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ModelName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ModelName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.GraphicEngine)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.GraphicEngine)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.VramSize)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.VramSize)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.VramType)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.VramType)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.BaseClockSpeed)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.BaseClockSpeed)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.BoostClockSpeed)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.BoostClockSpeed)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.MemoryBusWidth)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.MemoryBusWidth)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Tdp)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Tdp)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.PowerConnectors)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.PowerConnectors)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Interface)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Interface)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DisplayPorts)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DisplayPorts)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.LaunchDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.LaunchDate)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Price)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Price)
-        </dd>
-    </dl>
-    
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="Id" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
-    </form>
+        </form>
+
+    </div>
+
 </div>

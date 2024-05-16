@@ -17,6 +17,7 @@ namespace Services.Abstract
         public Task<List<Image>> BulkAddAsync(List<Image> Images);
         public Task UpdateAsync(Image entity);
         public Task<int> DeleteAsync(Guid id);
+        public Task<bool> DeleteAllAsync(Guid productId);
         public Task<int> GetRecordCountAsync<Image>();
     }
 }

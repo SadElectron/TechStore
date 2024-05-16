@@ -6,16 +6,12 @@
 
 
 <div class="container">
-    <h1>Index</h1>
-
-    <p>
-        <a asp-action="Create">Create New</a>
-    </p>
-    <div class="row row-cols-auto justify-content-center">
+    <h1>Cpus</h1>
+    <div class="row row-cols-auto">
+        
         @foreach (var cpu in Model)
         {
             <div class="col my-3 mx-2">
-
                 <div class="card" style="width: 18rem;">
                     <img src="~/img/200x250.png" class="card-img-top" alt="...">
                     <div class="card-body">
@@ -25,7 +21,6 @@
                         <a href="#" class="btn btn-primary">Buy Now</a>
                     </div>
                 </div>
-
             </div>
         }
     </div>

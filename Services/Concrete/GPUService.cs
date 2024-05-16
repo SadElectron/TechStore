@@ -16,7 +16,7 @@ namespace Services.Concrete
         {
             _gpudal = gpudal;
         }
-        public Task AddAsync(GPU entity)
+        public Task<GPU> AddAsync(GPU entity)
         {
             return _gpudal.AddAsync(entity);
         }
@@ -26,7 +26,7 @@ namespace Services.Concrete
             return _gpudal.DeleteAsync(entity);
         }
 
-        public Task<GPU> GetByIdAsync(Guid? id)
+        public Task<GPU?> GetByIdAsync(Guid? id)
         {
             return _gpudal.GetAsync(g => g.Id == id);
         }
