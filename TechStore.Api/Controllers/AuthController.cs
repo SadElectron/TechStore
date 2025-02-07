@@ -18,12 +18,10 @@ public class AuthController : ControllerBase
 
     private readonly ILogger<AuthController> _logger;
     private readonly IAuthService _authService;
-    private readonly IRefreshTokenService _refreshTokenService;
-    public AuthController(ILogger<AuthController> logger, IAuthService authService, IRefreshTokenService refreshTokenService)
+    public AuthController(ILogger<AuthController> logger, IAuthService authService)
     {
         _logger = logger;
         _authService = authService;
-        _refreshTokenService = refreshTokenService;
     }
     [HttpPost("login")]
     public async Task<IActionResult> Login(UserReq userRequest)
@@ -34,29 +32,29 @@ public class AuthController : ControllerBase
             return NotFound();
         }
 
-        await _refreshTokenService.AddTokenAsync(result.Id);
+        await _authService.AddRefreshTokenAsync(result.Id);
         return Ok(new { message = "Logged in successfully", result.Id, email = result.Email, token = result.Token });
     }
 
     [HttpPost("logout")]
     public async Task<IActionResult> Logout([FromBody]string refreshToken)
     {
-        await _refreshTokenService.DeleteTokenAsync(refreshToken);
+        await _authService.DeleteTokenAsync(refreshToken);
         return Ok();
     }
 
     [HttpPost("refresh")]
     public async Task<IActionResult> Refresh([FromBody]string refreshToken, [FromBody]Guid userId)
     {
-        var validationResult = await _refreshTokenService.ValidateToken(refreshToken, userId);
+        var validationResult = await _authService.ValidateToken(refreshToken, userId);
         if (validationResult)
         {
-            _refreshTokenService.re
-            return Ok(new { token = result.Token });
+            var token = await _authService.CreateTokenAsync(userId);
+            return Ok(new { token });
         }
         else
         {
-
+            return NotFound();
         }
         
     }

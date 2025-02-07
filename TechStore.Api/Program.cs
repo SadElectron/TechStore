@@ -82,7 +82,6 @@ namespace TechStore.Api
             builder.Services.AddScoped<IDetailService, DetailService>();
             builder.Services.AddScoped<IImageService, ImageService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
-            builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 
             builder.Services.AddScoped<IProductDal, ProductDal>();
             builder.Services.AddScoped<IPropertyDal, PropertyDal>();

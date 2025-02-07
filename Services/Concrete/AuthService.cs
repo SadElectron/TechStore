@@ -39,7 +39,15 @@ namespace Services.Concrete
 
             return new LoginResult(default, "", "", false);
         }
-        public
+        
+        public async Task<string> CreateTokenAsync(Guid userId)
+        {
+
+            var userDb = await _authDal.GetAsNoTrackingAsync(u => u.Id == userId);
+            var token = _tokenProvider.Create(userDb!);
+            return token;
+        
+        }
 
         public async Task<bool> ValidateToken(string token, Guid userId)
         {
@@ -48,7 +56,7 @@ namespace Services.Concrete
             return refreshToken.UserId == userId;
         }
 
-        public async Task<string> AddTokenAsync(Guid userId)
+        public async Task<string> AddRefreshTokenAsync(Guid userId)
         {
             byte[] randomBytes = new byte[32];
             using var rng = RandomNumberGenerator.Create();
