@@ -13,5 +13,5 @@ public interface IAuthService
 {
     Task<RegisterUserResult> Register(User user, string role);
     Task<LoginResult> Login(string email, string passwd);
-    Task<TokenRefreshResult> Refresh(string RefreshToken, Guid userId);
+
 }
