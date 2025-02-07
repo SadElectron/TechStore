@@ -62,7 +62,8 @@ namespace Services.Concrete
             using var rng = RandomNumberGenerator.Create();
             rng.GetBytes(randomBytes);
             string refreshToken = Convert.ToBase64String(randomBytes);
-            var addResult = await _refreshTokenDal.AddAsync(new() { Id = Guid.NewGuid(), Token = refreshToken, UserId = userId });
+            var user = await _authDal.GetAsNoTrackingAsync(u => u.Id == userId);
+            var addResult = await _refreshTokenDal.AddAsync(new() {Token = refreshToken, UserId = userId });
             return refreshToken;
         }
 

@@ -15,6 +15,8 @@ namespace TechStore.Api.Controllers;
 public class AuthController : ControllerBase
 {
     public record UserReq(string email, string password);
+    public record RefreshTokenReq(string RefreshToken, Guid UserId);
+
 
     private readonly ILogger<AuthController> _logger;
     private readonly IAuthService _authService;
@@ -23,17 +25,18 @@ public class AuthController : ControllerBase
         _logger = logger;
         _authService = authService;
     }
+
     [HttpPost("login")]
     public async Task<IActionResult> Login(UserReq userRequest)
     {
         var result = await _authService.Login(userRequest.email, userRequest.password);
-        if (!result.Status)
+        if (result.Status)
         {
-            return NotFound();
+            var refreshToken = await _authService.AddRefreshTokenAsync(result.Id);
+            return Ok(new { message = "Logged in successfully", result.Token, refreshToken });
+           
         }
-
-        await _authService.AddRefreshTokenAsync(result.Id);
-        return Ok(new { message = "Logged in successfully", result.Id, email = result.Email, token = result.Token });
+        return NotFound();
     }
 
     [HttpPost("logout")]
@@ -44,12 +47,12 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("refresh")]
-    public async Task<IActionResult> Refresh([FromBody]string refreshToken, [FromBody]Guid userId)
+    public async Task<IActionResult> Refresh([FromBody]RefreshTokenReq refreshTokenReq)
     {
-        var validationResult = await _authService.ValidateToken(refreshToken, userId);
+        var validationResult = await _authService.ValidateToken(refreshTokenReq.RefreshToken, refreshTokenReq.UserId);
         if (validationResult)
         {
-            var token = await _authService.CreateTokenAsync(userId);
+            var token = await _authService.CreateTokenAsync(refreshTokenReq.UserId);
             return Ok(new { token });
         }
         else
@@ -58,7 +61,6 @@ public class AuthController : ControllerBase
         }
         
     }
-
 
 
     [HttpPost("Register")]
@@ -72,7 +74,7 @@ public class AuthController : ControllerBase
         };
         RegisterUserResult registerUserResult = await _authService.Register(user, "Customer");
         return registerUserResult.success ?
-             Ok() : BadRequest();
+             Ok() : BadRequest(new {Error = registerUserResult.failReason});
     }
 
 }
