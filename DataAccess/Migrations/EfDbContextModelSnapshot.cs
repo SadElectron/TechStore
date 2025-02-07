@@ -15,521 +15,61 @@ namespace DataAccess.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "8.0.4");
+            modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
 
-            modelBuilder.Entity("Entities.Concrete.CPU", b =>
+            modelBuilder.Entity("Core.Entities.Concrete.Category", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("BaseClockSpeed")
+                    b.Property<string>("CategoryName")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Brand")
-                        .IsRequired()
+                    b.Property<DateTime>("LastUpdate")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("CacheSize")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("CoreCount")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("IntegratedGraphics")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateOnly>("LaunchDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("MaxTurboFrequency")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("MemorySupport")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ModelName")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<double>("Price")
-                        .HasColumnType("REAL");
-
-                    b.Property<string>("SocketType")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Tdp")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("ThreadCount")
+                    b.Property<int>("Order")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
-                    b.ToTable("CPUs");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("f5dd7ad4-e08d-4540-98b6-8175802c2ed0"),
-                            BaseClockSpeed = "3.3 GHz",
-                            Brand = "Intel",
-                            CacheSize = "12 MB",
-                            CoreCount = 4,
-                            IntegratedGraphics = "Intel UHD Graphics 730",
-                            LaunchDate = new DateOnly(2022, 1, 18),
-                            MaxTurboFrequency = "4.3 GHz",
-                            MemorySupport = "DDR4-3200",
-                            ModelName = "Core i3-12100",
-                            Price = 129.99000000000001,
-                            SocketType = "LGA 1700",
-                            Tdp = "60W",
-                            ThreadCount = 8
-                        },
-                        new
-                        {
-                            Id = new Guid("70a8eb3a-6f3f-4938-9c2f-91e76bc46d62"),
-                            BaseClockSpeed = "4.0 GHz",
-                            Brand = "AMD",
-                            CacheSize = "40 MB",
-                            CoreCount = 4,
-                            IntegratedGraphics = "AMD Radeon Graphics Vega 6",
-                            LaunchDate = new DateOnly(2022, 4, 19),
-                            MaxTurboFrequency = "4.6 GHz",
-                            MemorySupport = "DDR4-3200",
-                            ModelName = "Ryzen 3 5300G",
-                            Price = 149.99000000000001,
-                            SocketType = "AM4",
-                            Tdp = "65W",
-                            ThreadCount = 8
-                        },
-                        new
-                        {
-                            Id = new Guid("b91b9e1a-5506-4898-8229-db7dfe17ab12"),
-                            BaseClockSpeed = "2.5 GHz",
-                            Brand = "Intel",
-                            CacheSize = "18 MB",
-                            CoreCount = 6,
-                            IntegratedGraphics = "Intel UHD Graphics 770",
-                            LaunchDate = new DateOnly(2022, 1, 18),
-                            MaxTurboFrequency = "4.4 GHz",
-                            MemorySupport = "DDR4-3200",
-                            ModelName = "Core i5-12400",
-                            Price = 229.99000000000001,
-                            SocketType = "LGA 1700",
-                            Tdp = "65W",
-                            ThreadCount = 12
-                        },
-                        new
-                        {
-                            Id = new Guid("3596c757-9089-44d3-b655-4d5553c667ac"),
-                            BaseClockSpeed = "3.7 GHz",
-                            Brand = "AMD",
-                            CacheSize = "38 MB",
-                            CoreCount = 6,
-                            IntegratedGraphics = "None",
-                            LaunchDate = new DateOnly(2022, 4, 19),
-                            MaxTurboFrequency = "4.6 GHz",
-                            MemorySupport = "DDR4-3200",
-                            ModelName = "Ryzen 5 5600X",
-                            Price = 299.99000000000001,
-                            SocketType = "AM4",
-                            Tdp = "65W",
-                            ThreadCount = 12
-                        },
-                        new
-                        {
-                            Id = new Guid("49da81f8-7a24-4e77-97d9-9ac31a22240a"),
-                            BaseClockSpeed = "3.6 GHz",
-                            Brand = "Intel",
-                            CacheSize = "25 MB",
-                            CoreCount = 8,
-                            IntegratedGraphics = "Intel UHD Graphics 770",
-                            LaunchDate = new DateOnly(2022, 1, 18),
-                            MaxTurboFrequency = "5.2 GHz",
-                            MemorySupport = "DDR4-3200",
-                            ModelName = "Core i7-12700K",
-                            Price = 439.99000000000001,
-                            SocketType = "LGA 1700",
-                            Tdp = "125W",
-                            ThreadCount = 16
-                        },
-                        new
-                        {
-                            Id = new Guid("ccec29fe-4d4e-4ae8-8d24-6dc199f8ff63"),
-                            BaseClockSpeed = "3.7 GHz",
-                            Brand = "AMD",
-                            CacheSize = "64 MB",
-                            CoreCount = 12,
-                            IntegratedGraphics = "None",
-                            LaunchDate = new DateOnly(2020, 11, 19),
-                            MaxTurboFrequency = "4.8 GHz",
-                            MemorySupport = "DDR4-3200",
-                            ModelName = "Ryzen 9 5900X",
-                            Price = 549.99000000000001,
-                            SocketType = "AM4",
-                            Tdp = "105W",
-                            ThreadCount = 24
-                        },
-                        new
-                        {
-                            Id = new Guid("73d6e7cc-0383-4a73-8c82-e2f38f35bd7e"),
-                            BaseClockSpeed = "3.5 GHz",
-                            Brand = "Intel",
-                            CacheSize = "20 MB",
-                            CoreCount = 8,
-                            IntegratedGraphics = "Intel UHD Graphics 770",
-                            LaunchDate = new DateOnly(2021, 3, 18),
-                            MaxTurboFrequency = "5.3 GHz",
-                            MemorySupport = "DDR4-3200",
-                            ModelName = "Core i9-11900K",
-                            Price = 499.99000000000001,
-                            SocketType = "LGA 1200",
-                            Tdp = "125W",
-                            ThreadCount = 16
-                        },
-                        new
-                        {
-                            Id = new Guid("6aa6d226-54f5-47fa-8303-11fc43d96280"),
-                            BaseClockSpeed = "3.5 GHz",
-                            Brand = "AMD",
-                            CacheSize = "32 MB",
-                            CoreCount = 6,
-                            IntegratedGraphics = "AMD Radeon Graphics",
-                            LaunchDate = new DateOnly(2022, 4, 19),
-                            MaxTurboFrequency = "4.5 GHz",
-                            MemorySupport = "DDR4-3200",
-                            ModelName = "Ryzen 5 7600",
-                            Price = 229.99000000000001,
-                            SocketType = "AM4",
-                            Tdp = "65W",
-                            ThreadCount = 12
-                        },
-                        new
-                        {
-                            Id = new Guid("e598782d-2a3e-4fd7-a6b6-bf647071ef26"),
-                            BaseClockSpeed = "2.5 GHz",
-                            Brand = "Intel",
-                            CacheSize = "18 MB",
-                            CoreCount = 6,
-                            IntegratedGraphics = "None",
-                            LaunchDate = new DateOnly(2022, 1, 18),
-                            MaxTurboFrequency = "4.4 GHz",
-                            MemorySupport = "DDR4-3200",
-                            ModelName = "Core i5-12400F",
-                            Price = 199.99000000000001,
-                            SocketType = "LGA 1700",
-                            Tdp = "65W",
-                            ThreadCount = 12
-                        },
-                        new
-                        {
-                            Id = new Guid("ae810360-3c64-4d4d-a8f7-9eb48f875415"),
-                            BaseClockSpeed = "3.6 GHz",
-                            Brand = "AMD",
-                            CacheSize = "19 MB",
-                            CoreCount = 6,
-                            IntegratedGraphics = "AMD Radeon Graphics",
-                            LaunchDate = new DateOnly(2022, 4, 19),
-                            MaxTurboFrequency = "4.4 GHz",
-                            MemorySupport = "DDR4-3200",
-                            ModelName = "Ryzen 3 5500",
-                            Price = 159.99000000000001,
-                            SocketType = "AM4",
-                            Tdp = "65W",
-                            ThreadCount = 12
-                        },
-                        new
-                        {
-                            Id = new Guid("78f44946-8915-4e1b-b70a-09c64ceaecc8"),
-                            BaseClockSpeed = "3.3 GHz",
-                            Brand = "Intel",
-                            CacheSize = "12 MB",
-                            CoreCount = 4,
-                            IntegratedGraphics = "None",
-                            LaunchDate = new DateOnly(2022, 1, 18),
-                            MaxTurboFrequency = "4.3 GHz",
-                            MemorySupport = "DDR4-3200",
-                            ModelName = "Core i3-12100F",
-                            Price = 109.98999999999999,
-                            SocketType = "LGA 1700",
-                            Tdp = "60W",
-                            ThreadCount = 8
-                        },
-                        new
-                        {
-                            Id = new Guid("ab77f6a4-c1f1-4efa-afb1-35d4d516bd80"),
-                            BaseClockSpeed = "3.8 GHz",
-                            Brand = "AMD",
-                            CacheSize = "36 MB",
-                            CoreCount = 8,
-                            IntegratedGraphics = "AMD Radeon Graphics Vega 8",
-                            LaunchDate = new DateOnly(2022, 4, 19),
-                            MaxTurboFrequency = "4.6 GHz",
-                            MemorySupport = "DDR4-3200",
-                            ModelName = "Ryzen 7 5700G",
-                            Price = 349.99000000000001,
-                            SocketType = "AM4",
-                            Tdp = "65W",
-                            ThreadCount = 16
-                        });
+                    b.ToTable("Categories");
                 });
 
-            modelBuilder.Entity("Entities.Concrete.GPU", b =>
+            modelBuilder.Entity("Core.Entities.Concrete.Detail", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("BaseClockSpeed")
+                    b.Property<DateTime>("LastUpdate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PropValue")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("BoostClockSpeed")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Brand")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("DisplayPorts")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("GraphicEngine")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Interface")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateOnly>("LaunchDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("MemoryBusWidth")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ModelName")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("PowerConnectors")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<double>("Price")
-                        .HasColumnType("REAL");
-
-                    b.Property<string>("Tdp")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("VramSize")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("VramType")
-                        .IsRequired()
+                    b.Property<Guid>("PropertyId")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
-                    b.ToTable("GPUs");
+                    b.HasIndex("ProductId");
 
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("8594bd27-c52f-481c-b4dd-e520014bdbde"),
-                            BaseClockSpeed = "2475 MHz",
-                            BoostClockSpeed = "2490 MHz",
-                            Brand = "MSI",
-                            DisplayPorts = "DisplayPort x 3 (v1.4a) HDMI™ x 1",
-                            GraphicEngine = "GeForce RTX™ 4070",
-                            Interface = "PCIe 5.0 x16",
-                            LaunchDate = new DateOnly(2023, 11, 15),
-                            MemoryBusWidth = "192 Bit",
-                            ModelName = "VENTUS",
-                            PowerConnectors = "8-pin + 6-pin",
-                            Price = 499.99000000000001,
-                            Tdp = "200W",
-                            VramSize = "12GB",
-                            VramType = "GDDR6X"
-                        },
-                        new
-                        {
-                            Id = new Guid("f7867547-a9df-43b9-96d1-ad65d75c9858"),
-                            BaseClockSpeed = "2400 MHz",
-                            BoostClockSpeed = "2600 MHz",
-                            Brand = "Gigabyte",
-                            DisplayPorts = "DisplayPort x 3 (v2.1) HDMI™ x 1",
-                            GraphicEngine = "Radeon RX 7900 XTX",
-                            Interface = "PCIe 5.0 x16",
-                            LaunchDate = new DateOnly(2023, 12, 15),
-                            MemoryBusWidth = "384 Bit",
-                            ModelName = "AORUS MASTER",
-                            PowerConnectors = "8-pin x 3",
-                            Price = 1399.99,
-                            Tdp = "350W",
-                            VramSize = "24GB",
-                            VramType = "GDDR6"
-                        },
-                        new
-                        {
-                            Id = new Guid("31e32d9d-f66e-4eed-94d5-be6481e2362b"),
-                            BaseClockSpeed = "2530 MHz",
-                            BoostClockSpeed = "2575 MHz",
-                            Brand = "ASUS",
-                            DisplayPorts = "DisplayPort x 3 (v1.4a) HDMI™ x 1",
-                            GraphicEngine = "GeForce RTX 4070 Ti",
-                            Interface = "PCIe 5.0 x16",
-                            LaunchDate = new DateOnly(2023, 12, 1),
-                            MemoryBusWidth = "256 Bit",
-                            ModelName = "TUF Gaming",
-                            PowerConnectors = "8-pin x 2",
-                            Price = 799.99000000000001,
-                            Tdp = "285W",
-                            VramSize = "10GB",
-                            VramType = "GDDR6X"
-                        },
-                        new
-                        {
-                            Id = new Guid("b94980c3-7cb3-4386-bf9d-0fdf857f04f1"),
-                            BaseClockSpeed = "2300 MHz",
-                            BoostClockSpeed = "2700 MHz",
-                            Brand = "PowerColor",
-                            DisplayPorts = "DisplayPort x 3 (v2.1) HDMI™ x 1",
-                            GraphicEngine = "Radeon RX 7800 XT",
-                            Interface = "PCIe 5.0 x16",
-                            LaunchDate = new DateOnly(2023, 12, 1),
-                            MemoryBusWidth = "256 Bit",
-                            ModelName = "Red Devil",
-                            PowerConnectors = "8-pin x 3",
-                            Price = 849.99000000000001,
-                            Tdp = "330W",
-                            VramSize = "16GB",
-                            VramType = "GDDR6"
-                        },
-                        new
-                        {
-                            Id = new Guid("703e7ce5-1448-4da5-a4de-d976bccdeb65"),
-                            BaseClockSpeed = "1410 MHz",
-                            BoostClockSpeed = "1700 MHz",
-                            Brand = "EVGA",
-                            DisplayPorts = "DisplayPort x 3 (v1.4a) HDMI™ x 1",
-                            GraphicEngine = "GeForce RTX 3060 Ti",
-                            Interface = "PCIe 4.0 x16",
-                            LaunchDate = new DateOnly(2021, 11, 17),
-                            MemoryBusWidth = "256 Bit",
-                            ModelName = "GeForce RTX 3060 Ti",
-                            PowerConnectors = "8-pin x 1",
-                            Price = 399.99000000000001,
-                            Tdp = "200W",
-                            VramSize = "8GB",
-                            VramType = "GDDR6"
-                        },
-                        new
-                        {
-                            Id = new Guid("ce785a61-6a6e-4a42-879c-734bfd180177"),
-                            BaseClockSpeed = "2580 MHz",
-                            BoostClockSpeed = "2670 MHz",
-                            Brand = "XFX",
-                            DisplayPorts = "DisplayPort x 2 (v2.0) HDMI™ x 1",
-                            GraphicEngine = "Radeon RX 6650 XT",
-                            Interface = "PCIe 4.0 x16",
-                            LaunchDate = new DateOnly(2023, 5, 10),
-                            MemoryBusWidth = "128 Bit",
-                            ModelName = "Speedster MERC 310",
-                            PowerConnectors = "8-pin x 1",
-                            Price = 349.99000000000001,
-                            Tdp = "180W",
-                            VramSize = "8GB",
-                            VramType = "GDDR6"
-                        },
-                        new
-                        {
-                            Id = new Guid("fcffd450-7198-4ef0-bc63-a007c6343916"),
-                            BaseClockSpeed = "1720 MHz",
-                            BoostClockSpeed = "1807 MHz",
-                            Brand = "PNY",
-                            DisplayPorts = "DisplayPort x 3 (v1.4a) HDMI™ x 1",
-                            GraphicEngine = "GeForce RTX 3050",
-                            Interface = "PCIe 4.0 x16",
-                            LaunchDate = new DateOnly(2021, 1, 27),
-                            MemoryBusWidth = "128 Bit",
-                            ModelName = "XLR8 RTX 3050",
-                            PowerConnectors = "6-pin x 1",
-                            Price = 279.99000000000001,
-                            Tdp = "130W",
-                            VramSize = "8GB",
-                            VramType = "GDDR6"
-                        },
-                        new
-                        {
-                            Id = new Guid("5d7393c5-0bc1-41ae-862c-dad6aa9a4c31"),
-                            BaseClockSpeed = "2100 MHz",
-                            BoostClockSpeed = "2045 MHz",
-                            Brand = "ASRock",
-                            DisplayPorts = "DisplayPort x 2 (v1.4) HDMI™ x 2",
-                            GraphicEngine = "Radeon RX 6600",
-                            Interface = "PCIe 4.0 x16",
-                            LaunchDate = new DateOnly(2021, 8, 10),
-                            MemoryBusWidth = "128 Bit",
-                            ModelName = "Challenger D",
-                            PowerConnectors = "6-pin x 1",
-                            Price = 229.99000000000001,
-                            Tdp = "130W",
-                            VramSize = "8GB",
-                            VramType = "GDDR6"
-                        },
-                        new
-                        {
-                            Id = new Guid("d3939441-ca31-424d-9b7b-38de273859a2"),
-                            BaseClockSpeed = "1580 MHz",
-                            BoostClockSpeed = "1830 MHz",
-                            Brand = "Inno3D",
-                            DisplayPorts = "DisplayPort x 3 (v1.4a) HDMI™ x 1",
-                            GraphicEngine = "GeForce RTX 3070 Ti",
-                            Interface = "PCIe 4.0 x16",
-                            LaunchDate = new DateOnly(2021, 6, 1),
-                            MemoryBusWidth = "256 Bit",
-                            ModelName = "Twin X2 OC",
-                            PowerConnectors = "8-pin x 2",
-                            Price = 499.99000000000001,
-                            Tdp = "290W",
-                            VramSize = "8GB",
-                            VramType = "GDDR6X"
-                        },
-                        new
-                        {
-                            Id = new Guid("c51e4939-cb61-4730-9804-b57b192b0ed9"),
-                            BaseClockSpeed = "2420 MHz",
-                            BoostClockSpeed = "2680 MHz",
-                            Brand = "MSI",
-                            DisplayPorts = "DisplayPort x 3 (v1.4a) HDMI™ x 1",
-                            GraphicEngine = "Radeon RX 6700 XT",
-                            Interface = "PCIe 4.0 x16",
-                            LaunchDate = new DateOnly(2022, 3, 18),
-                            MemoryBusWidth = "256 Bit",
-                            ModelName = "Radeon RX 6700 XT MECH 2X",
-                            PowerConnectors = "8-pin x 1",
-                            Price = 459.99000000000001,
-                            Tdp = "230W",
-                            VramSize = "12GB",
-                            VramType = "GDDR6"
-                        });
+                    b.HasIndex("PropertyId");
+
+                    b.ToTable("Details");
                 });
 
-            modelBuilder.Entity("Entities.Concrete.Image", b =>
+            modelBuilder.Entity("Core.Entities.Concrete.Image", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -539,47 +79,337 @@ namespace DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("BLOB");
 
+                    b.Property<DateTime>("LastUpdate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("INTEGER");
+
                     b.Property<Guid>("ProductId")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ProductId");
+
                     b.ToTable("Images");
                 });
 
-            modelBuilder.Entity("Entities.Concrete.Thumbnail", b =>
+            modelBuilder.Entity("Core.Entities.Concrete.Order", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid?>("ImageId")
+                    b.Property<string>("Adress")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<byte[]>("ThumbnailImage")
-                        .IsRequired()
-                        .HasColumnType("BLOB");
+                    b.Property<int>("RowOrder")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<double>("TotalPrice")
+                        .HasColumnType("REAL");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ImageId")
-                        .IsUnique();
-
-                    b.ToTable("Thumbnails");
+                    b.ToTable("Order");
                 });
 
-            modelBuilder.Entity("Entities.Concrete.Thumbnail", b =>
+            modelBuilder.Entity("Core.Entities.Concrete.OrderProduct", b =>
                 {
-                    b.HasOne("Entities.Concrete.Image", "Image")
-                        .WithOne("Thumbnail")
-                        .HasForeignKey("Entities.Concrete.Thumbnail", "ImageId");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
 
-                    b.Navigation("Image");
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<double>("Price")
+                        .HasColumnType("REAL");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("RowOrder")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("OrderProduct");
                 });
 
-            modelBuilder.Entity("Entities.Concrete.Image", b =>
+            modelBuilder.Entity("Core.Entities.Concrete.Product", b =>
                 {
-                    b.Navigation("Thumbnail");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateOnly>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("LastUpdate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<double>("Price")
+                        .HasColumnType("REAL");
+
+                    b.Property<string>("ProductName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("SoldQuantity")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Stock")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("Products");
+                });
+
+            modelBuilder.Entity("Core.Entities.Concrete.Property", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("LastUpdate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("PropName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("Properties");
+                });
+
+            modelBuilder.Entity("Core.Entities.Concrete.RefreshToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RefreshTokens");
+                });
+
+            modelBuilder.Entity("Core.Entities.Concrete.User", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("Verified")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("Core.Entities.Concrete.UserData", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DataName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DataValue")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("RowOrder")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserData");
+                });
+
+            modelBuilder.Entity("Core.Entities.Concrete.Detail", b =>
+                {
+                    b.HasOne("Core.Entities.Concrete.Product", "Product")
+                        .WithMany("Details")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Core.Entities.Concrete.Property", "Property")
+                        .WithMany("Details")
+                        .HasForeignKey("PropertyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("Property");
+                });
+
+            modelBuilder.Entity("Core.Entities.Concrete.Image", b =>
+                {
+                    b.HasOne("Core.Entities.Concrete.Product", "Product")
+                        .WithMany("Images")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("Core.Entities.Concrete.OrderProduct", b =>
+                {
+                    b.HasOne("Core.Entities.Concrete.Order", "Order")
+                        .WithMany("OrderProducts")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Core.Entities.Concrete.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Order");
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("Core.Entities.Concrete.Product", b =>
+                {
+                    b.HasOne("Core.Entities.Concrete.Category", "Category")
+                        .WithMany("Products")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("Core.Entities.Concrete.Property", b =>
+                {
+                    b.HasOne("Core.Entities.Concrete.Category", "Category")
+                        .WithMany("Properties")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("Core.Entities.Concrete.RefreshToken", b =>
+                {
+                    b.HasOne("Core.Entities.Concrete.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Core.Entities.Concrete.UserData", b =>
+                {
+                    b.HasOne("Core.Entities.Concrete.User", "User")
+                        .WithMany("UserDataList")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Core.Entities.Concrete.Category", b =>
+                {
+                    b.Navigation("Products");
+
+                    b.Navigation("Properties");
+                });
+
+            modelBuilder.Entity("Core.Entities.Concrete.Order", b =>
+                {
+                    b.Navigation("OrderProducts");
+                });
+
+            modelBuilder.Entity("Core.Entities.Concrete.Product", b =>
+                {
+                    b.Navigation("Details");
+
+                    b.Navigation("Images");
+                });
+
+            modelBuilder.Entity("Core.Entities.Concrete.Property", b =>
+                {
+                    b.Navigation("Details");
+                });
+
+            modelBuilder.Entity("Core.Entities.Concrete.User", b =>
+                {
+                    b.Navigation("UserDataList");
                 });
 #pragma warning restore 612, 618
         }

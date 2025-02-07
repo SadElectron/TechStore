@@ -1,9 +1,8 @@
-﻿using Entities.Abstract;
-using Entities.Concrete;
+﻿using Core.Entities.Concrete;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -11,13 +10,12 @@ namespace Services.Abstract
 {
     public interface IImageService
     {
-        public Task<List<Image>> GetAllAsync(Expression<Func<Image, bool>>? filter);
-        public Task<Image?> GetAsync(Guid id);
-        public Task AddAsync(Image entity);
-        public Task<List<Image>> BulkAddAsync(List<Image> Images);
-        public Task UpdateAsync(Image entity);
-        public Task<int> DeleteAsync(Guid id);
-        public Task<bool> DeleteAllAsync(Guid productId);
-        public Task<int> GetRecordCountAsync<Image>();
+        Task<List<Image>> GetImagesAsync(Guid productId);
+        Task<List<Image>> GetAllAsNoTrackingAsync(Guid productId);
+        Task<IEnumerable<Image>> BulkAddAsync(ICollection<IFormFile> images, Guid productId);
+        Task<int> DeleteAndReorderAsync(Guid imageId);
+        Task<IEnumerable<Image>> DeleteAsync(Guid imageId);
+        Task<Image?> UpdateOrderAsync(Guid imageId, int newOrder);
+        Task<int> DeleteImagesAsync(Guid productId);
     }
 }

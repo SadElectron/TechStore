@@ -1,10 +1,11 @@
-﻿using DataAccess.EntityFramework.Abstract;
-using Entities.Concrete;
+﻿using Core.Entities.Concrete;
+using DataAccess.EntityFramework.Abstract;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Services.Abstract;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -13,53 +14,59 @@ namespace Services.Concrete
     public class ImageService : IImageService
     {
         private readonly IImageDal _imageDal;
+
         public ImageService(IImageDal imageDal)
         {
             _imageDal = imageDal;
         }
 
-        public Task AddAsync(Image entity)
+        public async Task<IEnumerable<Image>> BulkAddAsync(ICollection<IFormFile> formFiles, Guid productId)
         {
-            return _imageDal.AddAsync(entity);
+
+            List<Image> images = new List<Image>();
+            foreach (var file in formFiles)
+            {
+                
+                using MemoryStream memoryStream = new();
+                await file.CopyToAsync(memoryStream);
+                images.Add(new()
+                {
+                    Id = Guid.NewGuid(),
+                    ProductId = productId,
+                    File = memoryStream.ToArray()
+                });
+            }
+            return await _imageDal.BulkAddAsync(images);
         }
 
-        public Task<List<Image>> BulkAddAsync(List<Image> Images)
+        public Task<int> DeleteImagesAsync(Guid productId)
         {
-            return _imageDal.BulkAddAsync(Images);
+            return _imageDal.DeleteImagesAsync(productId);
         }
 
-        public Task<bool> DeleteAllAsync(Guid productId)
+        public Task<int> DeleteAndReorderAsync(Guid imageId)
         {
-            return _imageDal.DeleteAllAsync(i  => i.ProductId == productId);
+            return _imageDal.DeleteAndReorderAsync(imageId);
         }
 
-        public async Task<int> DeleteAsync(Guid id)
+        public Task<IEnumerable<Image>> DeleteAsync(Guid imageId)
         {
-            var image = await _imageDal.GetAsync(i => i.Id == id);
-            
-            
-
-            return await _imageDal.DeleteAsync(image);
+            return _imageDal.DeleteAsync(imageId);
         }
 
-        public Task<List<Image>> GetAllAsync(Expression<Func<Image, bool>>? filter)
+        public Task<List<Image>> GetImagesAsync(Guid productId)
         {
-            return _imageDal.GetAllAsync(filter);
+            return _imageDal.GetAllAsync(i => i.ProductId == productId, i => i.Order);
         }
 
-        public Task<Image?> GetAsync(Guid id)
+        public Task<Image?> UpdateOrderAsync(Guid imageId, int newOrder)
         {
-            return _imageDal.GetAsync(i => i.Id == id);
+            return _imageDal.UpdateOrderAsync(imageId, newOrder);
         }
 
-        public Task<int> GetRecordCountAsync<Image>()
+        public Task<List<Image>> GetAllAsNoTrackingAsync(Guid productId)
         {
-            throw new NotImplementedException();
-        }
-
-        public Task UpdateAsync(Image entity)
-        {
-            throw new NotImplementedException();
+            return _imageDal.GetAllAsNoTrackingAsync(i => i.ProductId == productId, i => i.Order);
         }
     }
 }
