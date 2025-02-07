@@ -27,9 +27,9 @@ namespace DataAccess.EntityFramework.Concrete
         {
             using EfDbContext context = new EfDbContext();
 
-            Task<int> lastOrder = context.Categories.OrderByDescending(c => c.Order).Select(c => c.Order).FirstOrDefaultAsync();
+            Task<double> lastOrder = context.Categories.OrderByDescending(c => c.RowOrder).Select(c => c.RowOrder).FirstOrDefaultAsync();
 
-            category.Order = await lastOrder + 1;
+            category.RowOrder = await lastOrder + 1;
 
             var addedEntity = await context.Categories.AddAsync(category);
             await context.SaveChangesAsync();
@@ -45,12 +45,12 @@ namespace DataAccess.EntityFramework.Concrete
             {
                 return 0;
             }
-            int order = entity.Order;
+            double order = entity.RowOrder;
 
             int deletedEntryCount = await context.Categories.Where(p => p.Id == id).ExecuteDeleteAsync();
             if (deletedEntryCount > 0)
             {
-                await context.Categories.Where(c => (c.Order > order)).ExecuteUpdateAsync(s => s.SetProperty(c => c.Order, p => p.Order - 1));
+                await context.Categories.Where(c => (c.RowOrder > order)).ExecuteUpdateAsync(s => s.SetProperty(c => c.RowOrder, p => p.RowOrder - 1));
             }
 
             return deletedEntryCount;
@@ -87,7 +87,7 @@ namespace DataAccess.EntityFramework.Concrete
             }).ToListAsync();*/
 
             var categories = await context.Categories
-                .OrderBy(c => c.Order)
+                .OrderBy(c => c.RowOrder)
                 .Skip((page - 1) * count)
                 .Take(count)
                 .Select(c => new Category { Id = c.Id, CategoryName = c.CategoryName})
@@ -99,10 +99,10 @@ namespace DataAccess.EntityFramework.Concrete
             {
                 category.Products =  context.Products
                     .Where(p => p.CategoryId == category.Id)
-                    .OrderBy(p => p.Order)
+                    .OrderBy(p => p.RowOrder)
                     .Skip((productPage - 1) * productCount)
                     .Take(productCount)
-                    .Include(p => p.Images.OrderBy(i => i.Order))
+                    .Include(p => p.Images.OrderBy(i => i.RowOrder))
                     .Select(p => new Product { Id = p.Id, ProductName = p.ProductName, Stock = p.Stock, Price = p.Price, Images = p.Images })
                     .AsNoTracking()
                     .ToList();

@@ -60,7 +60,7 @@ public class ProductService : IProductService
             {
                 Id = Guid.NewGuid(),
                 ProductId = productId,
-                Order = order,
+                RowOrder = order,
                 File = memoryStream.ToArray()
             });
         }
@@ -76,7 +76,7 @@ public class ProductService : IProductService
         }
         entity.LastUpdate = DateTime.UtcNow;
         entity.Id = productId;
-        entity.Order = (await productCount) + 1;
+        entity.RowOrder = (await productCount) + 1;
         return await _productDal.AddOrderedAsync(entity);
 
     }
@@ -101,11 +101,11 @@ public class ProductService : IProductService
 
     public Task<List<Product>> GetAllAsync(int page, int itemCount)
     {
-        return _productDal.GetAllAsNoTrackingAsync(page, itemCount, p => p.Order);
+        return _productDal.GetAllAsNoTrackingAsync(page, itemCount, p => p.RowOrder);
     }
     public Task<List<Product>> GetAllAsync(int page, int itemCount, Guid categoryId)
     {
-        return _productDal.GetAllAsNoTrackingAsync(p => p.CategoryId == categoryId, page, itemCount, p => p.Order);
+        return _productDal.GetAllAsNoTrackingAsync(p => p.CategoryId == categoryId, page, itemCount, p => p.RowOrder);
     }
 
     public Task<int> GetEntryCountAsync()
@@ -157,11 +157,11 @@ public class ProductService : IProductService
 
     public Task<List<Product>> GetAllAsNoTrackingAsync(int page, int itemCount, Guid categoryId)
     {
-        return _productDal.GetAllAsNoTrackingAsync(p => p.CategoryId == categoryId, page, itemCount, p => p.Order);
+        return _productDal.GetAllAsNoTrackingAsync(p => p.CategoryId == categoryId, page, itemCount, p => p.RowOrder);
     }
     public Task<List<Product>> GetAllWithImagesAsync(int page, int itemCount, Guid categoryId)
     {
-        return _productDal.GetAllWithImagesAsync(p => p.CategoryId == categoryId, page, itemCount, p => p.Order);
+        return _productDal.GetAllWithImagesAsync(p => p.CategoryId == categoryId, page, itemCount, p => p.RowOrder);
     }
     public Task<List<Product>> GetFilteredAsync(List<ProductFilterModel> filters, Guid categoryId, int page = 1, int itemCount = 10)
     {
@@ -178,6 +178,6 @@ public class ProductService : IProductService
 
     public Task<List<Product>> GetAllAsNoTrackingAsync(string q)
     {
-        return _productDal.GetAllAsNoTrackingAsync(p => EF.Functions.Like(p.ProductName, $"%{q}%"), p => p.Order);
+        return _productDal.GetAllAsNoTrackingAsync(p => EF.Functions.Like(p.ProductName, $"%{q}%"), p => p.RowOrder);
     }
 }

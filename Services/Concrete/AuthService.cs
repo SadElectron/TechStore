@@ -27,7 +27,7 @@ namespace Services.Concrete
             var passwordHashString = Convert.ToHexStringLower(passwordHash);
 
             var userDb = await _authDal.GetAsNoTrackingAsync(u => u.Email == email && u.Password == passwordHashString);
-            if (userDb == null || userDb.Order == 0)
+            if (userDb == null || userDb.RowOrder == 0)
             {
                 return new LoginResult(default, "", "", false);
             }
@@ -40,20 +40,20 @@ namespace Services.Concrete
             return new LoginResult(default, "", "", false);
         }
         
-        public async Task<string> CreateTokenAsync(Guid userId)
+        public async Task<string> CreateTokenAsync(string refreshToken)
         {
 
-            var userDb = await _authDal.GetAsNoTrackingAsync(u => u.Id == userId);
-            var token = _tokenProvider.Create(userDb!);
+            var refreshTokenEntity = await _refreshTokenDal.GetWithUserAsync(refreshToken);
+            var token = _tokenProvider.Create(refreshTokenEntity!.User!);
             return token;
         
         }
 
-        public async Task<bool> ValidateToken(string token, Guid userId)
+        public async Task<bool> ValidateToken(string token)
         {
             var refreshToken = await _refreshTokenDal.GetAsNoTrackingAsync(r => r.Token == token);
-            if (refreshToken == null) return false;
-            return refreshToken.UserId == userId;
+            if (refreshToken != null) return true;
+            return false;
         }
 
         public async Task<string> AddRefreshTokenAsync(Guid userId)
@@ -83,8 +83,8 @@ namespace Services.Concrete
 
             if (emailCheck && userNameCheck && passwordCheck)
             {
-                int lastOrder = await _authDal.GetLastOrderAsync();
-                user.Order = lastOrder + 1;
+                var lastOrder = await _authDal.GetLastOrderAsync();
+                user.RowOrder = lastOrder + 1;
                 user.Role = role;
                 user.Password = passwd;
                 User addUserResult = await _authDal.AddAsync(user);

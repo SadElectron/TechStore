@@ -84,7 +84,7 @@ public class PropertyController : ControllerBase
     public async Task<IActionResult> GetLastItemOrder()
     {
         
-        int order = await _propertyService.GetLastItemOrder();
+        var order = await _propertyService.GetLastItemOrder();
         return Ok(order);
     }
 

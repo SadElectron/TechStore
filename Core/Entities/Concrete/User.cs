@@ -7,10 +7,8 @@ using System.Threading.Tasks;
 
 namespace Core.Entities.Concrete
 {
-    public class User : IEntity
+    public class User : Entity
     {
-        public Guid Id { get; set; }
-        public int Order { get; set; }
         public string Email { get; set; } = string.Empty;
         public string UserName { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;

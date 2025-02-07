@@ -13,8 +13,8 @@ public interface IAuthService
 {
     Task<RegisterUserResult> Register(User user, string role);
     Task<LoginResult> Login(string email, string passwd);
-    Task<bool> ValidateToken(string token, Guid userId);
+    Task<bool> ValidateToken(string token);
     Task<string> AddRefreshTokenAsync(Guid userId);
     Task DeleteTokenAsync(string token);
-    Task<string> CreateTokenAsync(Guid userId);
+    Task<string> CreateTokenAsync(string refreshToken);
 }

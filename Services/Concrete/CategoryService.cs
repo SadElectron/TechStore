@@ -44,7 +44,7 @@ public class CategoryService : ICategoryService
 
     public Task<List<Category>> GetAllAsync(int page, int itemCount)
     {
-        return _categoryDal.GetAllAsNoTrackingAsync(page, itemCount, c => c.Order);
+        return _categoryDal.GetAllAsNoTrackingAsync(page, itemCount, c => c.RowOrder);
     }
 
     public Task<int> GetEntryCountAsync()
@@ -76,6 +76,6 @@ public class CategoryService : ICategoryService
 
     public Task<List<Category>> GetAllAsync()
     {
-        return _categoryDal.GetAllAsNoTrackingAsync(c => c.Order);
+        return _categoryDal.GetAllAsNoTrackingAsync(c => c.RowOrder);
     }
 }

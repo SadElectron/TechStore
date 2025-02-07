@@ -22,7 +22,7 @@ namespace Services.Abstract
         Task<List<Property>> GetAllAsNoTrackingAsync(Guid categoryId, int page, int itemCount);
         Task<List<Property>> GetAllAsNoTrackingAsync(Guid categoryId);
         Task<int> DeleteAsync(Guid id);
-        Task<int> GetLastItemOrder();
+        Task<double> GetLastItemOrder();
         Task<List<Property>> GetProductFilters(Guid categoryId);
 
     }

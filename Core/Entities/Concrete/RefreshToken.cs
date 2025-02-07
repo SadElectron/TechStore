@@ -7,9 +7,8 @@ using System.Threading.Tasks;
 
 namespace Core.Entities.Concrete
 {
-    public class RefreshToken : IEntity
+    public class RefreshToken : Entity
     {
-        public Guid Id { get; set; }
         public required string Token { get; set; }
         public Guid UserId { get; set; }
         public User? User { get; set; }

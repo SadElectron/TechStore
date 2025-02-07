@@ -1,5 +1,6 @@
 ﻿using Core.Dtos;
 using Core.Entities.Concrete;
+using DataAccess.Migrations;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -15,7 +16,8 @@ namespace TechStore.Api.Controllers;
 public class AuthController : ControllerBase
 {
     public record UserReq(string email, string password);
-    public record RefreshTokenReq(string RefreshToken, Guid UserId);
+    public record RefreshTokenReq(string RefreshToken);
+    public record LogoutReq(string RefreshToken);
 
 
     private readonly ILogger<AuthController> _logger;
@@ -40,19 +42,19 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("logout")]
-    public async Task<IActionResult> Logout([FromBody]string refreshToken)
+    public async Task<IActionResult> Logout([FromBody]LogoutReq logoutReq)
     {
-        await _authService.DeleteTokenAsync(refreshToken);
-        return Ok();
+        await _authService.DeleteTokenAsync(logoutReq.RefreshToken);
+        return Ok(new { message = "Logged out successfully"});
     }
 
     [HttpPost("refresh")]
     public async Task<IActionResult> Refresh([FromBody]RefreshTokenReq refreshTokenReq)
     {
-        var validationResult = await _authService.ValidateToken(refreshTokenReq.RefreshToken, refreshTokenReq.UserId);
+        var validationResult = await _authService.ValidateToken(refreshTokenReq.RefreshToken);
         if (validationResult)
         {
-            var token = await _authService.CreateTokenAsync(refreshTokenReq.UserId);
+            var token = await _authService.CreateTokenAsync(refreshTokenReq.RefreshToken);
             return Ok(new { token });
         }
         else

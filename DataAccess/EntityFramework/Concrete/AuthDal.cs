@@ -12,10 +12,10 @@ namespace DataAccess.EntityFramework.Concrete
 {
     public class AuthDal : EfDbRepository<User, EfDbContext>, IAuthDal
     {
-        public Task<int> GetLastOrderAsync()
+        public Task<double> GetLastOrderAsync()
         {
             using EfDbContext context = new EfDbContext();
-            var order = context.Users.OrderByDescending(u => u.Order).Select(u => u.Order).FirstOrDefaultAsync();
+            var order = context.Users.OrderByDescending(u => u.RowOrder).Select(u => u.RowOrder).FirstOrDefaultAsync();
             return order;
         }
     }

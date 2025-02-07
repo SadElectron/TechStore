@@ -44,7 +44,7 @@ public class DetailService : IDetailService
 
     public Task<List<Detail>> GetAllAsync(int page, int itemCount)
     {
-        return _detailDal.GetAllAsync(page, itemCount, d => d.Order);
+        return _detailDal.GetAllAsync(page, itemCount, d => d.RowOrder);
 
     }
 

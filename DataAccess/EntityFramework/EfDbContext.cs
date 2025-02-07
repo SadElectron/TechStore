@@ -468,75 +468,75 @@ public class EfDbContext : DbContext
 
     private static Category[] categories =
     [
-        new Category { Id = Guid.NewGuid(), Order = 1, CategoryName = "Cpu", LastUpdate = DateTime.UtcNow },
-        new Category { Id = Guid.NewGuid(), Order = 2, CategoryName = "Gpu", LastUpdate = DateTime.UtcNow }
+        new Category { Id = Guid.NewGuid(), RowOrder = 1, CategoryName = "Cpu", LastUpdate = DateTime.UtcNow },
+        new Category { Id = Guid.NewGuid(), RowOrder = 2, CategoryName = "Gpu", LastUpdate = DateTime.UtcNow }
     ];
 
     private static Property[] cpuProps =
     [
-        new Property { Id = Guid.NewGuid(), CategoryId = categories[0].Id, Order = 1, PropName = "Brand", LastUpdate= DateTime.UtcNow}, // 0
-        new Property { Id = Guid.NewGuid(), CategoryId = categories[0].Id, Order = 2, PropName = "Family", LastUpdate= DateTime.UtcNow}, //1
-        new Property { Id = Guid.NewGuid(), CategoryId = categories[0].Id, Order = 3, PropName = "Series", LastUpdate= DateTime.UtcNow}, //2
-        new Property { Id = Guid.NewGuid(), CategoryId = categories[0].Id, Order = 4, PropName = "Core count", LastUpdate= DateTime.UtcNow}, //3
-        new Property { Id = Guid.NewGuid(), CategoryId = categories[0].Id, Order = 5, PropName = "Thread count", LastUpdate= DateTime.UtcNow}, //4
-        new Property { Id = Guid.NewGuid(), CategoryId = categories[0].Id, Order = 6, PropName = "Base clock speed", LastUpdate = DateTime.UtcNow}, //5
-        new Property { Id = Guid.NewGuid(), CategoryId = categories[0].Id, Order = 7, PropName = "Max turbo frequency", LastUpdate = DateTime.UtcNow}, //6
-        new Property { Id = Guid.NewGuid(), CategoryId = categories[0].Id, Order = 8, PropName = "Socket type", LastUpdate = DateTime.UtcNow}, //7
-        new Property { Id = Guid.NewGuid(), CategoryId = categories[0].Id, Order = 9, PropName = "Integrated graphics", LastUpdate = DateTime.UtcNow}, //8  
-        new Property { Id = Guid.NewGuid(), CategoryId = categories[0].Id, Order = 10, PropName = "Memory support", LastUpdate = DateTime.UtcNow}, //9
-        new Property { Id = Guid.NewGuid(), CategoryId = categories[0].Id, Order = 11, PropName = "Tdp", LastUpdate = DateTime.UtcNow}, //10
-        new Property { Id = Guid.NewGuid(), CategoryId = categories[0].Id, Order = 12, PropName = "Launch date", LastUpdate = DateTime.UtcNow}, //11
-        new Property { Id = Guid.NewGuid(), CategoryId = categories[0].Id, Order = 13, PropName = "L1 cache", LastUpdate = DateTime.UtcNow}, //12
-        new Property { Id = Guid.NewGuid(), CategoryId = categories[0].Id, Order = 14, PropName = "L2 cache", LastUpdate = DateTime.UtcNow}, //13
-        new Property { Id = Guid.NewGuid(), CategoryId = categories[0].Id, Order = 15, PropName = "L3 cache", LastUpdate = DateTime.UtcNow}, //14
+        new Property { Id = Guid.NewGuid(), CategoryId = categories[0].Id, RowOrder = 1, PropName = "Brand", LastUpdate= DateTime.UtcNow}, // 0
+        new Property { Id = Guid.NewGuid(), CategoryId = categories[0].Id, RowOrder = 2, PropName = "Family", LastUpdate= DateTime.UtcNow}, //1
+        new Property { Id = Guid.NewGuid(), CategoryId = categories[0].Id, RowOrder = 3, PropName = "Series", LastUpdate= DateTime.UtcNow}, //2
+        new Property { Id = Guid.NewGuid(), CategoryId = categories[0].Id, RowOrder = 4, PropName = "Core count", LastUpdate= DateTime.UtcNow}, //3
+        new Property { Id = Guid.NewGuid(), CategoryId = categories[0].Id, RowOrder = 5, PropName = "Thread count", LastUpdate= DateTime.UtcNow}, //4
+        new Property { Id = Guid.NewGuid(), CategoryId = categories[0].Id, RowOrder = 6, PropName = "Base clock speed", LastUpdate = DateTime.UtcNow}, //5
+        new Property { Id = Guid.NewGuid(), CategoryId = categories[0].Id, RowOrder = 7, PropName = "Max turbo frequency", LastUpdate = DateTime.UtcNow}, //6
+        new Property { Id = Guid.NewGuid(), CategoryId = categories[0].Id, RowOrder = 8, PropName = "Socket type", LastUpdate = DateTime.UtcNow}, //7
+        new Property { Id = Guid.NewGuid(), CategoryId = categories[0].Id, RowOrder = 9, PropName = "Integrated graphics", LastUpdate = DateTime.UtcNow}, //8  
+        new Property { Id = Guid.NewGuid(), CategoryId = categories[0].Id, RowOrder = 10, PropName = "Memory support", LastUpdate = DateTime.UtcNow}, //9
+        new Property { Id = Guid.NewGuid(), CategoryId = categories[0].Id, RowOrder = 11, PropName = "Tdp", LastUpdate = DateTime.UtcNow}, //10
+        new Property { Id = Guid.NewGuid(), CategoryId = categories[0].Id, RowOrder = 12, PropName = "Launch date", LastUpdate = DateTime.UtcNow}, //11
+        new Property { Id = Guid.NewGuid(), CategoryId = categories[0].Id, RowOrder = 13, PropName = "L1 cache", LastUpdate = DateTime.UtcNow}, //12
+        new Property { Id = Guid.NewGuid(), CategoryId = categories[0].Id, RowOrder = 14, PropName = "L2 cache", LastUpdate = DateTime.UtcNow}, //13
+        new Property { Id = Guid.NewGuid(), CategoryId = categories[0].Id, RowOrder = 15, PropName = "L3 cache", LastUpdate = DateTime.UtcNow}, //14
     ];
     private static Product[] cpuProducts =
     [
-        new Product { Id = Guid.NewGuid(), CategoryId = categories[0].Id, Order = 1, ProductName = "AMD Ryzen™ 9 7950X3D", Stock = 30, SoldQuantity = 0, Price = 525.0, LastUpdate = DateTime.UtcNow }, //0
-        new Product { Id = Guid.NewGuid(), CategoryId = categories[0].Id, Order = 2, ProductName = "AMD Ryzen™ 9 7950X", Stock = 30, SoldQuantity = 0, Price = 519.0, LastUpdate = DateTime.UtcNow },//1
-        new Product { Id = Guid.NewGuid(), CategoryId = categories[0].Id, Order = 3, ProductName = "AMD Ryzen™ 9 7900X3D", Stock = 30, SoldQuantity = 0, Price = 399.0, LastUpdate = DateTime.UtcNow },//2
-        new Product { Id = Guid.NewGuid(), CategoryId = categories[0].Id, Order = 4, ProductName = "AMD Ryzen™ 9 7900X", Stock = 30, SoldQuantity = 0, Price = 350.0, LastUpdate = DateTime.UtcNow },//3
-        new Product { Id = Guid.NewGuid(), CategoryId = categories[0].Id, Order = 5, ProductName = "AMD Ryzen™ 9 7900", Stock = 30, SoldQuantity = 0, Price = 369.0, LastUpdate = DateTime.UtcNow },//4
-        new Product { Id = Guid.NewGuid(), CategoryId = categories[0].Id, Order = 6, ProductName = "AMD Ryzen™ 7 7800X3D", Stock = 30, SoldQuantity = 0, Price = 365.0, LastUpdate = DateTime.UtcNow },//5
-        new Product { Id = Guid.NewGuid(), CategoryId = categories[0].Id, Order = 7, ProductName = "AMD Ryzen™ 7 7700X", Stock = 30, SoldQuantity = 0, Price = 277.0, LastUpdate = DateTime.UtcNow },//6
-        new Product { Id = Guid.NewGuid(), CategoryId = categories[0].Id, Order = 8, ProductName = "AMD Ryzen™ 7 7700", Stock = 30, SoldQuantity = 0, Price = 280.0, LastUpdate = DateTime.UtcNow },//7
-        new Product { Id = Guid.NewGuid(), CategoryId = categories[0].Id, Order = 9, ProductName = "AMD Ryzen™ 5 7600X", Stock = 50, SoldQuantity = 0, Price = 195.0, LastUpdate = DateTime.UtcNow },//8
-        new Product { Id = Guid.NewGuid(), CategoryId = categories[0].Id, Order = 10, ProductName = "AMD Ryzen™ 5 7600", Stock = 50, SoldQuantity = 0, Price = 180.0, LastUpdate = DateTime.UtcNow },//9
-        new Product { Id = Guid.NewGuid(), CategoryId = categories[0].Id, Order = 11, ProductName = "AMD Ryzen™ 5 7500F", Stock = 50, SoldQuantity = 0, Price = 150.0, LastUpdate = DateTime.UtcNow }//10
+        new Product { Id = Guid.NewGuid(), CategoryId = categories[0].Id, RowOrder = 1, ProductName = "AMD Ryzen™ 9 7950X3D", Stock = 30, SoldQuantity = 0, Price = 525.0, LastUpdate = DateTime.UtcNow }, //0
+        new Product { Id = Guid.NewGuid(), CategoryId = categories[0].Id, RowOrder = 2, ProductName = "AMD Ryzen™ 9 7950X", Stock = 30, SoldQuantity = 0, Price = 519.0, LastUpdate = DateTime.UtcNow },//1
+        new Product { Id = Guid.NewGuid(), CategoryId = categories[0].Id, RowOrder = 3, ProductName = "AMD Ryzen™ 9 7900X3D", Stock = 30, SoldQuantity = 0, Price = 399.0, LastUpdate = DateTime.UtcNow },//2
+        new Product { Id = Guid.NewGuid(), CategoryId = categories[0].Id, RowOrder = 4, ProductName = "AMD Ryzen™ 9 7900X", Stock = 30, SoldQuantity = 0, Price = 350.0, LastUpdate = DateTime.UtcNow },//3
+        new Product { Id = Guid.NewGuid(), CategoryId = categories[0].Id, RowOrder = 5, ProductName = "AMD Ryzen™ 9 7900", Stock = 30, SoldQuantity = 0, Price = 369.0, LastUpdate = DateTime.UtcNow },//4
+        new Product { Id = Guid.NewGuid(), CategoryId = categories[0].Id, RowOrder = 6, ProductName = "AMD Ryzen™ 7 7800X3D", Stock = 30, SoldQuantity = 0, Price = 365.0, LastUpdate = DateTime.UtcNow },//5
+        new Product { Id = Guid.NewGuid(), CategoryId = categories[0].Id, RowOrder = 7, ProductName = "AMD Ryzen™ 7 7700X", Stock = 30, SoldQuantity = 0, Price = 277.0, LastUpdate = DateTime.UtcNow },//6
+        new Product { Id = Guid.NewGuid(), CategoryId = categories[0].Id, RowOrder = 8, ProductName = "AMD Ryzen™ 7 7700", Stock = 30, SoldQuantity = 0, Price = 280.0, LastUpdate = DateTime.UtcNow },//7
+        new Product { Id = Guid.NewGuid(), CategoryId = categories[0].Id, RowOrder = 9, ProductName = "AMD Ryzen™ 5 7600X", Stock = 50, SoldQuantity = 0, Price = 195.0, LastUpdate = DateTime.UtcNow },//8
+        new Product { Id = Guid.NewGuid(), CategoryId = categories[0].Id, RowOrder = 10, ProductName = "AMD Ryzen™ 5 7600", Stock = 50, SoldQuantity = 0, Price = 180.0, LastUpdate = DateTime.UtcNow },//9
+        new Product { Id = Guid.NewGuid(), CategoryId = categories[0].Id, RowOrder = 11, ProductName = "AMD Ryzen™ 5 7500F", Stock = 50, SoldQuantity = 0, Price = 150.0, LastUpdate = DateTime.UtcNow }//10
     ];
 
     private static Detail[] details =
     [
-        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[0].Id, Order = 1, PropertyId = cpuProps[0].Id, PropValue = "AMD", LastUpdate = DateTime.UtcNow},
-        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[0].Id, Order = 2, PropertyId = cpuProps[1].Id, PropValue = "Ryzen", LastUpdate = DateTime.UtcNow},
-        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[0].Id, Order = 3, PropertyId = cpuProps[2].Id, PropValue = "7000", LastUpdate = DateTime.UtcNow},
-        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[0].Id, Order = 4, PropertyId = cpuProps[3].Id, PropValue = "16", LastUpdate = DateTime.UtcNow},
-        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[0].Id, Order = 5, PropertyId = cpuProps[4].Id, PropValue = "32", LastUpdate = DateTime.UtcNow},
-        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[0].Id, Order = 6, PropertyId = cpuProps[5].Id, PropValue = "4.2 GHz", LastUpdate = DateTime.UtcNow},
-        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[0].Id, Order = 7, PropertyId = cpuProps[6].Id, PropValue = "5.7 GHz", LastUpdate = DateTime.UtcNow},
-        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[0].Id, Order = 8, PropertyId = cpuProps[7].Id, PropValue = "AM5", LastUpdate = DateTime.UtcNow},
-        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[0].Id, Order = 9, PropertyId = cpuProps[8].Id, PropValue = "AMD Radeon™ Graphics", LastUpdate = DateTime.UtcNow},
-        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[0].Id, Order = 10, PropertyId = cpuProps[9].Id, PropValue = "DDR5", LastUpdate = DateTime.UtcNow},
-        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[0].Id, Order = 11, PropertyId = cpuProps[10].Id, PropValue = "120W", LastUpdate = DateTime.UtcNow},
-        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[0].Id, Order = 12, PropertyId = cpuProps[11].Id, PropValue = "2023-02-28", LastUpdate = DateTime.UtcNow},
-        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[0].Id, Order = 13, PropertyId = cpuProps[13].Id, PropValue = "16 MB", LastUpdate = DateTime.UtcNow},
-        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[0].Id, Order = 14, PropertyId = cpuProps[14].Id, PropValue = "128 MB", LastUpdate = DateTime.UtcNow},
+        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[0].Id, RowOrder = 1, PropertyId = cpuProps[0].Id, PropValue = "AMD", LastUpdate = DateTime.UtcNow},
+        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[0].Id, RowOrder = 2, PropertyId = cpuProps[1].Id, PropValue = "Ryzen", LastUpdate = DateTime.UtcNow},
+        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[0].Id, RowOrder = 3, PropertyId = cpuProps[2].Id, PropValue = "7000", LastUpdate = DateTime.UtcNow},
+        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[0].Id, RowOrder = 4, PropertyId = cpuProps[3].Id, PropValue = "16", LastUpdate = DateTime.UtcNow},
+        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[0].Id, RowOrder = 5, PropertyId = cpuProps[4].Id, PropValue = "32", LastUpdate = DateTime.UtcNow},
+        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[0].Id, RowOrder = 6, PropertyId = cpuProps[5].Id, PropValue = "4.2 GHz", LastUpdate = DateTime.UtcNow},
+        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[0].Id, RowOrder = 7, PropertyId = cpuProps[6].Id, PropValue = "5.7 GHz", LastUpdate = DateTime.UtcNow},
+        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[0].Id, RowOrder = 8, PropertyId = cpuProps[7].Id, PropValue = "AM5", LastUpdate = DateTime.UtcNow},
+        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[0].Id, RowOrder = 9, PropertyId = cpuProps[8].Id, PropValue = "AMD Radeon™ Graphics", LastUpdate = DateTime.UtcNow},
+        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[0].Id, RowOrder = 10, PropertyId = cpuProps[9].Id, PropValue = "DDR5", LastUpdate = DateTime.UtcNow},
+        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[0].Id, RowOrder = 11, PropertyId = cpuProps[10].Id, PropValue = "120W", LastUpdate = DateTime.UtcNow},
+        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[0].Id, RowOrder = 12, PropertyId = cpuProps[11].Id, PropValue = "2023-02-28", LastUpdate = DateTime.UtcNow},
+        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[0].Id, RowOrder = 13, PropertyId = cpuProps[13].Id, PropValue = "16 MB", LastUpdate = DateTime.UtcNow},
+        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[0].Id, RowOrder = 14, PropertyId = cpuProps[14].Id, PropValue = "128 MB", LastUpdate = DateTime.UtcNow},
        
         // AMD Ryzen™ 9 7950X
-        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[1].Id, Order = 1, PropertyId = cpuProps[0].Id, PropValue = "AMD", LastUpdate = DateTime.UtcNow },
-        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[1].Id, Order = 2, PropertyId = cpuProps[1].Id, PropValue = "Ryzen", LastUpdate = DateTime.UtcNow },
-        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[1].Id, Order = 3, PropertyId = cpuProps[2].Id, PropValue = "7000", LastUpdate = DateTime.UtcNow},
-        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[1].Id, Order = 4, PropertyId = cpuProps[3].Id, PropValue = "16" , LastUpdate = DateTime.UtcNow},
-        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[1].Id, Order = 5, PropertyId = cpuProps[4].Id, PropValue = "32" , LastUpdate = DateTime.UtcNow},
-        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[1].Id, Order = 6, PropertyId = cpuProps[5].Id, PropValue = "4.5 GHz" , LastUpdate = DateTime.UtcNow},
-        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[1].Id, Order = 7, PropertyId = cpuProps[6].Id, PropValue = "5.7 GHz" , LastUpdate = DateTime.UtcNow},
-        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[1].Id, Order = 8, PropertyId = cpuProps[7].Id, PropValue = "AM5" , LastUpdate = DateTime.UtcNow},
-        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[1].Id, Order = 9, PropertyId = cpuProps[8].Id, PropValue = "AMD Radeon™ Graphics" , LastUpdate = DateTime.UtcNow},
-        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[1].Id, Order = 10, PropertyId = cpuProps[9].Id, PropValue = "DDR5" , LastUpdate = DateTime.UtcNow},
-        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[1].Id, Order = 11, PropertyId = cpuProps[10].Id, PropValue = "170W" , LastUpdate = DateTime.UtcNow},
-        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[1].Id, Order = 12, PropertyId = cpuProps[11].Id, PropValue = "2022-09-27" , LastUpdate = DateTime.UtcNow},
-        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[1].Id, Order = 13, PropertyId = cpuProps[13].Id, PropValue = "16 MB" , LastUpdate = DateTime.UtcNow},
-        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[1].Id, Order = 14, PropertyId = cpuProps[14].Id, PropValue = "64 MB" , LastUpdate = DateTime.UtcNow},
+        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[1].Id, RowOrder = 1, PropertyId = cpuProps[0].Id, PropValue = "AMD", LastUpdate = DateTime.UtcNow },
+        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[1].Id, RowOrder = 2, PropertyId = cpuProps[1].Id, PropValue = "Ryzen", LastUpdate = DateTime.UtcNow },
+        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[1].Id, RowOrder = 3, PropertyId = cpuProps[2].Id, PropValue = "7000", LastUpdate = DateTime.UtcNow},
+        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[1].Id, RowOrder = 4, PropertyId = cpuProps[3].Id, PropValue = "16" , LastUpdate = DateTime.UtcNow},
+        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[1].Id, RowOrder = 5, PropertyId = cpuProps[4].Id, PropValue = "32" , LastUpdate = DateTime.UtcNow},
+        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[1].Id, RowOrder = 6, PropertyId = cpuProps[5].Id, PropValue = "4.5 GHz" , LastUpdate = DateTime.UtcNow},
+        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[1].Id, RowOrder = 7, PropertyId = cpuProps[6].Id, PropValue = "5.7 GHz" , LastUpdate = DateTime.UtcNow},
+        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[1].Id, RowOrder = 8, PropertyId = cpuProps[7].Id, PropValue = "AM5" , LastUpdate = DateTime.UtcNow},
+        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[1].Id, RowOrder = 9, PropertyId = cpuProps[8].Id, PropValue = "AMD Radeon™ Graphics" , LastUpdate = DateTime.UtcNow},
+        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[1].Id, RowOrder = 10, PropertyId = cpuProps[9].Id, PropValue = "DDR5" , LastUpdate = DateTime.UtcNow},
+        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[1].Id, RowOrder = 11, PropertyId = cpuProps[10].Id, PropValue = "170W" , LastUpdate = DateTime.UtcNow},
+        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[1].Id, RowOrder = 12, PropertyId = cpuProps[11].Id, PropValue = "2022-09-27" , LastUpdate = DateTime.UtcNow},
+        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[1].Id, RowOrder = 13, PropertyId = cpuProps[13].Id, PropValue = "16 MB" , LastUpdate = DateTime.UtcNow},
+        new Detail { Id = Guid.NewGuid(), ProductId = cpuProducts[1].Id, RowOrder = 14, PropertyId = cpuProps[14].Id, PropValue = "64 MB" , LastUpdate = DateTime.UtcNow},
 
     ];
 }

@@ -7,15 +7,15 @@ using System.Threading.Tasks;
 
 namespace Core.Entities.Concrete
 {
-    public class Detail : IEntity
+    public class Detail : Entity
     {
-        public Guid Id { get; set; }
-        public Guid ProductId { get; set; }
-        public Guid PropertyId { get; set; }
-        public int Order { get; set; }
         public required string PropValue { get; set; }
-        public DateTime LastUpdate { get; set; }
+
+
+        public Guid PropertyId { get; set; }
         public Property? Property { get; set; }
+
+        public Guid ProductId { get; set; }
         public Product? Product { get; set; }
 
     }

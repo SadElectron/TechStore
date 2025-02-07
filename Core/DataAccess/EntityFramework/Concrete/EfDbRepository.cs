@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 namespace Core.DataAccess.EntityFramework.Concrete
 {
     public class EfDbRepository<TEntity, TContext> : IEfDbRepository<TEntity>
-        where TEntity : class, IEntity
+        where TEntity : Entity
         where TContext : DbContext, new()
     {
         public Task<List<TEntity>> GetAllAsync(int page, int itemCount, Expression<Func<TEntity, object>> orderFilter)

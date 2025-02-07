@@ -19,9 +19,9 @@ public class PropertyDal : EfDbRepository<Property, EfDbContext>, IPropertyDal
     {
         using EfDbContext context = new EfDbContext();
 
-        Task<int> lastOrder = context.Properties.Where(p => p.CategoryId == property.CategoryId).OrderByDescending(c => c.Order).Select(c => c.Order).FirstOrDefaultAsync();
+        Task<double> lastOrder = context.Properties.Where(p => p.CategoryId == property.CategoryId).OrderByDescending(c => c.RowOrder).Select(c => c.RowOrder).FirstOrDefaultAsync();
 
-        property.Order = await lastOrder + 1;
+        property.RowOrder = await lastOrder + 1;
 
         var addedEntity = await context.Properties.AddAsync(property);
         await context.SaveChangesAsync();
@@ -38,12 +38,12 @@ public class PropertyDal : EfDbRepository<Property, EfDbContext>, IPropertyDal
         {
             return 0;
         }
-        int order = entity.Order;
+        double order = entity.RowOrder;
 
         int deletedEntryCount = await context.Properties.Where(p => p.Id == id).ExecuteDeleteAsync();
         if (deletedEntryCount > 0)
         {
-            await context.Properties.Where(p => (p.CategoryId == entity.CategoryId && p.Order > order)).ExecuteUpdateAsync(s => s.SetProperty(p => p.Order, p => p.Order - 1));
+            await context.Properties.Where(p => (p.CategoryId == entity.CategoryId && p.RowOrder > order)).ExecuteUpdateAsync(s => s.SetProperty(p => p.RowOrder, p => p.RowOrder - 1));
         }
 
         return deletedEntryCount;
@@ -57,22 +57,22 @@ public class PropertyDal : EfDbRepository<Property, EfDbContext>, IPropertyDal
         try
         {
 
-            int currentOrder = await context.Properties.Where(p => p.Id == entity.Id).Select(p => p.Order).SingleOrDefaultAsync();
+            double currentOrder = await context.Properties.Where(p => p.Id == entity.Id).Select(p => p.RowOrder).SingleOrDefaultAsync();
 
-            if (currentOrder < entity.Order)
+            if (currentOrder < entity.RowOrder)
             {
                 // Shift entities up
                 await context.Properties
-                    .Where(e => e.Order > currentOrder && e.Order <= entity.Order)
-                    .OrderBy(e => e.Order)
-                    .ExecuteUpdateAsync(s => s.SetProperty(p => p.Order, p => p.Order - 1));
+                    .Where(e => e.RowOrder > currentOrder && e.RowOrder <= entity.RowOrder)
+                    .OrderBy(e => e.RowOrder)
+                    .ExecuteUpdateAsync(s => s.SetProperty(p => p.RowOrder, p => p.RowOrder - 1));
             }
-            else if (currentOrder > entity.Order)
+            else if (currentOrder > entity.RowOrder)
             {
                 // Shift entities down
-                await context.Properties.Where(e => e.Order < currentOrder && e.Order >= entity.Order)
-                    .OrderByDescending(e => e.Order)
-                    .ExecuteUpdateAsync(s => s.SetProperty(p => p.Order, p => p.Order + 1));
+                await context.Properties.Where(e => e.RowOrder < currentOrder && e.RowOrder >= entity.RowOrder)
+                    .OrderByDescending(e => e.RowOrder)
+                    .ExecuteUpdateAsync(s => s.SetProperty(p => p.RowOrder, p => p.RowOrder + 1));
             }
             entity.LastUpdate = DateTime.UtcNow;
             context.Properties.Update(entity);
@@ -89,10 +89,10 @@ public class PropertyDal : EfDbRepository<Property, EfDbContext>, IPropertyDal
 
     }
 
-    public Task<int> GetLastItemOrder()
+    public Task<double> GetLastItemOrder()
     {
         using var context = new EfDbContext();
-        return context.Properties.OrderBy(p => p.Order).Select(p => p.Order).LastOrDefaultAsync();
+        return context.Properties.OrderBy(p => p.RowOrder).Select(p => p.RowOrder).LastOrDefaultAsync();
 
     }
 
@@ -100,7 +100,7 @@ public class PropertyDal : EfDbRepository<Property, EfDbContext>, IPropertyDal
     {
         using var context = new EfDbContext();
         var properties = await context.Properties.Where(p => p.CategoryId == categoryId)
-            .OrderBy(p => p.Order)
+            .OrderBy(p => p.RowOrder)
             .Include(p => p.Details)
             .AsNoTracking()
             .ToListAsync();

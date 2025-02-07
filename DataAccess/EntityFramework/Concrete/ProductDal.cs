@@ -24,13 +24,13 @@ public class ProductDal : EfDbRepository<Product, EfDbContext>, IProductDal
             Id = p.Id,
             ProductName = p.ProductName,
             Stock = p.Stock,
-            Details = p.Details.OrderBy(d => d.Order).Select(d => new CustomerDetailDto
+            Details = p.Details.OrderBy(d => d.RowOrder).Select(d => new CustomerDetailDto
             {
                 PropName = d.Property!.PropName,
                 PropValue = d.PropValue
 
             }).ToList(),
-            Images = p.Images.OrderBy(i => i.Order).Select(i => new CustomerImageDto { File = i.File }).ToList(),
+            Images = p.Images.OrderBy(i => i.RowOrder).Select(i => new CustomerImageDto { File = i.File }).ToList(),
             Price = p.Price
 
         }).AsNoTracking().SingleOrDefaultAsync();
@@ -42,9 +42,9 @@ public class ProductDal : EfDbRepository<Product, EfDbContext>, IProductDal
     {
         using EfDbContext context = new EfDbContext();
 
-        Task<int> lastOrder = context.Products.OrderByDescending(p => p.Order).Select(p => p.Order).FirstOrDefaultAsync();
+        Task<double> lastOrder = context.Products.OrderByDescending(p => p.RowOrder).Select(p => p.RowOrder).FirstOrDefaultAsync();
 
-        product.Order = await lastOrder + 1;
+        product.RowOrder = await lastOrder + 1;
 
         var addedEntity = await context.Products.AddAsync(product);
         await context.SaveChangesAsync();
@@ -61,12 +61,12 @@ public class ProductDal : EfDbRepository<Product, EfDbContext>, IProductDal
         {
             return 0;
         }
-        int order = entity.Order;
+        double order = entity.RowOrder;
 
         int deletedEntryCount = await context.Products.Where(p => p.Id == id).ExecuteDeleteAsync();
         if (deletedEntryCount > 0)
         {
-            await context.Products.Where(p => (p.Order > order)).ExecuteUpdateAsync(s => s.SetProperty(p => p.Order, p => p.Order - 1));
+            await context.Products.Where(p => (p.RowOrder > order)).ExecuteUpdateAsync(s => s.SetProperty(p => p.RowOrder, p => p.RowOrder - 1));
         }
 
         return deletedEntryCount;
@@ -78,10 +78,10 @@ public class ProductDal : EfDbRepository<Product, EfDbContext>, IProductDal
 
 
         int loopOrder = 1;
-        foreach (var product in context.Products.OrderBy(p => p.Order))
+        foreach (var product in context.Products.OrderBy(p => p.RowOrder))
         {
 
-            product.Order = loopOrder;
+            product.RowOrder = loopOrder;
             loopOrder++;
         }
         await context.SaveChangesAsync();
@@ -93,9 +93,9 @@ public class ProductDal : EfDbRepository<Product, EfDbContext>, IProductDal
         using var context = new EfDbContext();
 
         int loopOrder = 1;
-        foreach (var product in context.Products.Where(p => p.CategoryId == categoryId).OrderBy(p => p.Order))
+        foreach (var product in context.Products.Where(p => p.CategoryId == categoryId).OrderBy(p => p.RowOrder))
         {
-            product.Order = loopOrder;
+            product.RowOrder = loopOrder;
             loopOrder++;
         }
         await context.SaveChangesAsync();
@@ -115,29 +115,29 @@ public class ProductDal : EfDbRepository<Product, EfDbContext>, IProductDal
 
         try
         {
-            int currentOrder = await context.Products.Where(p => p.Id == entity.Id).Select(p => p.Order).SingleOrDefaultAsync();
-            if (currentOrder < entity.Order)
+            double currentOrder = await context.Products.Where(p => p.Id == entity.Id).Select(p => p.RowOrder).SingleOrDefaultAsync();
+            if (currentOrder < entity.RowOrder)
             {
                 // Shift entities up
                 var entitiesBetween = context.Products
-                    .Where(e => e.Order > currentOrder && e.Order <= entity.Order)
-                    .OrderBy(e => e.Order);
+                    .Where(e => e.RowOrder > currentOrder && e.RowOrder <= entity.RowOrder)
+                    .OrderBy(e => e.RowOrder);
 
                 foreach (var e in entitiesBetween)
                 {
-                    e.Order--;
+                    e.RowOrder--;
                 }
             }
-            else if (currentOrder > entity.Order)
+            else if (currentOrder > entity.RowOrder)
             {
                 // Shift entities down
                 var entitiesBetween = context.Products
-                    .Where(e => e.Order < currentOrder && e.Order >= entity.Order)
-                    .OrderByDescending(e => e.Order);
+                    .Where(e => e.RowOrder < currentOrder && e.RowOrder >= entity.RowOrder)
+                    .OrderByDescending(e => e.RowOrder);
 
                 foreach (var e in entitiesBetween)
                 {
-                    e.Order++;
+                    e.RowOrder++;
                 }
             }
             entity.LastUpdate = DateTime.UtcNow;
@@ -178,18 +178,18 @@ public class ProductDal : EfDbRepository<Product, EfDbContext>, IProductDal
             query = query.Where(p => p.Details.Any(d => d.Property!.PropName == filterKey && filterValues.Contains(d.PropValue)));
 
         }
-        var products = await query.OrderBy(p => p.Order).Select(p => new Product
+        var products = await query.OrderBy(p => p.RowOrder).Select(p => new Product
         {
             Id = p.Id,
             ProductName = p.ProductName,
             Stock = p.Stock,
             Price = p.Price,
-            Details = p.Details.OrderBy(d => d.Order).Select(d => new Detail
+            Details = p.Details.OrderBy(d => d.RowOrder).Select(d => new Detail
             {
                 PropValue = d.PropValue,
                 Property = new Property { PropName = d.Property!.PropName }
             }).ToList(),
-            Images = p.Images.OrderBy(i => i.Order).Select(i => new Image { File = i.File }).ToList()
+            Images = p.Images.OrderBy(i => i.RowOrder).Select(i => new Image { File = i.File }).ToList()
         }).AsNoTracking()
         .Skip((page - 1) * itemCount)
         .Take(itemCount)
@@ -233,7 +233,7 @@ public class ProductDal : EfDbRepository<Product, EfDbContext>, IProductDal
 
             default:
                 {
-                    query = context.Products.Where(p => p.CategoryId == categoryId).OrderBy(p => p.Order).AsQueryable();
+                    query = context.Products.Where(p => p.CategoryId == categoryId).OrderBy(p => p.RowOrder).AsQueryable();
                     break;
                 }
         }
@@ -254,12 +254,12 @@ public class ProductDal : EfDbRepository<Product, EfDbContext>, IProductDal
             ProductName = p.ProductName,
             Stock = p.Stock,
             Price = p.Price,
-            Details = p.Details.OrderBy(d => d.Order).Select(d => new Detail
+            Details = p.Details.OrderBy(d => d.RowOrder).Select(d => new Detail
             {
                 PropValue = d.PropValue,
                 Property = new Property { PropName = d.Property!.PropName }
             }).ToList(),
-            Images = p.Images.OrderBy(i => i.Order).Select(i => new Image { File = i.File }).ToList()
+            Images = p.Images.OrderBy(i => i.RowOrder).Select(i => new Image { File = i.File }).ToList()
         }).AsNoTracking()
         .Skip((page - 1) * itemCount)
         .Take(itemCount)

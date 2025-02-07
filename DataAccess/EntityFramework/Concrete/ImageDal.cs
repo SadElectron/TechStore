@@ -20,18 +20,18 @@ namespace DataAccess.EntityFramework.Concrete
         public async Task<IEnumerable<Image>> BulkAddAsync(ICollection<Image> images)
         {
             using var context = new EfDbContext();
-            int lastOrder = await context.Images.Where(i => i.ProductId == images.First().ProductId).OrderByDescending(i => i.Order).Select(i => i.Order).FirstOrDefaultAsync();
+            double lastOrder = await context.Images.Where(i => i.ProductId == images.First().ProductId).OrderByDescending(i => i.RowOrder).Select(i => i.RowOrder).FirstOrDefaultAsync();
             foreach (var image in images)
             {
                 lastOrder += 1;
-                image.Order = lastOrder;
+                image.RowOrder = lastOrder;
                 image.LastUpdate = DateTime.UtcNow;
             }
             await context.Images.AddRangeAsync(images);
             await context.SaveChangesAsync();
             var addedImages = await context.Images
                 .Where(i => i.ProductId == images.First().ProductId)
-                .OrderBy(i => i.Order)
+                .OrderBy(i => i.RowOrder)
                 .AsNoTracking()
                 .ToListAsync();
 
@@ -69,13 +69,13 @@ namespace DataAccess.EntityFramework.Concrete
                 return 0;
             }
 
-            int order = entity.Order;
+            double order = entity.RowOrder;
 
             int deletedEntryCount = await context.Images.Where(i => i.Id == imageId).ExecuteDeleteAsync();
 
             if (deletedEntryCount > 0)
             {
-                await context.Images.Where(i => i.Order > order).ExecuteUpdateAsync(s => s.SetProperty(i => i.Order, i => i.Order - 1));
+                await context.Images.Where(i => i.RowOrder > order).ExecuteUpdateAsync(s => s.SetProperty(i => i.RowOrder, i => i.RowOrder - 1));
             }
 
             return deletedEntryCount;
@@ -89,25 +89,25 @@ namespace DataAccess.EntityFramework.Concrete
             {
                 var image = await context.Images.Where(i => i.Id == imageId).SingleOrDefaultAsync();
                 if (image is null) return null;
-                if (image.Order < newOrder)
+                if (image.RowOrder < newOrder)
                 {
                     // Shift entities up
-                    await context.Images.Where(i => i.Order > image.Order && i.Order <= newOrder && i.ProductId == image.ProductId)
-                        .OrderBy(e => e.Order)
-                        .ExecuteUpdateAsync(s => s.SetProperty(i => i.Order, i => i.Order - 1));
+                    await context.Images.Where(i => i.RowOrder > image.RowOrder && i.RowOrder <= newOrder && i.ProductId == image.ProductId)
+                        .OrderBy(e => e.RowOrder)
+                        .ExecuteUpdateAsync(s => s.SetProperty(i => i.RowOrder, i => i.RowOrder - 1));
 
 
                 }
-                else if (image.Order > newOrder)
+                else if (image.RowOrder > newOrder)
                 {
                     // Shift entities down
-                    await context.Images.Where(i => i.Order < image.Order && i.Order >= newOrder && i.ProductId == image.ProductId)
-                        .OrderByDescending(e => e.Order)
-                        .ExecuteUpdateAsync(s => s.SetProperty(i => i.Order, i => i.Order + 1));
+                    await context.Images.Where(i => i.RowOrder < image.RowOrder && i.RowOrder >= newOrder && i.ProductId == image.ProductId)
+                        .OrderByDescending(e => e.RowOrder)
+                        .ExecuteUpdateAsync(s => s.SetProperty(i => i.RowOrder, i => i.RowOrder + 1));
 
                 }
                 image.LastUpdate = DateTime.UtcNow;
-                image.Order = newOrder;
+                image.RowOrder = newOrder;
                 var updateResult = context.Images.Update(image);
                 await context.SaveChangesAsync();
                 await transaction.CommitAsync();

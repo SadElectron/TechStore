@@ -56,7 +56,7 @@ namespace Services.Concrete
 
         public Task<List<Image>> GetImagesAsync(Guid productId)
         {
-            return _imageDal.GetAllAsync(i => i.ProductId == productId, i => i.Order);
+            return _imageDal.GetAllAsync(i => i.ProductId == productId, i => i.RowOrder);
         }
 
         public Task<Image?> UpdateOrderAsync(Guid imageId, int newOrder)
@@ -66,7 +66,7 @@ namespace Services.Concrete
 
         public Task<List<Image>> GetAllAsNoTrackingAsync(Guid productId)
         {
-            return _imageDal.GetAllAsNoTrackingAsync(i => i.ProductId == productId, i => i.Order);
+            return _imageDal.GetAllAsNoTrackingAsync(i => i.ProductId == productId, i => i.RowOrder);
         }
     }
 }

@@ -10,5 +10,6 @@ namespace DataAccess.EntityFramework.Abstract
 {
     public interface IRefreshTokenDal : IEfDbRepository<RefreshToken>
     {
+        Task<RefreshToken?> GetWithUserAsync(string refreshToken);
     }
 }

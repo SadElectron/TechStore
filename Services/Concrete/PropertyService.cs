@@ -45,20 +45,20 @@ public class PropertyService : IPropertyService
     public Task<List<Property>> GetAllAsync(Guid categoryId, int page, int itemCount)
     {
         return RepoUtils.IsPageAndCountCorrect(page, itemCount) ?
-            _propertyDal.GetAllAsync(p => p.CategoryId == categoryId, page, itemCount, p => p.Order) :
+            _propertyDal.GetAllAsync(p => p.CategoryId == categoryId, page, itemCount, p => p.RowOrder) :
             Task.FromResult(new List<Property>());
 
     }
     public Task<List<Property>> GetAllAsNoTrackingAsync(Guid categoryId, int page, int itemCount)
     {
         return RepoUtils.IsPageAndCountCorrect(page, itemCount) ?
-            _propertyDal.GetAllAsNoTrackingAsync(p => p.CategoryId == categoryId, page, itemCount, p => p.Order) :
+            _propertyDal.GetAllAsNoTrackingAsync(p => p.CategoryId == categoryId, page, itemCount, p => p.RowOrder) :
             Task.FromResult(new List<Property>());
 
     }
     public Task<List<Property>> GetAllAsNoTrackingAsync(Guid categoryId)
     {
-        return _propertyDal.GetAllAsNoTrackingAsync(p => p.CategoryId == categoryId, p => p.Order);
+        return _propertyDal.GetAllAsNoTrackingAsync(p => p.CategoryId == categoryId, p => p.RowOrder);
     }
 
     public Task<int> GetEntryCountAsync()
@@ -100,7 +100,7 @@ public class PropertyService : IPropertyService
     {
         return _propertyDal.GetEntryCountAsync(p => p.CategoryId == categoryId);
     }
-    public Task<int> GetLastItemOrder()
+    public Task<double> GetLastItemOrder()
     {
         return _propertyDal.GetLastItemOrder();
     }
