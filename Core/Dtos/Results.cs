@@ -9,6 +9,7 @@ namespace Core.Dtos;
 
 public record RegisterUserResult(User user, bool success, string failReason = "");
 public record LoginResult(Guid Id, string Email, string Token, bool Status);
+public record TokenRefreshResult(Guid Id, string Token, bool Status);
 
 
 

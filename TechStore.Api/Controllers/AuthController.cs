@@ -48,15 +48,15 @@ public class AuthController : ControllerBase
     [HttpPost("refresh")]
     public async Task<IActionResult> Refresh([FromBody]string refreshToken, [FromBody]Guid userId)
     {
-        var validationResult = await _refreshTokenService.ValidateToken(refreshToken, userId);
-        if (validationResult)
+        var result = await _authService.Refresh(refreshToken, userId);
+
+        if (result.Status)
         {
-            _refreshTokenService.re
             return Ok(new { token = result.Token });
         }
         else
         {
-
+            return NotFound();
         }
         
     }
