@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Core.Entities.Concrete
 {
-    public class Product : Entity
+    public class Product : Entity, IEntity
     {
         public Guid CategoryId { get; set; }
         public required string ProductName { get; set; }

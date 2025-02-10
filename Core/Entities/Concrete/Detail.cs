@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Core.Entities.Concrete
 {
-    public class Detail : Entity
+    public class Detail : Entity, IEntity
     {
         public required string PropValue { get; set; }
 

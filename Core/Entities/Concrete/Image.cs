@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Core.Entities.Concrete;
 
-public class Image : Entity
+public class Image : Entity, IEntity
 {
     public Guid ProductId { get; set; }
     public required byte[] File { get; set; }
