@@ -64,7 +64,6 @@ public class AuthController : ControllerBase
         
     }
 
-
     [HttpPost("Register")]
     public async Task<IActionResult> Register([FromBody] UserDto userReq)
     {
@@ -72,7 +71,9 @@ public class AuthController : ControllerBase
         {
             Email = userReq.Email,
             UserName = userReq.UserName,
-            Password = userReq.Password
+            Password = userReq.Password,
+            LastUpdate = DateTime.UtcNow.AddTicks(-DateTime.UtcNow.Ticks % TimeSpan.TicksPerSecond),
+            CreatedAt = DateTime.UtcNow.AddTicks(-DateTime.UtcNow.Ticks % TimeSpan.TicksPerSecond)
         };
         RegisterUserResult registerUserResult = await _authService.Register(user, "Customer");
         return registerUserResult.success ?

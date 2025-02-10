@@ -43,7 +43,8 @@ public class PropertyDal : EfDbRepository<Property, EfDbContext>, IPropertyDal
         int deletedEntryCount = await context.Properties.Where(p => p.Id == id).ExecuteDeleteAsync();
         if (deletedEntryCount > 0)
         {
-            await context.Properties.Where(p => (p.CategoryId == entity.CategoryId && p.RowOrder > order)).ExecuteUpdateAsync(s => s.SetProperty(p => p.RowOrder, p => p.RowOrder - 1));
+            await context.Properties.Where(p => (p.CategoryId == entity.CategoryId && p.RowOrder > order))
+                .ExecuteUpdateAsync(s => s.SetProperty(p => p.RowOrder, p => p.RowOrder - 1));
         }
 
         return deletedEntryCount;

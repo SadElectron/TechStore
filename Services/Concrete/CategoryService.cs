@@ -23,7 +23,7 @@ public class CategoryService : ICategoryService
 
     public Task<Category> AddAsync(Category entity)
     {
-        entity.LastUpdate = DateTime.UtcNow;
+        
         return _categoryDal.AddOrderedAsync(entity);
     }
 
@@ -65,8 +65,12 @@ public class CategoryService : ICategoryService
 
     public Task<Category> UpdateAsync(Category entity)
     {
-        entity.LastUpdate = DateTime.UtcNow;
+        entity.LastUpdate = DateTime.UtcNow.AddTicks(-DateTime.UtcNow.Ticks % TimeSpan.TicksPerSecond);
         return _categoryDal.UpdateAsync(entity);
+    }
+    public Task<Category> UpdateAndReorderAsync(Category entity)
+    {
+        return _categoryDal.UpdateAndReorderAsync(entity);
     }
 
     public Task<List<Category>> GetFullAsync(int page = 1, int count = 10, int productPage = 1, int productCount = 10)
@@ -78,4 +82,6 @@ public class CategoryService : ICategoryService
     {
         return _categoryDal.GetAllAsNoTrackingAsync(c => c.RowOrder);
     }
+
+    
 }

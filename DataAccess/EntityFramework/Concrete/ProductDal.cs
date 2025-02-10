@@ -66,7 +66,8 @@ public class ProductDal : EfDbRepository<Product, EfDbContext>, IProductDal
         int deletedEntryCount = await context.Products.Where(p => p.Id == id).ExecuteDeleteAsync();
         if (deletedEntryCount > 0)
         {
-            await context.Products.Where(p => (p.RowOrder > order)).ExecuteUpdateAsync(s => s.SetProperty(p => p.RowOrder, p => p.RowOrder - 1));
+            await context.Products.Where(p => (p.RowOrder > order))
+                .ExecuteUpdateAsync(s => s.SetProperty(p => p.RowOrder, p => p.RowOrder - 1));
         }
 
         return deletedEntryCount;
@@ -115,32 +116,20 @@ public class ProductDal : EfDbRepository<Product, EfDbContext>, IProductDal
 
         try
         {
-            double currentOrder = await context.Products.Where(p => p.Id == entity.Id).Select(p => p.RowOrder).SingleOrDefaultAsync();
-            if (currentOrder < entity.RowOrder)
-            {
-                // Shift entities up
-                var entitiesBetween = context.Products
-                    .Where(e => e.RowOrder > currentOrder && e.RowOrder <= entity.RowOrder)
-                    .OrderBy(e => e.RowOrder);
-
-                foreach (var e in entitiesBetween)
-                {
-                    e.RowOrder--;
-                }
-            }
-            else if (currentOrder > entity.RowOrder)
+            double oldRowOrder = await context.Products.Where(p => p.Id == entity.Id).Select(p => p.RowOrder).SingleOrDefaultAsync();
+            if (oldRowOrder < entity.RowOrder)
             {
                 // Shift entities down
-                var entitiesBetween = context.Products
-                    .Where(e => e.RowOrder < currentOrder && e.RowOrder >= entity.RowOrder)
-                    .OrderByDescending(e => e.RowOrder);
-
-                foreach (var e in entitiesBetween)
-                {
-                    e.RowOrder++;
-                }
+                await context.Products.Where(e => e.RowOrder > oldRowOrder && e.RowOrder <= entity.RowOrder)
+                    .ExecuteUpdateAsync(p => p.SetProperty(p => p.RowOrder, p => p.RowOrder - 1));
             }
-            entity.LastUpdate = DateTime.UtcNow;
+            else if (oldRowOrder > entity.RowOrder)
+            {
+                // Shift entities up
+                await context.Products.Where(e => e.RowOrder < oldRowOrder && e.RowOrder >= entity.RowOrder)
+                    .ExecuteUpdateAsync(p => p.SetProperty(p => p.RowOrder, p => p.RowOrder + 1));
+            }
+            entity.LastUpdate = DateTime.UtcNow.AddTicks(-DateTime.UtcNow.Ticks % TimeSpan.TicksPerSecond);
             context.Products.Update(entity);
             await context.SaveChangesAsync();
             await transaction.CommitAsync();

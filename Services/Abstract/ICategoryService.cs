@@ -18,6 +18,8 @@ namespace Services.Abstract
         Task<Category?> GetAsync(Guid id);
         Task<Category?> GetAsync(Expression<Func<Category, bool>> filter);
         Task<Category> UpdateAsync(Category entity);
+        Task<Category> UpdateAndReorderAsync(Category entity);
+
         Task<int> GetEntryCountAsync();
         Task<int> GetProductCountAsync(Guid categoryId);
         Task<int> GetPropertyCount(Guid categoryId);

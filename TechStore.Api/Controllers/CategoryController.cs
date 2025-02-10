@@ -118,15 +118,15 @@ public class CategoryController : ControllerBase
     }
 
     // UPDATE
-    [HttpPut("Update/{id}")]
-    public async Task<IActionResult> UpdateCategory(Guid id, Category entityToUpdate)
+    [HttpPut("Update")]
+    public async Task<IActionResult> UpdateCategory(Category entityToUpdate)
     {
-        var entity = await _categoryService.GetAsync(id);
+        var entity = await _categoryService.GetAsync(entityToUpdate.Id);
         if (entity == null)
         {
             return NotFound();
         }
-        var addedEntity = await _categoryService.AddAsync(entityToUpdate);
+        var addedEntity = await _categoryService.UpdateAndReorderAsync(entityToUpdate);
 
         return Ok(addedEntity);
     }
