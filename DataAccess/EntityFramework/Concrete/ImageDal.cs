@@ -3,6 +3,7 @@ using Core.Entities.Abstract;
 using Core.Entities.Concrete;
 using DataAccess.EntityFramework.Abstract;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,21 +18,35 @@ namespace DataAccess.EntityFramework.Concrete
         {
 
         }
-        public async Task<IEnumerable<Image>> BulkAddAsync(ICollection<Image> images)
+        public async Task<IEnumerable<Image>> AddAllAsync(ICollection<Image> images)
         {
             using var context = new EfDbContext();
-            double lastOrder = await context.Images.Where(i => i.ProductId == images.First().ProductId).OrderByDescending(i => i.RowOrder).Select(i => i.RowOrder).FirstOrDefaultAsync();
+            double lastOrder = await context.Images.OrderByDescending(i => i.RowOrder)
+                .Take(2)
+                .Select(i => i.RowOrder)
+                .FirstOrDefaultAsync();
+            double lastImageOrder = await context.Images.Where(i => i.ProductId == images.First().ProductId)
+                .OrderByDescending(i => i.ImageOrder)
+                .Take(2)
+                .Select(i => i.ImageOrder)
+                .FirstOrDefaultAsync();
+
             foreach (var image in images)
             {
                 lastOrder += 1;
                 image.RowOrder = lastOrder;
+                if (image.ImageOrder == 0)
+                {
+                    lastImageOrder++;
+                    image.ImageOrder = lastImageOrder;
+                }
                 image.LastUpdate = DateTime.UtcNow;
             }
             await context.Images.AddRangeAsync(images);
             await context.SaveChangesAsync();
             var addedImages = await context.Images
                 .Where(i => i.ProductId == images.First().ProductId)
-                .OrderBy(i => i.RowOrder)
+                .OrderBy(i => i.ImageOrder)
                 .AsNoTracking()
                 .ToListAsync();
 
@@ -44,21 +59,7 @@ namespace DataAccess.EntityFramework.Concrete
 
         }
 
-        public async Task<IEnumerable<Image>> DeleteAsync(Guid imageId)
-        {
-            using var context = new EfDbContext();
-
-            var image = await context.Images.SingleOrDefaultAsync(i => i.Id == imageId);
-            Guid productId = image.ProductId;
-
-            context.Images.Remove(image);
-            await context.SaveChangesAsync();
-            var currentImages = await context.Images.Where(i => i.ProductId == productId).ToListAsync();
-
-            return currentImages;
-
-
-        }
+        
         public async Task<int> DeleteAndReorderAsync(Guid imageId)
         {
             using var context = new EfDbContext();

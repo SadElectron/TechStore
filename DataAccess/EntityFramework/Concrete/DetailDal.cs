@@ -18,9 +18,9 @@ namespace DataAccess.EntityFramework.Concrete
         {
             using EfDbContext context = new EfDbContext();
 
-            double order = await context.Properties.Where(p => p.Id == detail.PropertyId).Select(p => p.RowOrder).FirstOrDefaultAsync();
+            double order = await context.Details.OrderByDescending(d => d.RowOrder).Take(3).Select(d => d.RowOrder).FirstOrDefaultAsync();
 
-            detail.RowOrder = order;
+            detail.RowOrder = order + 1;
 
             var addedEntity = await context.Details.AddAsync(detail);
             await context.SaveChangesAsync();
@@ -32,7 +32,10 @@ namespace DataAccess.EntityFramework.Concrete
         public async Task<List<Detail>> GetAllWithPropsAsNoTrackingAsync(Guid productId)
         {
             using EfDbContext context = new EfDbContext();
-            return await context.Details.Where(d => d.ProductId == productId).OrderBy(d => d.Property.RowOrder).Include(d => d.Property).ToListAsync();
+            return await context.Details.Where(d => d.ProductId == productId)
+                .Include(d => d.Property)
+                .OrderBy(d => d.Property!.PropOrder)
+                .ToListAsync();
         }
         public async Task<List<Detail>> UpdateDetailsAsync(List<Detail> details)
         {

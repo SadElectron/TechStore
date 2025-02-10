@@ -9,9 +9,12 @@ namespace Core.Entities.Concrete
 {
     public class Property : Entity, IEntity
     {
-        public Guid CategoryId { get; set; }
+        public double PropOrder { get; set; }
         public required string PropName { get; set; }
+
+        public Guid CategoryId { get; set; }
         public Category? Category { get; set; }
+
         public ICollection<Detail> Details { get; set; } = new List<Detail>();
     }
 }

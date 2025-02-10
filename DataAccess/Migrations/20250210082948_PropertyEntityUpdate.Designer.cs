@@ -3,6 +3,7 @@ using System;
 using DataAccess.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccess.Migrations
 {
     [DbContext(typeof(EfDbContext))]
-    partial class EfDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250210082948_PropertyEntityUpdate")]
+    partial class PropertyEntityUpdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
@@ -87,9 +90,6 @@ namespace DataAccess.Migrations
                     b.Property<byte[]>("File")
                         .IsRequired()
                         .HasColumnType("BLOB");
-
-                    b.Property<double>("ImageOrder")
-                        .HasColumnType("REAL");
 
                     b.Property<DateTime>("LastUpdate")
                         .HasColumnType("TEXT");

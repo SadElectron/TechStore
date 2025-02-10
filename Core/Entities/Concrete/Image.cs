@@ -9,8 +9,10 @@ namespace Core.Entities.Concrete;
 
 public class Image : Entity, IEntity
 {
-    public Guid ProductId { get; set; }
+    public double ImageOrder { get; set; }
     public required byte[] File { get; set; }
+
+    public Guid ProductId { get; set; }
     public Product? Product { get; set; }
 }
 

@@ -36,7 +36,7 @@ namespace Services.Concrete
                     File = memoryStream.ToArray()
                 });
             }
-            return await _imageDal.BulkAddAsync(images);
+            return await _imageDal.AddAllAsync(images);
         }
 
         public Task<int> DeleteImagesAsync(Guid productId)
@@ -49,9 +49,10 @@ namespace Services.Concrete
             return _imageDal.DeleteAndReorderAsync(imageId);
         }
 
-        public Task<IEnumerable<Image>> DeleteAsync(Guid imageId)
+        public async Task<Image> DeleteAsync(Guid imageId)
         {
-            return _imageDal.DeleteAsync(imageId);
+            var image = await _imageDal.GetAsync(i => i.Id == imageId);
+            return await _imageDal.DeleteAsync(image);
         }
 
         public Task<List<Image>> GetImagesAsync(Guid productId)
