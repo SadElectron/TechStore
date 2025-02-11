@@ -23,22 +23,7 @@ public class CategoryDal : EfDbRepository<Category, EfDbContext>, ICategoryDal
 
     }
 
-    public async Task<Category> AddOrderedAsync(Category category)
-    {
-        using EfDbContext context = new EfDbContext();
 
-        Task<double> lastOrder = context.Categories.OrderByDescending(c => c.RowOrder).Take(2).Select(c => c.RowOrder).FirstOrDefaultAsync();
-
-        category.RowOrder = await lastOrder + 1;
-        category.LastUpdate = DateTime.UtcNow.AddTicks(-DateTime.UtcNow.Ticks % TimeSpan.TicksPerSecond);
-        category.CreatedAt = DateTime.UtcNow.AddTicks(-DateTime.UtcNow.Ticks % TimeSpan.TicksPerSecond);
-
-        var addedEntity = await context.Categories.AddAsync(category);
-        await context.SaveChangesAsync();
-
-        return addedEntity.Entity;
-
-    }
     public async Task<Category> UpdateAndReorderAsync(Category entity)
     {
         using var context = new EfDbContext();
@@ -130,5 +115,10 @@ public class CategoryDal : EfDbRepository<Category, EfDbContext>, ICategoryDal
         return categories;
     }
 
-
+    public Task<double> GetLastOrderAsync()
+    {
+        using EfDbContext context = new EfDbContext();
+        var lastOrder = context.Categories.OrderByDescending(u => u.RowOrder).Select(u => u.RowOrder).FirstOrDefaultAsync();
+        return lastOrder;
+    }
 }

@@ -25,7 +25,7 @@ public class DetailController : ControllerBase
     [HttpPost("create")]
     public async Task<IActionResult> CreateDetail(Detail detail)
     {
-        var addedEntity = await _detailService.AddOrderedAsync(detail);
+        var addedEntity = await _detailService.AddAsync(detail);
         return Ok(addedEntity);
     }
 

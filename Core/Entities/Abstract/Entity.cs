@@ -11,7 +11,7 @@ namespace Core.Entities.Abstract
 
         public Guid Id { get; set; }
         public double RowOrder { get; set; }
-        public DateTime LastUpdate { get; set; } = DateTime.UtcNow;
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime LastUpdate { get; set; } = DateTime.UtcNow.AddTicks(-DateTime.UtcNow.Ticks % TimeSpan.TicksPerSecond);
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow.AddTicks(-DateTime.UtcNow.Ticks % TimeSpan.TicksPerSecond);
     }
 }

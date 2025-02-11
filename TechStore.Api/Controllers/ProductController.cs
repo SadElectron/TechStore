@@ -33,8 +33,8 @@ public class ProductController : ControllerBase
     public async Task<IActionResult> CreateProduct([FromForm] Product entity, [FromForm] List<IFormFile> images)
     {
 
-        Product addedEntityWithImages = await _productService.AddWithImagesAsync(entity, images);
-        var addedEntityDto = _mapper.Map<ProductDto>(addedEntityWithImages);
+        Product addedEntity = await _productService.AddAsync(entity, images);
+        var addedEntityDto = _mapper.Map<ProductDto>(addedEntity);
         return Ok(addedEntityDto);
     }
 

@@ -11,8 +11,8 @@ namespace DataAccess.EntityFramework.Abstract
 {
     public interface IDetailDal : IEfDbRepository<Detail>
     {
-        Task<Detail> AddOrderedAsync(Detail detail);
-        Task<List<Detail>> GetAllWithPropsAsNoTrackingAsync(Guid productId);
+        Task<double> GetLastOrderAsync();
+        Task<List<Detail>> GetAllWithPropsAsync(Guid productId);
         Task<List<Detail>> UpdateDetailsAsync(List<Detail> details);
     }
 }

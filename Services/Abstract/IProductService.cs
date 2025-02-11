@@ -9,7 +9,7 @@ namespace Services.Abstract
     public interface IProductService
     {
         Task<Product> AddAsync(Product entity);
-        Task<Product> AddWithImagesAsync(Product entity, List<IFormFile> imageList);
+        Task<Product> AddAsync(Product entity, List<IFormFile> imageList);
         Task<Product> GetAsync(Guid id);
         Task<Product?> GetAsync(Expression<Func<Product, bool>> filter);
         Task<Product?> GetAsNoTrackingAsync(Guid id);

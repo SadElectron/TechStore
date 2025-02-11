@@ -1,36 +1,36 @@
 ﻿using AutoMapper;
 using Core.Dtos;
-using Core.Entities.Abstract;
 using Core.Entities.Concrete;
 using Core.RequestModels;
 using DataAccess.EntityFramework.Abstract;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Services.Abstract;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
+using Core.Utils;
 
 namespace Services.Concrete;
 
 public class ProductService : IProductService
 {
     private readonly IProductDal _productDal;
+    private readonly IImageDal _imageDal;
+    private readonly IDetailDal _detailDal;
     private readonly IMapper _mapper;
 
-    public ProductService(IProductDal productDal, IMapper mapper)
+    public ProductService(IProductDal productDal, IMapper mapper, IImageDal imageDal, IDetailDal detailDal)
     {
         _productDal = productDal;
         _mapper = mapper;
+        _imageDal = imageDal;
+        _detailDal = detailDal;
     }
 
-    public Task<Product> AddAsync(Product entity)
+    public async Task<Product> AddAsync(Product entity)
     {
-        entity.LastUpdate = DateTime.UtcNow;
-
+        entity.LastUpdate = DateTimeHelper.GetUtcNow();
+        entity.CreatedAt = DateTimeHelper.GetUtcNow();
+        entity.RowOrder = await _productDal.GetLastOrderAsync() + 1;
 
         if (entity.Details != null)
         {
@@ -40,43 +40,54 @@ public class ProductService : IProductService
             }
         }
 
-        return _productDal.AddAsync(entity);
+        return await _productDal.AddAsync(entity);
     }
-    public async Task<Product> AddWithImagesAsync(Product entity, List<IFormFile> imageList)
+    public async Task<Product> AddAsync(Product entity, List<IFormFile> imageList)
     {
+
         //control image length and extension
 
         var productId = Guid.NewGuid();
-        var productCount = _productDal.GetProductCount(entity.CategoryId);
-
-        var order = 0;
+        var imageRowOrder = await _imageDal.GetLastOrderAsync();
+        var imageOrder = 0;
         entity.Images = new List<Image>();
         foreach (var image in imageList)
         {
-            order += 1;
+
+            imageRowOrder++;
+            imageOrder++;
             using var memoryStream = new MemoryStream();
             await image.CopyToAsync(memoryStream);
             entity.Images.Add(new Image
-            {
-                Id = Guid.NewGuid(),
-                ProductId = productId,
-                RowOrder = order,
-                File = memoryStream.ToArray()
-            });
+                {
+                    Id = Guid.NewGuid(),
+                    ProductId = productId,
+                    ImageOrder = imageOrder,
+                    RowOrder = imageRowOrder,
+                    File = memoryStream.ToArray(),
+                    LastUpdate = DateTimeHelper.GetUtcNow(),
+                    CreatedAt = DateTimeHelper.GetUtcNow()
+                    
+                });
         }
 
         if (entity.Details != null)
         {
+            var detailRowOrder = await _detailDal.GetLastOrderAsync();
             foreach (var detail in entity.Details)
             {
+                detailRowOrder++;
                 detail.Id = Guid.NewGuid();
                 detail.ProductId = productId;
-                detail.LastUpdate = DateTime.UtcNow;
+                detail.LastUpdate = DateTimeHelper.GetUtcNow();
+                detail.CreatedAt = DateTimeHelper.GetUtcNow();
+                detail.RowOrder = detailRowOrder;
             }
         }
-        entity.LastUpdate = DateTime.UtcNow;
+        entity.LastUpdate = DateTimeHelper.GetUtcNow();
+        entity.CreatedAt = DateTimeHelper.GetUtcNow();
         entity.Id = productId;
-        entity.RowOrder = (await productCount) + 1;
+        entity.RowOrder = await _productDal.GetLastOrderAsync() + 1;
         return await _productDal.AddOrderedAsync(entity);
 
     }
@@ -103,6 +114,7 @@ public class ProductService : IProductService
     {
         return _productDal.GetAllAsNoTrackingAsync(page, itemCount, p => p.RowOrder);
     }
+
     public Task<List<Product>> GetAllAsync(int page, int itemCount, Guid categoryId)
     {
         return _productDal.GetAllAsNoTrackingAsync(p => p.CategoryId == categoryId, page, itemCount, p => p.RowOrder);
@@ -169,7 +181,7 @@ public class ProductService : IProductService
     }
     public Task<List<Product>> GetFilteredAndSortedAsync(FilterAndSortModel filterAndSortModel, Guid categoryId, int page = 1, int itemCount = 10)
     {
-        return _productDal.GetFilteredAndSortedAsync(filterAndSortModel,categoryId, page, itemCount);
+        return _productDal.GetFilteredAndSortedAsync(filterAndSortModel, categoryId, page, itemCount);
     }
     public Task<int> GetFilteredCountAsync(List<ProductFilterModel> filters, Guid categoryId)
     {

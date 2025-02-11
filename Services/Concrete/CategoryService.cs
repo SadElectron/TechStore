@@ -21,10 +21,12 @@ public class CategoryService : ICategoryService
         _categoryDal = categoryDal;
     }
 
-    public Task<Category> AddAsync(Category entity)
+    public async Task<Category> AddAsync(Category entity)
     {
-        
-        return _categoryDal.AddOrderedAsync(entity);
+        entity.RowOrder = await _categoryDal.GetLastOrderAsync() + 1;
+        entity.LastUpdate = DateTime.UtcNow.AddTicks(-DateTime.UtcNow.Ticks % TimeSpan.TicksPerSecond);
+        entity.CreatedAt = DateTime.UtcNow.AddTicks(-DateTime.UtcNow.Ticks % TimeSpan.TicksPerSecond);
+        return await _categoryDal.AddAsync(entity);
     }
 
     public Task<int> DeleteAndReorderAsync(Guid id)

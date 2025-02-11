@@ -11,7 +11,7 @@ namespace DataAccess.EntityFramework.Abstract
 {
     public interface ICategoryDal : IEfDbRepository<Category>
     {
-        Task<Category> AddOrderedAsync(Category category);
+        Task<double> GetLastOrderAsync();
         Task<Category> UpdateAndReorderAsync(Category category);
         Task<int> DeleteAndReorderAsync(Guid id);
         Task<List<Category>> GetFullAsync(int page, int count, int productPage, int productCount);

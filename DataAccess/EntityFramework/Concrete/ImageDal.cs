@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Design;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -17,6 +18,18 @@ namespace DataAccess.EntityFramework.Concrete
         public ImageDal()
         {
 
+        }
+        public Task<double> GetLastOrderAsync()
+        {
+            using EfDbContext context = new EfDbContext();
+            var lastOrder = context.Images.OrderByDescending(e => e.RowOrder).Select(e => e.RowOrder).FirstOrDefaultAsync();
+            return lastOrder;
+        }
+        public Task<double> GetLastImageOrderAsync(Expression<Func<Image, bool>> filter)
+        {
+            using EfDbContext context = new EfDbContext();
+            var lastImageOrder = context.Images.Where(filter).OrderByDescending(e => e.ImageOrder).Select(e => e.ImageOrder).FirstOrDefaultAsync();
+            return lastImageOrder;
         }
         public async Task<IEnumerable<Image>> AddAllAsync(ICollection<Image> images)
         {

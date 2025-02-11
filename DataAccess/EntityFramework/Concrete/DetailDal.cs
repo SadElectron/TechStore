@@ -14,22 +14,15 @@ namespace DataAccess.EntityFramework.Concrete
 {
     public class DetailDal : EfDbRepository<Detail, EfDbContext>, IDetailDal
     {
-        public async Task<Detail> AddOrderedAsync(Detail detail)
+       
+        public Task<double> GetLastOrderAsync()
         {
             using EfDbContext context = new EfDbContext();
-
-            double order = await context.Details.OrderByDescending(d => d.RowOrder).Take(3).Select(d => d.RowOrder).FirstOrDefaultAsync();
-
-            detail.RowOrder = order + 1;
-
-            var addedEntity = await context.Details.AddAsync(detail);
-            await context.SaveChangesAsync();
-
-            return addedEntity.Entity;
-
+            var lastOrder = context.Details.OrderByDescending(e => e.RowOrder).Select(e => e.RowOrder).FirstOrDefaultAsync();
+            return lastOrder;
         }
 
-        public async Task<List<Detail>> GetAllWithPropsAsNoTrackingAsync(Guid productId)
+        public async Task<List<Detail>> GetAllWithPropsAsync(Guid productId)
         {
             using EfDbContext context = new EfDbContext();
             return await context.Details.Where(d => d.ProductId == productId)

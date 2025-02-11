@@ -1,6 +1,7 @@
 ﻿using Core.Entities.Abstract;
 using Core.Entities.Concrete;
 using DataAccess.EntityFramework.Abstract;
+using DataAccess.EntityFramework.Concrete;
 using Services.Abstract;
 using System;
 using System.Collections.Generic;
@@ -18,10 +19,12 @@ public class DetailService : IDetailService
     {
         _detailDal = detailDal;
     }
-    public Task<Detail> AddOrderedAsync(Detail entity)
+    public async Task<Detail> AddAsync(Detail entity)
     {
-        entity.LastUpdate = DateTime.UtcNow;
-        return _detailDal.AddOrderedAsync(entity);
+        entity.RowOrder = await _detailDal.GetLastOrderAsync() + 1;
+        entity.LastUpdate = DateTime.UtcNow.AddTicks(-DateTime.UtcNow.Ticks % TimeSpan.TicksPerSecond);
+        entity.CreatedAt = DateTime.UtcNow.AddTicks(-DateTime.UtcNow.Ticks % TimeSpan.TicksPerSecond);
+        return  await _detailDal.AddAsync(entity);
     }
 
     public Task<Detail> DeleteAsync(Detail entity)
@@ -50,7 +53,7 @@ public class DetailService : IDetailService
 
     public async Task<List<Detail>> GetProductDetailsAsync(Guid productId)
     {
-        return await _detailDal.GetAllWithPropsAsNoTrackingAsync(productId);
+        return await _detailDal.GetAllWithPropsAsync(productId);
 
     }
 

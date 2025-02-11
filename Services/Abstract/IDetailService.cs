@@ -10,7 +10,7 @@ namespace Services.Abstract
 {
     public interface IDetailService
     {
-        Task<Detail> AddOrderedAsync(Detail entity);
+        Task<Detail> AddAsync(Detail entity);
         Task<List<Detail>> GetAllAsync(int page, int itemCount);
         Task<Detail?> GetAsync(Guid id);
         Task<Detail?> GetAsync(Expression<Func<Detail, bool>> filter);

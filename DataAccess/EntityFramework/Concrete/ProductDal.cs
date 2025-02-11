@@ -34,24 +34,17 @@ public class ProductDal : EfDbRepository<Product, EfDbContext>, IProductDal
             Price = p.Price
 
         }).AsNoTracking().SingleOrDefaultAsync();
-
         return product;
 
     }
-    public async Task<Product> AddOrderedAsync(Product product)
+    public Task<double> GetLastOrderAsync()
     {
         using EfDbContext context = new EfDbContext();
-
-        Task<double> lastOrder = context.Products.OrderByDescending(p => p.RowOrder).Select(p => p.RowOrder).FirstOrDefaultAsync();
-
-        product.RowOrder = await lastOrder + 1;
-
-        var addedEntity = await context.Products.AddAsync(product);
-        await context.SaveChangesAsync();
-
-        return addedEntity.Entity;
-
+        var lastOrder = context.Products.OrderByDescending(e => e.RowOrder).Select(e => e.RowOrder).FirstOrDefaultAsync();
+        return lastOrder;
     }
+    
+   
 
     public async Task<int> DeleteAndReorderAsync(Guid id)
     {
@@ -61,24 +54,24 @@ public class ProductDal : EfDbRepository<Product, EfDbContext>, IProductDal
         {
             return 0;
         }
+        
         double order = entity.RowOrder;
-
         int deletedEntryCount = await context.Products.Where(p => p.Id == id).ExecuteDeleteAsync();
+
         if (deletedEntryCount > 0)
         {
             await context.Products.Where(p => (p.RowOrder > order))
                 .ExecuteUpdateAsync(s => s.SetProperty(p => p.RowOrder, p => p.RowOrder - 1));
         }
-
         return deletedEntryCount;
     }
 
     public async Task ReorderDb()
     {
+
         using var context = new EfDbContext();
-
-
         int loopOrder = 1;
+
         foreach (var product in context.Products.OrderBy(p => p.RowOrder))
         {
 
@@ -105,8 +98,10 @@ public class ProductDal : EfDbRepository<Product, EfDbContext>, IProductDal
 
     public Task<int> GetProductCount(Guid categoryId)
     {
+
         using var context = new EfDbContext();
         return context.Products.Where(p => p.CategoryId == categoryId).CountAsync();
+
     }
 
     public async Task<Product> UpdateAndReorderAsync(Product entity)
