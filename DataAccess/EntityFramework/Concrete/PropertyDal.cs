@@ -29,6 +29,12 @@ public class PropertyDal : EfDbRepository<Property, EfDbContext>, IPropertyDal
         return addedEntity.Entity;
 
     }
+    public Task<double> GetLastOrderAsync()
+    {
+        using EfDbContext context = new EfDbContext();
+        var lastOrder = context.Properties.OrderByDescending(e => e.RowOrder).Select(e => e.RowOrder).FirstOrDefaultAsync();
+        return lastOrder;
+    }
 
     public async Task<int> DeleteAndReorderAsync(Guid id)
     {
@@ -118,6 +124,8 @@ public class PropertyDal : EfDbRepository<Property, EfDbContext>, IPropertyDal
             .ToList();
         return result;
     }
+
+    
 }
 
 
