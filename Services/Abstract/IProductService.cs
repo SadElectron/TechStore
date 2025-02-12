@@ -17,15 +17,15 @@ namespace Services.Abstract
         Task<List<Product>> GetAllAsNoTrackingAsync(int page, int itemCount, Guid categoryId);
         Task<int> GetEntryCountAsync();
         Task<int> GetProductCountAsync(Guid categoryId);
-        Task<int> DeleteAndReorderAsync(Guid id);
-        Task<Product> UpdateAndReorderAsync(Product entity);
-        Task ReorderDb();
-        Task ReorderCategoryProducts(Guid categoryId);
         Task<CustomerProductDto?> GetFullForCustomer(Guid productId);
         Task<List<Product>> GetAllWithImagesAsync(int page, int itemCount, Guid categoryId);
         Task<List<Product>> GetFilteredAsync(List<ProductFilterModel> filters, Guid categoryId, int page = 1, int itemCount = 10);
         Task<List<Product>> GetFilteredAndSortedAsync(FilterAndSortModel filterAndSortModel, Guid categoryId, int page = 1, int itemCount = 10);
         Task<int> GetFilteredCountAsync(List<ProductFilterModel> filters, Guid categoryId);
         Task<List<Product>> GetAllAsNoTrackingAsync(string q);
+        Task<Product> UpdateAndReorderAsync(Product entity);
+        Task ReorderDb();
+        Task ReorderCategoryProducts(Guid categoryId);
+        Task<EntityDeleteResult> DeleteAndReorderAsync(Guid id);
     }
 }

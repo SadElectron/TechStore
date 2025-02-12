@@ -1,4 +1,5 @@
-﻿using Core.Entities.Abstract;
+﻿using Core.Dtos;
+using Core.Entities.Abstract;
 using Core.Entities.Concrete;
 using System;
 using System.Collections.Generic;
@@ -21,9 +22,9 @@ namespace Services.Abstract
         Task UpdateAllAsync(List<Property> properties);
         Task<List<Property>> GetAllAsNoTrackingAsync(Guid categoryId, int page, int itemCount);
         Task<List<Property>> GetAllAsNoTrackingAsync(Guid categoryId);
-        Task<int> DeleteAsync(Guid id);
         Task<double> GetLastItemOrder();
         Task<List<Property>> GetProductFilters(Guid categoryId);
+        Task<EntityDeleteResult> DeleteAndReorderAsync(Guid id);
 
     }
 }

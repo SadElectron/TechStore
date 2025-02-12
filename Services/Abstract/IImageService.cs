@@ -1,4 +1,5 @@
-﻿using Core.Entities.Concrete;
+﻿using Core.Dtos;
+using Core.Entities.Concrete;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -13,9 +14,9 @@ namespace Services.Abstract
         Task<List<Image>> GetImagesAsync(Guid productId);
         Task<List<Image>> GetAllAsNoTrackingAsync(Guid productId);
         Task<IEnumerable<Image>> BulkAddAsync(ICollection<IFormFile> images, Guid productId);
-        Task<int> DeleteAndReorderAsync(Guid imageId);
-        Task<Image> DeleteAsync(Guid imageId);
         Task<Image?> UpdateOrderAsync(Guid imageId, int newOrder);
+        Task<Image> DeleteAsync(Guid imageId);
         Task<int> DeleteImagesAsync(Guid productId);
+        Task<EntityDeleteResult> DeleteAndReorderAsync(Guid id);
     }
 }

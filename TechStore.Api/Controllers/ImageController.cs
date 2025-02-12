@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using Core.Dtos;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services.Abstract;
+using Services.Concrete;
 
 namespace TechStore.Api.Controllers
 {
@@ -45,15 +47,11 @@ namespace TechStore.Api.Controllers
 
             return Ok(result);
         }
-        [HttpDelete("Delete/{imageId}")]
-        public async Task<IActionResult> DeleteImage(Guid imageId)
+        [HttpDelete("Delete/{id}")]
+        public async Task<IActionResult> Delete(Guid id)
         {
-            int deletedCount = await _imageService.DeleteAndReorderAsync(imageId);
-            if (deletedCount > 0)
-            {
-                return NoContent();
-            }
-            return BadRequest();
+            EntityDeleteResult deleteResult = await _imageService.DeleteAndReorderAsync(id);
+            return deleteResult.IsSuccessful ? Ok() : NotFound();
         }
     }
 }

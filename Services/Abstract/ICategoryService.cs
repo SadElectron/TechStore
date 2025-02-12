@@ -17,13 +17,12 @@ namespace Services.Abstract
         Task<List<Category>> GetAllAsync(int page, int itemCount);
         Task<Category?> GetAsync(Guid id);
         Task<Category?> GetAsync(Expression<Func<Category, bool>> filter);
-        Task<Category> UpdateAsync(Category entity);
-        Task<Category> UpdateAndReorderAsync(Category entity);
-
         Task<int> GetEntryCountAsync();
         Task<int> GetProductCountAsync(Guid categoryId);
         Task<int> GetPropertyCount(Guid categoryId);
-        Task<int> DeleteAndReorderAsync(Guid id);
         Task<List<Category>> GetFullAsync(int page = 1, int count = 10, int productPage = 1, int productCount = 10);
+        Task<Category> UpdateAsync(Category entity);
+        Task<Category> UpdateAndReorderAsync(Category entity);
+        Task<EntityDeleteResult> DeleteAndReorderAsync(Guid id);
     }
 }

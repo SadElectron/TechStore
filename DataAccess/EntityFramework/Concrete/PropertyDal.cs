@@ -36,25 +36,7 @@ public class PropertyDal : EfDbRepository<Property, EfDbContext>, IPropertyDal
         return lastOrder;
     }
 
-    public async Task<int> DeleteAndReorderAsync(Guid id)
-    {
-        using EfDbContext context = new EfDbContext();
-        var entity = await context.Properties.Where(p => p.Id == id).SingleOrDefaultAsync();
-        if (entity is null)
-        {
-            return 0;
-        }
-        double order = entity.RowOrder;
-
-        int deletedEntryCount = await context.Properties.Where(p => p.Id == id).ExecuteDeleteAsync();
-        if (deletedEntryCount > 0)
-        {
-            await context.Properties.Where(p => (p.CategoryId == entity.CategoryId && p.RowOrder > order))
-                .ExecuteUpdateAsync(s => s.SetProperty(p => p.RowOrder, p => p.RowOrder - 1));
-        }
-
-        return deletedEntryCount;
-    }
+    
 
 
     public async Task<Property?> UpdateAndReorderAsync(Property entity)

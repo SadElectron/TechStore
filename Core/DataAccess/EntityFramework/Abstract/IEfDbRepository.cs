@@ -28,8 +28,7 @@ namespace Core.DataAccess.EntityFramework.Abstract
         Task<int> GetEntryCountAsync();
         Task<int> GetEntryCountAsync(Expression<Func<TEntity, bool>> filter);
         Task SaveChangesAsync();
-        
-        
+        Task<int> DeleteAndReorderAsync(Guid id);
     }
 
 

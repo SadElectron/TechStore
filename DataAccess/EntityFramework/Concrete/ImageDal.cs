@@ -73,27 +73,7 @@ namespace DataAccess.EntityFramework.Concrete
         }
 
         
-        public async Task<int> DeleteAndReorderAsync(Guid imageId)
-        {
-            using var context = new EfDbContext();
-            var entity = await context.Images.Where(i => i.Id == imageId).AsNoTracking().SingleOrDefaultAsync();
-
-            if (entity is null)
-            {
-                return 0;
-            }
-
-            double order = entity.RowOrder;
-
-            int deletedEntryCount = await context.Images.Where(i => i.Id == imageId).ExecuteDeleteAsync();
-
-            if (deletedEntryCount > 0)
-            {
-                await context.Images.Where(i => i.RowOrder > order).ExecuteUpdateAsync(s => s.SetProperty(i => i.RowOrder, i => i.RowOrder - 1));
-            }
-
-            return deletedEntryCount;
-        }
+        
         public async Task<Image?> UpdateOrderAsync(Guid imageId, int newOrder)
         {
             using var context = new EfDbContext();

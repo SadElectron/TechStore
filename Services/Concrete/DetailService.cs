@@ -1,5 +1,7 @@
-﻿using Core.Entities.Abstract;
+﻿using Core.Dtos;
+using Core.Entities.Abstract;
 using Core.Entities.Concrete;
+using Core.Utils;
 using DataAccess.EntityFramework.Abstract;
 using DataAccess.EntityFramework.Concrete;
 using Services.Abstract;
@@ -22,14 +24,24 @@ public class DetailService : IDetailService
     public async Task<Detail> AddAsync(Detail entity)
     {
         entity.RowOrder = await _detailDal.GetLastOrderAsync() + 1;
-        entity.LastUpdate = DateTime.UtcNow.AddTicks(-DateTime.UtcNow.Ticks % TimeSpan.TicksPerSecond);
-        entity.CreatedAt = DateTime.UtcNow.AddTicks(-DateTime.UtcNow.Ticks % TimeSpan.TicksPerSecond);
+        entity.LastUpdate = DateTimeHelper.GetUtcNow();
+        entity.CreatedAt = DateTimeHelper.GetUtcNow();
         return  await _detailDal.AddAsync(entity);
     }
 
     public Task<Detail> DeleteAsync(Detail entity)
     {
         return _detailDal.DeleteAsync(entity);
+
+    }
+    public async Task<EntityDeleteResult> DeleteAndReorderAsync(Guid id)
+    {
+        var entity = await _detailDal.GetAsync(c => c.Id == id);
+
+        if (entity == null) return new EntityDeleteResult(false, "Entity not found");
+
+        var i = await _detailDal.DeleteAndReorderAsync(id);
+        return i > 0 ? new EntityDeleteResult(true, "Entity deleted") : new EntityDeleteResult(false, "Entity not deleted");
 
     }
 

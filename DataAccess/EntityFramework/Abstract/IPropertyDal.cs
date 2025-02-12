@@ -13,7 +13,6 @@ namespace DataAccess.EntityFramework.Abstract
     {
         Task<double> GetLastOrderAsync();
         Task<Property> AddOrderedAsync(Property property);
-        Task<int> DeleteAndReorderAsync(Guid id);
         Task<double> GetLastItemOrder();
         Task<List<Property>> GetProductFilters(Guid categoryId);
         Task<Property?> UpdateAndReorderAsync(Property entity);

@@ -1,4 +1,5 @@
-﻿using Core.Entities.Concrete;
+﻿using Core.Dtos;
+using Core.Entities.Concrete;
 using Core.Utils;
 using DataAccess.EntityFramework.Abstract;
 using DataAccess.EntityFramework.Concrete;
@@ -109,4 +110,14 @@ public class PropertyService : IPropertyService
         return _propertyDal.GetProductFilters(categoryId);
     }
 
+    public async Task<EntityDeleteResult> DeleteAndReorderAsync(Guid id)
+    {
+        var entity = await _propertyDal.GetAsync(c => c.Id == id);
+
+        if (entity == null) return new EntityDeleteResult(false, "Entity not found");
+
+        var i = await _propertyDal.DeleteAndReorderAsync(id);
+        return i > 0 ? new EntityDeleteResult(true, "Entity deleted") : new EntityDeleteResult(false, "Entity not deleted");
+
+    }
 }

@@ -15,7 +15,6 @@ namespace DataAccess.EntityFramework.Abstract
     public interface IProductDal : IEfDbRepository<Product>
     {
         Task<double> GetLastOrderAsync();
-        Task<int> DeleteAndReorderAsync(Guid id);
         Task<CustomerProductDto?> GetFullForCustomer(Guid productId);
         Task<int> GetProductCount(Guid categoryId);
         Task ReorderCategoryProducts(Guid categoryId);

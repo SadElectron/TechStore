@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Services.Abstract;
+using Services.Concrete;
 using System.Reflection.Metadata.Ecma335;
 
 namespace TechStore.Api.Controllers;
@@ -26,12 +27,14 @@ public class CategoryController : ControllerBase
 
     // CREATE
     [HttpPost("Create")]
-    public async Task<IActionResult> CreateCategory([FromBody] Category productType)
+    public async Task<IActionResult> Create([FromBody] Category entity)
     {
-        var addedEntity = await _categoryService.AddAsync(productType);
-        var url = Url.Link("GetCategory", new { id = addedEntity.Id });
-        _logger.LogInformation(url);
-        return CreatedAtRoute("GetCategory", new { id = addedEntity.Id },_mapper.Map<CategoryDto>(addedEntity));
+        var addedEntity = await _categoryService.AddAsync(entity);
+        if (addedEntity != null)
+        {
+            return CreatedAtRoute("GetCategory", new { id = addedEntity.Id }, _mapper.Map<CategoryDto>(addedEntity));
+        }
+        return BadRequest();
     }
 
     // READ
@@ -119,33 +122,24 @@ public class CategoryController : ControllerBase
 
     // UPDATE
     [HttpPut("Update")]
-    public async Task<IActionResult> UpdateCategory(Category entityToUpdate)
+    public async Task<IActionResult> Update(Category entityToUpdate)
     {
         var entity = await _categoryService.GetAsync(entityToUpdate.Id);
         if (entity == null)
         {
             return NotFound();
         }
-        var addedEntity = await _categoryService.UpdateAndReorderAsync(entityToUpdate);
+        var updatedEntity = await _categoryService.UpdateAndReorderAsync(entityToUpdate);
 
-        return Ok(addedEntity);
+        return Ok(updatedEntity);
     }
 
     // DELETE
     [HttpDelete("Delete/{id}")]
-    public async Task<IActionResult> DeleteCategory(Guid id)
+    public async Task<IActionResult> Delete(Guid id)
     {
-
-        int deleted = await _categoryService.DeleteAndReorderAsync(id);
-
-        if (deleted > 0)
-        {
-            return NoContent();
-        }
-        else
-        {
-            return NotFound();
-        }
+        EntityDeleteResult deleteResult = await _categoryService.DeleteAndReorderAsync(id);
+        return deleteResult.IsSuccessful ? Ok() : NotFound();
 
     }
 }

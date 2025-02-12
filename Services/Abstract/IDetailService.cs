@@ -1,4 +1,5 @@
-﻿using Core.Entities.Concrete;
+﻿using Core.Dtos;
+using Core.Entities.Concrete;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,5 +20,6 @@ namespace Services.Abstract
         Task<int> GetEntryCountAsync();
         Task<List<Detail>> GetProductDetailsAsync(Guid productId);
         Task<List<Detail>> UpdateDetailsAsync(List<Detail> details);
+        Task<EntityDeleteResult> DeleteAndReorderAsync(Guid id);
     }
 }

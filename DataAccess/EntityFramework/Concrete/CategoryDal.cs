@@ -2,6 +2,7 @@
 using Core.Dtos;
 using Core.Entities.Abstract;
 using Core.Entities.Concrete;
+using Core.Utils;
 using DataAccess.EntityFramework.Abstract;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -22,7 +23,7 @@ public class CategoryDal : EfDbRepository<Category, EfDbContext>, ICategoryDal
         return context.Products.Where(p => p.CategoryId == categoryId).CountAsync();
 
     }
-
+    
 
     public async Task<Category> UpdateAndReorderAsync(Category entity)
     {
@@ -38,7 +39,7 @@ public class CategoryDal : EfDbRepository<Category, EfDbContext>, ICategoryDal
                 await context.Categories.Where(c => c.RowOrder > oldRowOrder && c.RowOrder <= entity.RowOrder)
                     .ExecuteUpdateAsync(c => c
                         .SetProperty(c => c.RowOrder, c => c.RowOrder - 1)
-                        .SetProperty(c => c.LastUpdate, DateTime.UtcNow.AddTicks(-DateTime.UtcNow.Ticks % TimeSpan.TicksPerSecond)));
+                        .SetProperty(c => c.LastUpdate, DateTimeHelper.GetUtcNow()));
             }
             else if (oldRowOrder > entity.RowOrder)
             {
@@ -46,9 +47,9 @@ public class CategoryDal : EfDbRepository<Category, EfDbContext>, ICategoryDal
                 await context.Categories.Where(c => c.RowOrder < oldRowOrder && c.RowOrder >= entity.RowOrder)
                     .ExecuteUpdateAsync(c => c
                         .SetProperty(c => c.RowOrder, c => c.RowOrder + 1)
-                        .SetProperty(c => c.LastUpdate, DateTime.UtcNow.AddTicks(-DateTime.UtcNow.Ticks % TimeSpan.TicksPerSecond)));
+                        .SetProperty(c => c.LastUpdate, DateTimeHelper.GetUtcNow()));
             }
-            entity.LastUpdate = DateTime.UtcNow.AddTicks(-DateTime.UtcNow.Ticks % TimeSpan.TicksPerSecond);
+            entity.LastUpdate = DateTimeHelper.GetUtcNow();
             context.Categories.Update(entity);
             await context.SaveChangesAsync();
             await transaction.CommitAsync();
@@ -60,25 +61,7 @@ public class CategoryDal : EfDbRepository<Category, EfDbContext>, ICategoryDal
             throw;
         }
     }
-    public async Task<int> DeleteAndReorderAsync(Guid id)
-    {
-        using EfDbContext context = new EfDbContext();
-        var entity = await context.Categories.Where(p => p.Id == id).SingleOrDefaultAsync();
-        if (entity is null)
-        {
-            return 0;
-        }
-        double order = entity.RowOrder;
-
-        int deletedEntryCount = await context.Categories.Where(p => p.Id == id).ExecuteDeleteAsync();
-        if (deletedEntryCount > 0)
-        {
-            await context.Categories.Where(c => c.RowOrder > order)
-                .ExecuteUpdateAsync(s => s.SetProperty(c => c.RowOrder, p => p.RowOrder - 1));
-        }
-
-        return deletedEntryCount;
-    }
+    
 
     public Task<int> GetPropertyCountAsync(Guid categoryId)
     {

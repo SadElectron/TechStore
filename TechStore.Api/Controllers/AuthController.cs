@@ -1,5 +1,6 @@
 ﻿using Core.Dtos;
 using Core.Entities.Concrete;
+using Core.Utils;
 using DataAccess.Migrations;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
@@ -72,8 +73,8 @@ public class AuthController : ControllerBase
             Email = userReq.Email,
             UserName = userReq.UserName,
             Password = userReq.Password,
-            LastUpdate = DateTime.UtcNow.AddTicks(-DateTime.UtcNow.Ticks % TimeSpan.TicksPerSecond),
-            CreatedAt = DateTime.UtcNow.AddTicks(-DateTime.UtcNow.Ticks % TimeSpan.TicksPerSecond)
+            LastUpdate = DateTimeHelper.GetUtcNow(),
+            CreatedAt = DateTimeHelper.GetUtcNow()
         };
         RegisterUserResult registerUserResult = await _authService.Register(user, "Customer");
         return registerUserResult.success ?

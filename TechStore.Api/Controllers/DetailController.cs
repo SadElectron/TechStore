@@ -23,14 +23,18 @@ public class DetailController : ControllerBase
 
     // CREATE
     [HttpPost("create")]
-    public async Task<IActionResult> CreateDetail(Detail detail)
+    public async Task<IActionResult> Create(Detail detail)
     {
         var addedEntity = await _detailService.AddAsync(detail);
-        return Ok(addedEntity);
+        if (addedEntity != null)
+        {
+            return CreatedAtRoute("GetDetail", new { id = addedEntity.Id },addedEntity);
+        }
+        return BadRequest();
     }
 
     // READ
-    [HttpGet("get/{id}")]
+    [HttpGet("get/{id}", Name = "GetDetail")]
     public async Task<IActionResult> GetDetail(Guid id)
     {
         var propertyValue = await _detailService.GetAsync(id);
@@ -53,24 +57,12 @@ public class DetailController : ControllerBase
         return Ok(dtos);
     }
 
-    [HttpPut("update/product/details")]
-    public async Task<IActionResult> UpdateDetailsAsync(List<Detail> details)
-    {
-        var checkList = details.Select(d => _detailService.GetAsync(d.Id));
-        var itemList = await Task.WhenAll(checkList);
-        if (itemList.Length < details.Count || itemList.Length > details.Count)
-        {
-            return BadRequest();
-        }
-        var updatedDetails = await _detailService.UpdateDetailsAsync(details);
-        
-        return Ok(updatedDetails);
-    }
+    
 
 
     // UPDATE
     [HttpPut("update/{id}")]
-    public async Task<IActionResult> UpdateDetail(Guid id, Detail entityToUpdate)
+    public async Task<IActionResult> Update(Guid id, Detail entityToUpdate)
     {
         var entity = await _detailService.GetAsync(id);
         if (entity == null)
@@ -82,17 +74,27 @@ public class DetailController : ControllerBase
         return Ok(updatedEntity);
     }
 
+    [HttpPut("update/product/details")]
+    public async Task<IActionResult> Update(List<Detail> details)
+    {
+        var checkList = details.Select(d => _detailService.GetAsync(d.Id));
+        var itemList = await Task.WhenAll(checkList);
+        if (itemList.Length < details.Count || itemList.Length > details.Count)
+        {
+            return BadRequest();
+        }
+        var updatedDetails = await _detailService.UpdateDetailsAsync(details);
+
+        return Ok(updatedDetails);
+    }
+
     // DELETE
     [HttpDelete("delete/{id}")]
-    public async Task<IActionResult> DeleteDetail(Guid id)
+    public async Task<IActionResult> Delete(Guid id)
     {
-        var entity = await _detailService.GetAsync(id);
-        if (entity == null)
-        {
-            return NotFound();
-        }
-        var deletedEntity = _detailService.DeleteAsync(entity);
-        return Ok();
+        
+        EntityDeleteResult deleteResult = await _detailService.DeleteAndReorderAsync(id);
+        return deleteResult.IsSuccessful ? Ok() : NotFound();
     }
 }
 

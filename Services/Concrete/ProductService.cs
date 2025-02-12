@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Services.Abstract;
 using System.Linq.Expressions;
 using Core.Utils;
+using DataAccess.EntityFramework.Concrete;
 
 namespace Services.Concrete;
 
@@ -79,22 +80,25 @@ public class ProductService : IProductService
                 detailRowOrder++;
                 detail.Id = Guid.NewGuid();
                 detail.ProductId = productId;
+                detail.RowOrder = detailRowOrder;
                 detail.LastUpdate = DateTimeHelper.GetUtcNow();
                 detail.CreatedAt = DateTimeHelper.GetUtcNow();
-                detail.RowOrder = detailRowOrder;
             }
         }
         entity.LastUpdate = DateTimeHelper.GetUtcNow();
         entity.CreatedAt = DateTimeHelper.GetUtcNow();
         entity.Id = productId;
         entity.RowOrder = await _productDal.GetLastOrderAsync() + 1;
-        return await _productDal.AddOrderedAsync(entity);
+        return await _productDal.AddAsync(entity);
 
     }
 
-    public Task<int> DeleteAndReorderAsync(Guid id)
+    public async Task<EntityDeleteResult> DeleteAndReorderAsync(Guid id)
     {
-        return _productDal.DeleteAndReorderAsync(id);
+        var entity = await _productDal.GetAsync(c => c.Id == id);
+        if (entity == null) return new EntityDeleteResult(false, "Entity not found");
+        var i = await _productDal.DeleteAndReorderAsync(id);
+        return i > 0 ? new EntityDeleteResult(true, "Entity deleted") : new EntityDeleteResult(false, "Entity not deleted");
     }
 
     public async Task<Product> GetAsync(Guid id)

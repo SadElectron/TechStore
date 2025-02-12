@@ -1,5 +1,7 @@
-﻿using Core.Entities.Concrete;
+﻿using Core.Dtos;
+using Core.Entities.Concrete;
 using DataAccess.EntityFramework.Abstract;
+using DataAccess.EntityFramework.Concrete;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Services.Abstract;
@@ -43,18 +45,7 @@ namespace Services.Concrete
         {
             return _imageDal.DeleteImagesAsync(productId);
         }
-
-        public Task<int> DeleteAndReorderAsync(Guid imageId)
-        {
-            return _imageDal.DeleteAndReorderAsync(imageId);
-        }
-
-        public async Task<Image> DeleteAsync(Guid imageId)
-        {
-            var image = await _imageDal.GetAsync(i => i.Id == imageId);
-            return await _imageDal.DeleteAsync(image);
-        }
-
+        
         public Task<List<Image>> GetImagesAsync(Guid productId)
         {
             return _imageDal.GetAllAsync(i => i.ProductId == productId, i => i.RowOrder);
@@ -68,6 +59,22 @@ namespace Services.Concrete
         public Task<List<Image>> GetAllAsNoTrackingAsync(Guid productId)
         {
             return _imageDal.GetAllAsNoTrackingAsync(i => i.ProductId == productId, i => i.RowOrder);
+        }
+
+        public async Task<Image> DeleteAsync(Guid imageId)
+        {
+            var image = await _imageDal.GetAsync(i => i.Id == imageId);
+            return await _imageDal.DeleteAsync(image);
+        }
+        
+        public async Task<EntityDeleteResult> DeleteAndReorderAsync(Guid id)
+        {
+            var entity = await _imageDal.GetAsync(c => c.Id == id);
+
+            if (entity == null) return new EntityDeleteResult(false, "Entity not found");
+
+            var i = await _imageDal.DeleteAndReorderAsync(id);
+            return i > 0 ? new EntityDeleteResult(true, "Entity deleted") : new EntityDeleteResult(false, "Entity not deleted");
         }
     }
 }

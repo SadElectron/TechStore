@@ -4,6 +4,7 @@ using Core.Entities.Concrete;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Services.Abstract;
+using Services.Concrete;
 
 namespace TechStore.Api.Controllers;
 
@@ -115,17 +116,11 @@ public class PropertyController : ControllerBase
 
     // DELETE
     [HttpDelete("Delete/{id}")]
-    public async Task<IActionResult> DeleteProperty(Guid id)
+    public async Task<IActionResult> Delete(Guid id)
     {
 
-        int deleted = await _propertyService.DeleteAsync(id);
-        if (deleted > 0)
-        {
-            return NoContent();
-        }
-        else
-        {
-            return NotFound();
-        }
+        EntityDeleteResult deleteResult = await _propertyService.DeleteAndReorderAsync(id);
+        return deleteResult.IsSuccessful ? Ok() : NotFound();
+
     }
 }

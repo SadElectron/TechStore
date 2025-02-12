@@ -46,25 +46,7 @@ public class ProductDal : EfDbRepository<Product, EfDbContext>, IProductDal
     
    
 
-    public async Task<int> DeleteAndReorderAsync(Guid id)
-    {
-        using var context = new EfDbContext();
-        var entity = await context.Products.Where(p => p.Id == id).SingleOrDefaultAsync();
-        if (entity is null)
-        {
-            return 0;
-        }
-        
-        double order = entity.RowOrder;
-        int deletedEntryCount = await context.Products.Where(p => p.Id == id).ExecuteDeleteAsync();
-
-        if (deletedEntryCount > 0)
-        {
-            await context.Products.Where(p => (p.RowOrder > order))
-                .ExecuteUpdateAsync(s => s.SetProperty(p => p.RowOrder, p => p.RowOrder - 1));
-        }
-        return deletedEntryCount;
-    }
+    
 
     public async Task ReorderDb()
     {

@@ -108,18 +108,10 @@ public class ProductController : ControllerBase
 
     // DELETE
     [HttpDelete("Delete/{id}")]
-    public async Task<IActionResult> DeleteProduct(Guid id)
+    public async Task<IActionResult> Delete(Guid id)
     {
 
-        int deleted = await _productService.DeleteAndReorderAsync(id);
-
-        if (deleted > 0)
-        {
-            return NoContent();
-        }
-        else
-        {
-            return NotFound();
-        }
+        EntityDeleteResult deleteResult = await _productService.DeleteAndReorderAsync(id);
+        return deleteResult.IsSuccessful ? Ok() : NotFound();
     }
 }
