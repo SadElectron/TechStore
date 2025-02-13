@@ -2,6 +2,7 @@
 using Core.Entities.Concrete;
 using DataAccess.EntityFramework.Abstract;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,11 @@ namespace DataAccess.EntityFramework.Concrete
 {
     public class RefreshTokenDal : EfDbRepository<RefreshToken, EfDbContext>, IRefreshTokenDal
     {
+        private readonly ILogger<RefreshToken> _logger;
+        public RefreshTokenDal(ILogger<RefreshToken> logger) : base(logger)
+        {
+            _logger = logger;
+        }
         public Task<RefreshToken?> GetWithUserAsync(string refreshToken)
         {
             using var context = new EfDbContext();

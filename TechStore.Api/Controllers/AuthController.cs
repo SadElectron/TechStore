@@ -72,9 +72,7 @@ public class AuthController : ControllerBase
         {
             Email = userReq.Email,
             UserName = userReq.UserName,
-            Password = userReq.Password,
-            LastUpdate = DateTimeHelper.GetUtcNow(),
-            CreatedAt = DateTimeHelper.GetUtcNow()
+            Password = userReq.Password
         };
         RegisterUserResult registerUserResult = await _authService.Register(user, "Customer");
         return registerUserResult.success ?

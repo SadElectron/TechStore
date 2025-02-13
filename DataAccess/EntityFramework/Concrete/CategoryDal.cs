@@ -65,49 +65,4 @@ public class CategoryDal : EfDbRepository<Category, EfDbContext>, ICategoryDal
 
         return categories;
     }
-
-    public Task<double> GetLastOrderAsync()
-    {
-        using EfDbContext context = new EfDbContext();
-        var lastOrder = context.Categories.OrderByDescending(u => u.RowOrder).Select(u => u.RowOrder).FirstOrDefaultAsync();
-        return lastOrder;
-    }
-
-    public async Task<Category> UpdateAndReorderAsync(Category entity)
-    {
-        using var context = new EfDbContext();
-        using var transaction = await context.Database.BeginTransactionAsync();
-
-        try
-        {
-            double oldRowOrder = await context.Categories.Where(c => c.Id == entity.Id).Select(c => c.RowOrder).SingleOrDefaultAsync();
-            if (oldRowOrder < entity.RowOrder)
-            {
-                // Shift entities down
-                await context.Categories.Where(c => c.RowOrder > oldRowOrder && c.RowOrder <= entity.RowOrder)
-                    .ExecuteUpdateAsync(c => c
-                        .SetProperty(c => c.RowOrder, c => c.RowOrder - 1)
-                        .SetProperty(c => c.LastUpdate, DateTimeHelper.GetUtcNow()));
-            }
-            else if (oldRowOrder > entity.RowOrder)
-            {
-                // Shift entities up
-                await context.Categories.Where(c => c.RowOrder < oldRowOrder && c.RowOrder >= entity.RowOrder)
-                    .ExecuteUpdateAsync(c => c
-                        .SetProperty(c => c.RowOrder, c => c.RowOrder + 1)
-                        .SetProperty(c => c.LastUpdate, DateTimeHelper.GetUtcNow()));
-            }
-            entity.LastUpdate = DateTimeHelper.GetUtcNow();
-            context.Categories.Update(entity);
-            await context.SaveChangesAsync();
-            await transaction.CommitAsync();
-            return entity;
-        }
-        catch(Exception e)
-        {
-            await transaction.RollbackAsync();
-            _logger.LogError($"Error in CategoryDal.UpdateAndReorderAsync {e.Message}");
-            throw;
-        }
-    }
 }

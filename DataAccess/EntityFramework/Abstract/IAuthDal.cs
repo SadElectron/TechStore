@@ -10,6 +10,5 @@ namespace DataAccess.EntityFramework.Abstract
 {
     public interface IAuthDal : IEfDbRepository<User>
     {
-        Task<double> GetLastOrderAsync();
     }
 }

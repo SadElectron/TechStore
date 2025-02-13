@@ -138,6 +138,15 @@ namespace Core.DataAccess.EntityFramework.Concrete
                 return context.Set<TEntity>().Where(filter).CountAsync();
             }
         }
+        public Task<double> GetLastOrderAsync()
+        {
+            using var context = new TContext();
+            var lastOrder = context.Set<TEntity>()
+                .OrderByDescending(u => u.RowOrder)
+                .Select(u => u.RowOrder)
+                .FirstOrDefaultAsync();
+            return lastOrder;
+        }
 
         public Task SaveChangesAsync()
         {

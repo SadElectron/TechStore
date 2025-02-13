@@ -11,7 +11,6 @@ namespace DataAccess.EntityFramework.Abstract
 {
     public interface IImageDal : IEfDbRepository<Image>
     {
-        Task<double> GetLastOrderAsync();
         Task<IEnumerable<Image>> AddAllAsync(ICollection<Image> images);
         Task<int> DeleteImagesAsync(Guid productId);
         Task<Image?> UpdateOrderAsync(Guid imageId, int newOrder);

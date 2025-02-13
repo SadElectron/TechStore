@@ -1,6 +1,8 @@
 ﻿using Core.Dtos;
 using Core.Entities.Concrete;
+using Core.Utils;
 using DataAccess.EntityFramework.Abstract;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Services.Abstract;
 using Services.Authentication.Jwt;
 using System.Security.Cryptography;
@@ -39,14 +41,14 @@ namespace Services.Concrete
 
             return new LoginResult(default, "", "", false);
         }
-        
+
         public async Task<string> CreateTokenAsync(string refreshToken)
         {
 
             var refreshTokenEntity = await _refreshTokenDal.GetWithUserAsync(refreshToken);
             var token = _tokenProvider.Create(refreshTokenEntity!.User!);
             return token;
-        
+
         }
 
         public async Task<bool> ValidateToken(string token)
@@ -63,7 +65,15 @@ namespace Services.Concrete
             rng.GetBytes(randomBytes);
             string refreshToken = Convert.ToBase64String(randomBytes);
             var user = await _authDal.GetAsNoTrackingAsync(u => u.Id == userId);
-            var addResult = await _refreshTokenDal.AddAsync(new() {Token = refreshToken, UserId = userId });
+            var addResult = await _refreshTokenDal.AddAsync(new()
+            {
+                Token = refreshToken,
+                UserId = userId,
+                LastUpdate = DateTimeHelper.GetUtcNow(),
+                CreatedAt = DateTimeHelper.GetUtcNow(),
+                RowOrder = await _refreshTokenDal.GetLastOrderAsync() + 1
+            });
+            if (addResult == null) return "";
             return refreshToken;
         }
 
@@ -85,24 +95,30 @@ namespace Services.Concrete
             {
                 var lastOrder = await _authDal.GetLastOrderAsync();
                 user.RowOrder = lastOrder + 1;
+                user.LastUpdate = DateTimeHelper.GetUtcNow();
+                user.CreatedAt = DateTimeHelper.GetUtcNow();
                 user.Role = role;
                 user.Password = passwd;
                 User addUserResult = await _authDal.AddAsync(user);
+                if (addUserResult == null)
+                {
+                    return new RegisterUserResult(user, false, "An error occurred while adding the user");
+                }
                 return new RegisterUserResult(addUserResult, true);
             }
             else
             {
                 if (!emailCheck)
                 {
-                    return new RegisterUserResult(user, false, "An email can only contain letters, numbers, and certain symbols like '@-._'");
+                    return new RegisterUserResult(user, false, "An email can only contain letters, numbers, and certain symbols like @-._");
                 }
                 if (!userNameCheck)
                 {
-                    return new RegisterUserResult(user, false, "A username can only contain letters, numbers, and certain symbols like '.-_'");
+                    return new RegisterUserResult(user, false, "A username can only contain letters, numbers, and certain symbols like .-_");
                 }
                 if (!passwordCheck)
                 {
-                    return new RegisterUserResult(user, false, "");
+                    return new RegisterUserResult(user, false, "Password can only contain letters, numbers, and certain symbols like -_");
                 }
                 return new RegisterUserResult(user, false, "");
             }

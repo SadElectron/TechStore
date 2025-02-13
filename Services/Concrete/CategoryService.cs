@@ -72,7 +72,7 @@ public class CategoryService : ICategoryService
 
     public Task<Category> UpdateAsync(Category entity)
     {
-        entity.LastUpdate = DateTime.UtcNow.AddTicks(-DateTime.UtcNow.Ticks % TimeSpan.TicksPerSecond);
+        entity.LastUpdate = DateTimeHelper.GetUtcNow();
         return _categoryDal.UpdateAsync(entity);
     }
 

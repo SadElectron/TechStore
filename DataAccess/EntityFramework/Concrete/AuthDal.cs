@@ -2,6 +2,7 @@
 using Core.Entities.Concrete;
 using DataAccess.EntityFramework.Abstract;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,11 +13,10 @@ namespace DataAccess.EntityFramework.Concrete
 {
     public class AuthDal : EfDbRepository<User, EfDbContext>, IAuthDal
     {
-        public Task<double> GetLastOrderAsync()
+        private readonly ILogger<User> _logger;
+        public AuthDal(ILogger<User> logger) : base(logger)
         {
-            using EfDbContext context = new EfDbContext();
-            var order = context.Users.OrderByDescending(u => u.RowOrder).Select(u => u.RowOrder).FirstOrDefaultAsync();
-            return order;
+            _logger = logger;
         }
     }
 }

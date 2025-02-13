@@ -34,56 +34,6 @@ public class PropertyDal : EfDbRepository<Property, EfDbContext>, IPropertyDal
         return addedEntity.Entity;
 
     }
-    public Task<double> GetLastOrderAsync()
-    {
-        using EfDbContext context = new EfDbContext();
-        var lastOrder = context.Properties.OrderByDescending(e => e.RowOrder).Select(e => e.RowOrder).FirstOrDefaultAsync();
-        return lastOrder;
-    }
-
-    
-
-
-    public async Task<Property?> UpdateAndReorderAsync(Property entity)
-    {
-        using var context = new EfDbContext();
-        using var transaction = context.Database.BeginTransaction();
-        try
-        {
-
-            double currentOrder = await context.Properties.Where(p => p.Id == entity.Id).Select(p => p.RowOrder).SingleOrDefaultAsync();
-
-            if (currentOrder < entity.RowOrder)
-            {
-                // Shift entities up
-                await context.Properties
-                    .Where(e => e.RowOrder > currentOrder && e.RowOrder <= entity.RowOrder)
-                    .OrderBy(e => e.RowOrder)
-                    .ExecuteUpdateAsync(s => s.SetProperty(p => p.RowOrder, p => p.RowOrder - 1));
-            }
-            else if (currentOrder > entity.RowOrder)
-            {
-                // Shift entities down
-                await context.Properties.Where(e => e.RowOrder < currentOrder && e.RowOrder >= entity.RowOrder)
-                    .OrderByDescending(e => e.RowOrder)
-                    .ExecuteUpdateAsync(s => s.SetProperty(p => p.RowOrder, p => p.RowOrder + 1));
-            }
-            entity.LastUpdate = DateTime.UtcNow;
-            context.Properties.Update(entity);
-            await context.SaveChangesAsync();
-            await transaction.CommitAsync();
-            return entity;
-        }
-        catch (Exception)
-        {
-
-            transaction.Rollback();
-            _logger.LogError("Error in PropertyDal.UpdateAndReorderAsync {}");
-            throw;
-        }
-        
-    }
-
     public Task<double> GetLastItemOrder()
     {
         using var context = new EfDbContext();

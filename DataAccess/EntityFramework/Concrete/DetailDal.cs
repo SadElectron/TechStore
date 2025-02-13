@@ -22,13 +22,6 @@ namespace DataAccess.EntityFramework.Concrete
             _logger = logger;
         }
 
-        public Task<double> GetLastOrderAsync()
-        {
-            using EfDbContext context = new EfDbContext();
-            var lastOrder = context.Details.OrderByDescending(e => e.RowOrder).Select(e => e.RowOrder).FirstOrDefaultAsync();
-            return lastOrder;
-        }
-
         public async Task<List<Detail>> GetAllWithPropsAsync(Guid productId)
         {
             using EfDbContext context = new EfDbContext();

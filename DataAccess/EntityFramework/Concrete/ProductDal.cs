@@ -43,17 +43,6 @@ public class ProductDal : EfDbRepository<Product, EfDbContext>, IProductDal
         return product;
 
     }
-    public Task<double> GetLastOrderAsync()
-    {
-        using EfDbContext context = new EfDbContext();
-        var lastOrder = context.Products.OrderByDescending(e => e.RowOrder).Select(e => e.RowOrder).FirstOrDefaultAsync();
-        return lastOrder;
-    }
-    
-   
-
-    
-
     public async Task ReorderDb()
     {
 
@@ -92,39 +81,7 @@ public class ProductDal : EfDbRepository<Product, EfDbContext>, IProductDal
 
     }
 
-    public async Task<Product> UpdateAndReorderAsync(Product entity)
-    {
-        using var context = new EfDbContext();
-        using var transaction = await context.Database.BeginTransactionAsync();
-
-        try
-        {
-            double oldRowOrder = await context.Products.Where(p => p.Id == entity.Id).Select(p => p.RowOrder).SingleOrDefaultAsync();
-            if (oldRowOrder < entity.RowOrder)
-            {
-                // Shift entities down
-                await context.Products.Where(e => e.RowOrder > oldRowOrder && e.RowOrder <= entity.RowOrder)
-                    .ExecuteUpdateAsync(p => p.SetProperty(p => p.RowOrder, p => p.RowOrder - 1));
-            }
-            else if (oldRowOrder > entity.RowOrder)
-            {
-                // Shift entities up
-                await context.Products.Where(e => e.RowOrder < oldRowOrder && e.RowOrder >= entity.RowOrder)
-                    .ExecuteUpdateAsync(p => p.SetProperty(p => p.RowOrder, p => p.RowOrder + 1));
-            }
-            entity.LastUpdate = DateTime.UtcNow.AddTicks(-DateTime.UtcNow.Ticks % TimeSpan.TicksPerSecond);
-            context.Products.Update(entity);
-            await context.SaveChangesAsync();
-            await transaction.CommitAsync();
-            return entity;
-        }
-        catch
-        {
-            await transaction.RollbackAsync();
-            throw;
-        }
-
-    }
+    
 
     public Task<List<Product>> GetAllWithImagesAsync(Expression<Func<Product, bool>> filter, int page, int itemCount, Expression<Func<Product, object>> orderFilter)
     {

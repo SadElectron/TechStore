@@ -22,12 +22,6 @@ namespace DataAccess.EntityFramework.Concrete
         {
             _logger = logger;
         }
-        public Task<double> GetLastOrderAsync()
-        {
-            using EfDbContext context = new EfDbContext();
-            var lastOrder = context.Images.OrderByDescending(e => e.RowOrder).Select(e => e.RowOrder).FirstOrDefaultAsync();
-            return lastOrder;
-        }
         public Task<double> GetLastImageOrderAsync(Expression<Func<Image, bool>> filter)
         {
             using EfDbContext context = new EfDbContext();
@@ -57,7 +51,7 @@ namespace DataAccess.EntityFramework.Concrete
                         lastImageOrder++;
                         image.ImageOrder = lastImageOrder;
                     }
-                    image.LastUpdate = DateTime.UtcNow;
+                    image.LastUpdate = DateTimeHelper.GetUtcNow();
                 }
                 await context.Images.AddRangeAsync(images);
                 await context.SaveChangesAsync();
