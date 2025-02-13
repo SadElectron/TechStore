@@ -3,6 +3,7 @@ using Core.Entities.Abstract;
 using Core.Entities.Concrete;
 using DataAccess.EntityFramework.Abstract;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +15,11 @@ namespace DataAccess.EntityFramework.Concrete;
 
 public class PropertyDal : EfDbRepository<Property, EfDbContext>, IPropertyDal
 {
-
+    private readonly ILogger<Property> _logger;
+    public PropertyDal(ILogger<Property> logger): base(logger)
+    {
+        _logger = logger;
+    }
     public async Task<Property> AddOrderedAsync(Property property)
     {
         using EfDbContext context = new EfDbContext();
@@ -73,9 +78,10 @@ public class PropertyDal : EfDbRepository<Property, EfDbContext>, IPropertyDal
         {
 
             transaction.Rollback();
-            return null;
+            _logger.LogError("Error in PropertyDal.UpdateAndReorderAsync {}");
+            throw;
         }
-
+        
     }
 
     public Task<double> GetLastItemOrder()

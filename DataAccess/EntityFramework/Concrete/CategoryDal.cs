@@ -5,6 +5,7 @@ using Core.Entities.Concrete;
 using Core.Utils;
 using DataAccess.EntityFramework.Abstract;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -16,6 +17,12 @@ namespace DataAccess.EntityFramework.Concrete;
 
 public class CategoryDal : EfDbRepository<Category, EfDbContext>, ICategoryDal
 {
+    private readonly ILogger<Category> _logger;
+
+    public CategoryDal(ILogger<Category> logger) : base(logger)
+    {
+        _logger = logger;
+    }
 
     public Task<int> GetProductCountAsync(Guid categoryId)
     {
@@ -23,45 +30,6 @@ public class CategoryDal : EfDbRepository<Category, EfDbContext>, ICategoryDal
         return context.Products.Where(p => p.CategoryId == categoryId).CountAsync();
 
     }
-    
-
-    public async Task<Category> UpdateAndReorderAsync(Category entity)
-    {
-        using var context = new EfDbContext();
-        using var transaction = await context.Database.BeginTransactionAsync();
-
-        try
-        {
-            double oldRowOrder = await context.Categories.Where(c => c.Id == entity.Id).Select(c => c.RowOrder).SingleOrDefaultAsync();
-            if (oldRowOrder < entity.RowOrder)
-            {
-                // Shift entities down
-                await context.Categories.Where(c => c.RowOrder > oldRowOrder && c.RowOrder <= entity.RowOrder)
-                    .ExecuteUpdateAsync(c => c
-                        .SetProperty(c => c.RowOrder, c => c.RowOrder - 1)
-                        .SetProperty(c => c.LastUpdate, DateTimeHelper.GetUtcNow()));
-            }
-            else if (oldRowOrder > entity.RowOrder)
-            {
-                // Shift entities up
-                await context.Categories.Where(c => c.RowOrder < oldRowOrder && c.RowOrder >= entity.RowOrder)
-                    .ExecuteUpdateAsync(c => c
-                        .SetProperty(c => c.RowOrder, c => c.RowOrder + 1)
-                        .SetProperty(c => c.LastUpdate, DateTimeHelper.GetUtcNow()));
-            }
-            entity.LastUpdate = DateTimeHelper.GetUtcNow();
-            context.Categories.Update(entity);
-            await context.SaveChangesAsync();
-            await transaction.CommitAsync();
-            return entity;
-        }
-        catch
-        {
-            await transaction.RollbackAsync();
-            throw;
-        }
-    }
-    
 
     public Task<int> GetPropertyCountAsync(Guid categoryId)
     {
@@ -103,5 +71,43 @@ public class CategoryDal : EfDbRepository<Category, EfDbContext>, ICategoryDal
         using EfDbContext context = new EfDbContext();
         var lastOrder = context.Categories.OrderByDescending(u => u.RowOrder).Select(u => u.RowOrder).FirstOrDefaultAsync();
         return lastOrder;
+    }
+
+    public async Task<Category> UpdateAndReorderAsync(Category entity)
+    {
+        using var context = new EfDbContext();
+        using var transaction = await context.Database.BeginTransactionAsync();
+
+        try
+        {
+            double oldRowOrder = await context.Categories.Where(c => c.Id == entity.Id).Select(c => c.RowOrder).SingleOrDefaultAsync();
+            if (oldRowOrder < entity.RowOrder)
+            {
+                // Shift entities down
+                await context.Categories.Where(c => c.RowOrder > oldRowOrder && c.RowOrder <= entity.RowOrder)
+                    .ExecuteUpdateAsync(c => c
+                        .SetProperty(c => c.RowOrder, c => c.RowOrder - 1)
+                        .SetProperty(c => c.LastUpdate, DateTimeHelper.GetUtcNow()));
+            }
+            else if (oldRowOrder > entity.RowOrder)
+            {
+                // Shift entities up
+                await context.Categories.Where(c => c.RowOrder < oldRowOrder && c.RowOrder >= entity.RowOrder)
+                    .ExecuteUpdateAsync(c => c
+                        .SetProperty(c => c.RowOrder, c => c.RowOrder + 1)
+                        .SetProperty(c => c.LastUpdate, DateTimeHelper.GetUtcNow()));
+            }
+            entity.LastUpdate = DateTimeHelper.GetUtcNow();
+            context.Categories.Update(entity);
+            await context.SaveChangesAsync();
+            await transaction.CommitAsync();
+            return entity;
+        }
+        catch(Exception e)
+        {
+            await transaction.RollbackAsync();
+            _logger.LogError($"Error in CategoryDal.UpdateAndReorderAsync {e.Message}");
+            throw;
+        }
     }
 }

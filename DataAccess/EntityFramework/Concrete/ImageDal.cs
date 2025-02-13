@@ -1,9 +1,11 @@
 ﻿using Core.DataAccess.EntityFramework.Concrete;
 using Core.Entities.Abstract;
 using Core.Entities.Concrete;
+using Core.Utils;
 using DataAccess.EntityFramework.Abstract;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,9 +17,10 @@ namespace DataAccess.EntityFramework.Concrete
 {
     public class ImageDal : EfDbRepository<Image, EfDbContext>, IImageDal
     {
-        public ImageDal()
+        private readonly ILogger<Image> _logger;
+        public ImageDal(ILogger<Image> logger) : base(logger)
         {
-
+            _logger = logger;
         }
         public Task<double> GetLastOrderAsync()
         {
@@ -34,29 +37,38 @@ namespace DataAccess.EntityFramework.Concrete
         public async Task<IEnumerable<Image>> AddAllAsync(ICollection<Image> images)
         {
             using var context = new EfDbContext();
-            double lastOrder = await context.Images.OrderByDescending(i => i.RowOrder)
-                .Take(2)
+            using var transaction = await context.Database.BeginTransactionAsync();
+            try
+            {
+                double lastOrder = await context.Images.OrderByDescending(i => i.RowOrder)
                 .Select(i => i.RowOrder)
                 .FirstOrDefaultAsync();
-            double lastImageOrder = await context.Images.Where(i => i.ProductId == images.First().ProductId)
-                .OrderByDescending(i => i.ImageOrder)
-                .Take(2)
-                .Select(i => i.ImageOrder)
-                .FirstOrDefaultAsync();
+                double lastImageOrder = await context.Images.Where(i => i.ProductId == images.First().ProductId)
+                    .OrderByDescending(i => i.ImageOrder)
+                    .Select(i => i.ImageOrder)
+                    .FirstOrDefaultAsync();
 
-            foreach (var image in images)
-            {
-                lastOrder += 1;
-                image.RowOrder = lastOrder;
-                if (image.ImageOrder == 0)
+                foreach (var image in images)
                 {
-                    lastImageOrder++;
-                    image.ImageOrder = lastImageOrder;
+                    lastOrder += 1;
+                    image.RowOrder = lastOrder;
+                    if (image.ImageOrder == 0)
+                    {
+                        lastImageOrder++;
+                        image.ImageOrder = lastImageOrder;
+                    }
+                    image.LastUpdate = DateTime.UtcNow;
                 }
-                image.LastUpdate = DateTime.UtcNow;
+                await context.Images.AddRangeAsync(images);
+                await context.SaveChangesAsync();
+                await transaction.CommitAsync();
             }
-            await context.Images.AddRangeAsync(images);
-            await context.SaveChangesAsync();
+            catch (Exception e)
+            {
+                transaction.Rollback();
+                _logger.LogError($"Error in ImageDal.AddAllAsync {e.Message}");
+            }
+            
             var addedImages = await context.Images
                 .Where(i => i.ProductId == images.First().ProductId)
                 .OrderBy(i => i.ImageOrder)
@@ -100,12 +112,11 @@ namespace DataAccess.EntityFramework.Concrete
                         .ExecuteUpdateAsync(s => s.SetProperty(i => i.RowOrder, i => i.RowOrder + 1));
 
                 }
-                image.LastUpdate = DateTime.UtcNow;
+                image.LastUpdate = DateTimeHelper.GetUtcNow();
                 image.RowOrder = newOrder;
-                var updateResult = context.Images.Update(image);
                 await context.SaveChangesAsync();
                 await transaction.CommitAsync();
-                return updateResult.Entity;
+                return image;
             }
             catch
             {

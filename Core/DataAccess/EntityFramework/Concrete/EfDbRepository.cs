@@ -1,8 +1,10 @@
 ﻿using Core.DataAccess.EntityFramework.Abstract;
 using Core.Entities.Abstract;
 using Core.Entities.Concrete;
+using Core.Utils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,10 +14,16 @@ using System.Threading.Tasks;
 
 namespace Core.DataAccess.EntityFramework.Concrete
 {
-    public class EfDbRepository<TEntity, TContext> : IEfDbRepository<TEntity>
+    public abstract class EfDbRepository<TEntity, TContext> : IEfDbRepository<TEntity>
         where TEntity : Entity
         where TContext : DbContext, new()
     {
+        private readonly ILogger<TEntity> _logger;
+        public EfDbRepository(ILogger<TEntity> logger)
+        {
+            _logger = logger;
+        }
+
         public Task<TEntity?> GetAsync(Expression<Func<TEntity, bool>> filter)
         {
             using (var context = new TContext())
@@ -153,6 +161,44 @@ namespace Core.DataAccess.EntityFramework.Concrete
             }
 
             return deletedEntryCount;
+        }
+        public async Task<TEntity> UpdateAndReorderAsync(TEntity entity)
+        {
+            using var context = new TContext();
+            var db = context.Set<TEntity>();
+            using var transaction = await context.Database.BeginTransactionAsync();
+
+            try
+            {
+                double oldRowOrder = await db.Where(e => e.Id == entity.Id).Select(e => e.RowOrder).SingleOrDefaultAsync();
+                if (oldRowOrder < entity.RowOrder)
+                {
+                    // Shift entities down
+                    await db.Where(c => c.RowOrder > oldRowOrder && c.RowOrder <= entity.RowOrder)
+                        .ExecuteUpdateAsync(c => c
+                            .SetProperty(c => c.RowOrder, c => c.RowOrder - 1)
+                            .SetProperty(c => c.LastUpdate, DateTimeHelper.GetUtcNow()));
+                }
+                else if (oldRowOrder > entity.RowOrder)
+                {
+                    // Shift entities up
+                    await db.Where(c => c.RowOrder < oldRowOrder && c.RowOrder >= entity.RowOrder)
+                        .ExecuteUpdateAsync(c => c
+                            .SetProperty(c => c.RowOrder, c => c.RowOrder + 1)
+                            .SetProperty(c => c.LastUpdate, DateTimeHelper.GetUtcNow()));
+                }
+                entity.LastUpdate = DateTimeHelper.GetUtcNow();
+                db.Update(entity);
+                await context.SaveChangesAsync();
+                await transaction.CommitAsync();
+                return entity;
+            }
+            catch (Exception e)
+            {
+                await transaction.RollbackAsync();
+                _logger.LogError($"Error in CategoryDal.UpdateAndReorderAsync {e.Message}");
+                throw;
+            }
         }
     }
 }

@@ -3,6 +3,7 @@ using Core.Entities.Abstract;
 using Core.Entities.Concrete;
 using DataAccess.EntityFramework.Abstract;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +15,13 @@ namespace DataAccess.EntityFramework.Concrete
 {
     public class DetailDal : EfDbRepository<Detail, EfDbContext>, IDetailDal
     {
-       
+        private readonly ILogger<Detail> _logger;
+
+        public DetailDal(ILogger<Detail> logger):base(logger)
+        {
+            _logger = logger;
+        }
+
         public Task<double> GetLastOrderAsync()
         {
             using EfDbContext context = new EfDbContext();
@@ -38,11 +45,13 @@ namespace DataAccess.EntityFramework.Concrete
             {
                 context.Details.UpdateRange(details);
                 await context.SaveChangesAsync();
+                await transaction.CommitAsync();
                 return details;
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 transaction.Rollback();
+                _logger.LogError($"Error in DetailDal.UpdateDetailsAsync {e.Message}");
                 throw;
             }
         }

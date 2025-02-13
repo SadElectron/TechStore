@@ -5,6 +5,7 @@ using Core.Entities.Concrete;
 using Core.RequestModels;
 using DataAccess.EntityFramework.Abstract;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +17,11 @@ namespace DataAccess.EntityFramework.Concrete;
 
 public class ProductDal : EfDbRepository<Product, EfDbContext>, IProductDal
 {
+    private readonly ILogger<Product> _logger;
+    public ProductDal(ILogger<Product> logger): base(logger)
+    {
+        _logger = logger;
+    }
     public Task<CustomerProductDto?> GetFullForCustomer(Guid productId)
     {
         using EfDbContext context = new EfDbContext();

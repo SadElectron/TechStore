@@ -113,9 +113,7 @@ public class PropertyService : IPropertyService
     public async Task<EntityDeleteResult> DeleteAndReorderAsync(Guid id)
     {
         var entity = await _propertyDal.GetAsync(c => c.Id == id);
-
         if (entity == null) return new EntityDeleteResult(false, "Entity not found");
-
         var i = await _propertyDal.DeleteAndReorderAsync(id);
         return i > 0 ? new EntityDeleteResult(true, "Entity deleted") : new EntityDeleteResult(false, "Entity not deleted");
 
