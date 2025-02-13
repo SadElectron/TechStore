@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Services.Abstract;
 using Services.Concrete;
 using System.Reflection.Metadata.Ecma335;
+using TechStore.Api.Models;
 
 namespace TechStore.Api.Controllers;
 
@@ -27,9 +28,10 @@ public class CategoryController : ControllerBase
 
     // CREATE
     [HttpPost("Create")]
-    public async Task<IActionResult> Create([FromBody] Category entity)
+    public async Task<IActionResult> Create([FromBody] CreateCategoryModel entity)
     {
-        var addedEntity = await _categoryService.AddAsync(entity);
+        var category = _mapper.Map<Category>(entity);
+        var addedEntity = await _categoryService.AddAsync(category);
         if (addedEntity != null)
         {
             return CreatedAtRoute("GetCategory", new { id = addedEntity.Id }, _mapper.Map<CategoryDto>(addedEntity));

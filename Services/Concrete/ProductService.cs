@@ -37,7 +37,7 @@ public class ProductService : IProductService
         {
             foreach (var detail in entity.Details)
             {
-                detail.LastUpdate = DateTime.UtcNow;
+                detail.LastUpdate = DateTimeHelper.GetUtcNow();
             }
         }
 
