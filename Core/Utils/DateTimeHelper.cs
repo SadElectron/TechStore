@@ -10,6 +10,7 @@ public static class DateTimeHelper
 {
     public static DateTime GetUtcNow()
     {
-        return DateTime.UtcNow.AddTicks(-DateTime.UtcNow.Ticks % TimeSpan.TicksPerSecond);
+        DateTime now = DateTime.UtcNow;
+        return new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second, DateTimeKind.Utc);
     }
 }

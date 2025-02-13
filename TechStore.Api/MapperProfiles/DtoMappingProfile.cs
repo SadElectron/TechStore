@@ -3,6 +3,7 @@ using AutoMapper.Collection;
 using AutoMapper.EquivalencyExpression;
 using Core.Dtos;
 using Core.Entities.Concrete;
+using TechStore.Api.Models;
 
 namespace TechStore.Api.MapperProfiles
 {
@@ -14,6 +15,7 @@ namespace TechStore.Api.MapperProfiles
             CreateMap<Category, CategoryDto>();
 
             CreateMap<Category, CustomerCategoryDto>();
+            CreateMap<CreateCategoryModel, Category>();
             CreateMap<Product, CustomerProductDto>();
             CreateMap<Detail, CustomerDetailDto>().ForMember(cddto => cddto.PropName, opt => opt.MapFrom(d => d.Property!.PropName));
             CreateMap<Image, CustomerImageDto>();

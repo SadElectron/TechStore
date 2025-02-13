@@ -28,9 +28,9 @@ public class CategoryController : ControllerBase
 
     // CREATE
     [HttpPost("Create")]
-    public async Task<IActionResult> Create([FromBody] CreateCategoryModel entity)
+    public async Task<IActionResult> Create([FromBody] CreateCategoryModel model)
     {
-        var category = _mapper.Map<Category>(entity);
+        var category = _mapper.Map<Category>(model);
         var addedEntity = await _categoryService.AddAsync(category);
         if (addedEntity != null)
         {
