@@ -16,6 +16,7 @@ namespace TechStore.Api.MapperProfiles
 
             CreateMap<Category, CustomerCategoryDto>();
             CreateMap<CreateCategoryModel, Category>();
+            CreateMap<UpdateCategoryModel, Category>().ForMember(c => c.CreatedAt, opt => opt.Ignore());
             CreateMap<Product, CustomerProductDto>();
             CreateMap<Detail, CustomerDetailDto>().ForMember(cddto => cddto.PropName, opt => opt.MapFrom(d => d.Property!.PropName));
             CreateMap<Image, CustomerImageDto>();
@@ -30,6 +31,8 @@ namespace TechStore.Api.MapperProfiles
                 .ForMember(d => d.PropertyId, opt => opt.Ignore())
                 .ForMember(d => d.RowOrder, opt => opt.Ignore())
                 .ForMember(d => d.ProductId, opt => opt.Ignore());
+            CreateMap<CreateDetailModel, Detail>();
+            CreateMap<Detail, DetailMinimalDto>();
 
             CreateMap<Product, ProductDto>();
             CreateMap<ProductDto, Product>().ForMember(p => p.Category, opt => opt.Ignore());

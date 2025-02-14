@@ -4,6 +4,7 @@ using Core.Entities.Concrete;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Services.Abstract;
+using TechStore.Api.Models;
 
 namespace TechStore.Api.Controllers;
 
@@ -23,12 +24,13 @@ public class DetailController : ControllerBase
 
     // CREATE
     [HttpPost("create")]
-    public async Task<IActionResult> Create(Detail detail)
+    public async Task<IActionResult> Create(CreateDetailModel model)
     {
-        var addedEntity = await _detailService.AddAsync(detail);
-        if (addedEntity != null)
+        var detail = _mapper.Map<Detail>(model);
+        EntityAddResult<Detail> entityAddResult = await _detailService.AddAsync(detail);
+        if (entityAddResult.IsSuccessful)
         {
-            return CreatedAtRoute("GetDetail", new { id = addedEntity.Id },addedEntity);
+            return CreatedAtRoute("GetDetail", new { id = entityAddResult.Entity!.Id }, _mapper.Map<DetailMinimalDto>(entityAddResult.Entity));
         }
         return BadRequest();
     }
@@ -57,7 +59,7 @@ public class DetailController : ControllerBase
         return Ok(dtos);
     }
 
-    
+
 
 
     // UPDATE
@@ -70,7 +72,6 @@ public class DetailController : ControllerBase
             return NotFound();
         }
         var updatedEntity = _detailService.UpdateAsync(entityToUpdate);
-
         return Ok(updatedEntity);
     }
 
@@ -92,7 +93,7 @@ public class DetailController : ControllerBase
     [HttpDelete("delete/{id}")]
     public async Task<IActionResult> Delete(Guid id)
     {
-        
+
         EntityDeleteResult deleteResult = await _detailService.DeleteAndReorderAsync(id);
         return deleteResult.IsSuccessful ? Ok() : NotFound();
     }

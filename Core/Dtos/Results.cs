@@ -10,6 +10,8 @@ namespace Core.Dtos;
 public record RegisterUserResult(User user, bool success, string failReason = "");
 public record LoginResult(Guid Id, string Email, string Token, bool Status);
 public record EntityDeleteResult(bool IsSuccessful, string Message);
+public record EntityAddResult<T>(bool IsSuccessful, T? Entity, string Message = "");
+
 
 
 

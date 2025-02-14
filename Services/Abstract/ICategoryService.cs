@@ -24,5 +24,6 @@ namespace Services.Abstract
         Task<Category> UpdateAsync(Category entity);
         Task<Category> UpdateAndReorderAsync(Category entity);
         Task<EntityDeleteResult> DeleteAndReorderAsync(Guid id);
+        Task<Category?> GetAsNoTrackingAsync(Guid id);
     }
 }

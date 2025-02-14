@@ -44,6 +44,10 @@ public class CategoryService : ICategoryService
     {
         return _categoryDal.GetAsync(t => t.Id == id);
     }
+    public Task<Category?> GetAsNoTrackingAsync(Guid id)
+    {
+        return _categoryDal.GetAsNoTrackingAsync(t => t.Id == id);
+    }
 
     public Task<Category?> GetAsync(Expression<Func<Category, bool>> filter)
     {

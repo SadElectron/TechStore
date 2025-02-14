@@ -17,16 +17,26 @@ namespace Services.Concrete;
 public class DetailService : IDetailService
 {
     private readonly IDetailDal _detailDal;
-    public DetailService(IDetailDal detailDal)
+    private readonly IPropertyDal _propertyDal;
+    private readonly IProductDal _productDal;
+    public DetailService(IDetailDal detailDal, IPropertyDal propertyDal, IProductDal productDal)
     {
         _detailDal = detailDal;
+        _propertyDal = propertyDal;
+        _productDal = productDal;
     }
-    public async Task<Detail> AddAsync(Detail entity)
+    public async Task<EntityAddResult<Detail>> AddAsync(Detail entity)
     {
-        entity.RowOrder = await _detailDal.GetLastOrderAsync() + 1;
-        entity.LastUpdate = DateTimeHelper.GetUtcNow();
-        entity.CreatedAt = DateTimeHelper.GetUtcNow();
-        return  await _detailDal.AddAsync(entity);
+        var detailProperty = await _propertyDal.GetAsNoTrackingAsync(p => p.Id == entity.PropertyId);
+        var detailProduct = await _productDal.GetAsNoTrackingAsync(p => p.Id == entity.ProductId);
+        if(detailProperty != null && detailProduct != null)
+        {
+            entity.RowOrder = await _detailDal.GetLastOrderAsync() + 1;
+            entity.LastUpdate = DateTimeHelper.GetUtcNow();
+            entity.CreatedAt = DateTimeHelper.GetUtcNow();
+            return new EntityAddResult<Detail>(true, await _detailDal.AddAsync(entity));
+        }
+        return new EntityAddResult<Detail>(false, null, "Property or Product not found");
     }
 
     public Task<Detail> DeleteAsync(Detail entity)

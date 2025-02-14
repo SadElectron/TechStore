@@ -3,6 +3,7 @@ using Core.Dtos;
 using Core.Entities.Concrete;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services.Abstract;
 using Services.Concrete;
@@ -43,7 +44,7 @@ public class CategoryController : ControllerBase
     [HttpGet("Get/{id}", Name = "GetCategory")]
     public async Task<IActionResult> GetCategory(Guid id)
     {
-        var productType = await _categoryService.GetAsync(id);
+        var productType = await _categoryService.GetAsNoTrackingAsync(id);
         if (productType == null)
         {
             return NotFound();
@@ -124,14 +125,16 @@ public class CategoryController : ControllerBase
 
     // UPDATE
     [HttpPut("Update")]
-    public async Task<IActionResult> Update(Category entityToUpdate)
+    public async Task<IActionResult> Update(UpdateCategoryModel entityToUpdate)
     {
         var entity = await _categoryService.GetAsync(entityToUpdate.Id);
+        
         if (entity == null)
         {
             return NotFound();
         }
-        var updatedEntity = await _categoryService.UpdateAndReorderAsync(entityToUpdate);
+        var category = _mapper.Map(entityToUpdate, entity);
+        var updatedEntity = await _categoryService.UpdateAndReorderAsync(category);
 
         return Ok(updatedEntity);
     }
