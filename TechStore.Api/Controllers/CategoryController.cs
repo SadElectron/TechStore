@@ -31,26 +31,45 @@ public class CategoryController : ControllerBase
     [HttpPost("Create")]
     public async Task<IActionResult> Create([FromBody] CreateCategoryModel model)
     {
-        var category = _mapper.Map<Category>(model);
-        var addedEntity = await _categoryService.AddAsync(category);
-        if (addedEntity != null)
+        try
         {
-            return CreatedAtRoute("GetCategory", new { id = addedEntity.Id }, _mapper.Map<CategoryDto>(addedEntity));
+            var category = _mapper.Map<Category>(model);
+            var addedEntity = await _categoryService.AddAsync(category);
+            if (addedEntity != null)
+            {
+                return CreatedAtRoute("GetCategory", new { id = addedEntity.Id }, _mapper.Map<CategoryDto>(addedEntity));
+            }
+            return BadRequest();
         }
-        return BadRequest();
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, ex.Message);
+            return Problem();
+        }
+
+
     }
 
     // READ
     [HttpGet("Get/{id}", Name = "GetCategory")]
     public async Task<IActionResult> GetCategory(Guid id)
     {
-        var productType = await _categoryService.GetAsNoTrackingAsync(id);
-        if (productType == null)
+        try
         {
-            return NotFound();
+            var category = await _categoryService.GetAsNoTrackingAsync(id);
+            if (category == null)
+            {
+                return NotFound();
+            }
+            var categoryMinimalDto = _mapper.Map<CategoryMinimalDto>(category);
+            return Ok(categoryMinimalDto);
         }
-        var categoryDto = _mapper.Map<CategoryDto>(productType);
-        return Ok(categoryDto);
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, ex.Message);
+            return Problem();
+        }
+
     }
 
     [HttpGet("Get/{page}/{count}")]
@@ -58,23 +77,23 @@ public class CategoryController : ControllerBase
     {
         try
         {
-            var productTypes = await _categoryService.GetAllAsync(page, count);
-            if (productTypes == null)
+            var categories = await _categoryService.GetAllAsync(page, count);
+            if (categories == null)
             {
                 return NotFound();
             }
-            var categoryDtos = _mapper.Map<List<Category>, IEnumerable<CategoryDto>>(productTypes);
+            var categoryDtos = _mapper.Map<List<Category>, IEnumerable<CategoryDto>>(categories);
 
             var taskList = categoryDtos.Select(async c => c.ProductCount = await _categoryService.GetProductCountAsync(c.Id));
             await Task.WhenAll(taskList);
-
             return Ok(categoryDtos);
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            _logger.LogError(e.Message);
-            return NotFound();
+            _logger.LogError(ex, ex.Message);
+            return Problem(ex.Message);
         }
+
 
     }
 
@@ -88,63 +107,103 @@ public class CategoryController : ControllerBase
             {
                 return NotFound();
             }
+
             var dtos = _mapper.Map<IEnumerable<CustomerCategoryDto>>(categories);
             return Ok(dtos);
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            _logger.LogError(e.Message);
-            return NotFound();
+            _logger.LogError(ex, ex.Message);
+            return Problem();
         }
-
     }
 
     [HttpGet("Get/Count")]
     public async Task<IActionResult> GetCategoryCount()
     {
-        var productTypeCount = await _categoryService.GetEntryCountAsync();
+        try
+        {
+            var categoryCount = await _categoryService.GetEntryCountAsync();
 
-        return Ok(productTypeCount);
+            return Ok(categoryCount);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, ex.Message);
+            return Problem();
+        }
     }
 
     [HttpGet("Get/ProductCount/{categoryId}")]
     public async Task<IActionResult> GetProductCount(Guid categoryId)
     {
-        var count = await _categoryService.GetProductCountAsync(categoryId);
+        try
+        {
+            var count = await _categoryService.GetProductCountAsync(categoryId);
 
-        return Ok(count);
+            return Ok(count);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, ex.Message);
+            return Problem();
+        }
     }
 
     [HttpGet("Get/PropertyCount/{categoryId}")]
     public async Task<IActionResult> GetCategoryPropertyCount(Guid categoryId)
     {
-        var count = await _categoryService.GetPropertyCount(categoryId);
+        try
+        {
+            var count = await _categoryService.GetPropertyCount(categoryId);
 
-        return Ok(count);
+            return Ok(count);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, ex.Message);
+            return Problem();
+        }
     }
 
     // UPDATE
     [HttpPut("Update")]
     public async Task<IActionResult> Update(UpdateCategoryModel entityToUpdate)
     {
-        var entity = await _categoryService.GetAsync(entityToUpdate.Id);
-        
-        if (entity == null)
+        try
         {
-            return NotFound();
-        }
-        var category = _mapper.Map(entityToUpdate, entity);
-        var updatedEntity = await _categoryService.UpdateAndReorderAsync(category);
+            var entity = await _categoryService.GetAsync(entityToUpdate.Id);
 
-        return Ok(updatedEntity);
+            if (entity == null)
+            {
+                return NotFound();
+            }
+            var category = _mapper.Map(entityToUpdate, entity);
+            var updatedEntity = await _categoryService.UpdateAndReorderAsync(category);
+
+            return Ok(_mapper.Map<CategoryMinimalDto>(updatedEntity));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, ex.Message);
+            return Problem();
+        }
     }
 
     // DELETE
     [HttpDelete("Delete/{id}")]
     public async Task<IActionResult> Delete(Guid id)
     {
-        EntityDeleteResult deleteResult = await _categoryService.DeleteAndReorderAsync(id);
-        return deleteResult.IsSuccessful ? Ok() : NotFound();
+        try
+        {
+            EntityDeleteResult deleteResult = await _categoryService.DeleteAndReorderAsync(id);
+            return deleteResult.IsSuccessful ? Ok() : NotFound();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, ex.Message);
+            return Problem();
+        }
 
     }
 }

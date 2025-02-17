@@ -58,6 +58,11 @@ public class DetailService : IDetailService
         return _detailDal.GetAsync(pv => pv.Id == id);
 
     }
+    public Task<Detail?> GetAsNoTrackingAsync(Guid id)
+    {
+        return _detailDal.GetAsNoTrackingAsync(pv => pv.Id == id);
+
+    }
 
     public Task<Detail?> GetAsync(Expression<Func<Detail, bool>> filter)
     {

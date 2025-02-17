@@ -21,5 +21,6 @@ namespace Services.Abstract
         Task<List<Detail>> GetProductDetailsAsync(Guid productId);
         Task<List<Detail>> UpdateDetailsAsync(List<Detail> details);
         Task<EntityDeleteResult> DeleteAndReorderAsync(Guid id);
+        Task<Detail?> GetAsNoTrackingAsync(Guid id);
     }
 }

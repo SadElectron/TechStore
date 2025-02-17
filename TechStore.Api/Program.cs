@@ -15,6 +15,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
 using TechStore.Api.MapperProfiles;
+using TechStore.Api.Middlewares;
 
 namespace TechStore.Api
 {
@@ -131,13 +132,16 @@ namespace TechStore.Api
 
             app.UseCors();
             app.UseHttpsRedirection();
-
+            if (!app.Environment.IsDevelopment())
+            {
+                app.UseExceptionHandler("/error");
+            }
             app.UseAuthentication();
             app.UseAuthorization();
 
 
             app.MapControllers();
-
+            app.UseErrorMiddleware();
             app.Run();
         }
     }

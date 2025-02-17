@@ -13,7 +13,7 @@ namespace TechStore.Api.MapperProfiles
         {
 
             CreateMap<Category, CategoryDto>();
-
+            CreateMap<Category, CategoryMinimalDto>();
             CreateMap<Category, CustomerCategoryDto>();
             CreateMap<CreateCategoryModel, Category>();
             CreateMap<UpdateCategoryModel, Category>().ForMember(c => c.CreatedAt, opt => opt.Ignore());
