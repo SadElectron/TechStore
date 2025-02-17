@@ -15,12 +15,13 @@ namespace Services.Abstract
         Task<List<Detail>> GetAllAsync(int page, int itemCount);
         Task<Detail?> GetAsync(Guid id);
         Task<Detail?> GetAsync(Expression<Func<Detail, bool>> filter);
-        Task<Detail> DeleteAsync(Detail entity);
-        Task<Detail> UpdateAsync(Detail entity);
         Task<int> GetEntryCountAsync();
         Task<List<Detail>> GetProductDetailsAsync(Guid productId);
-        Task<List<Detail>> UpdateDetailsAsync(List<Detail> details);
-        Task<EntityDeleteResult> DeleteAndReorderAsync(Guid id);
         Task<Detail?> GetAsNoTrackingAsync(Guid id);
+        Task<EntityUpdateResult<Detail>> UpdateAsync(Detail entity);
+        Task<List<Detail>> UpdateDetailsAsync(List<Detail> details);
+        Task<Detail> DeleteAsync(Detail entity);
+        Task<EntityDeleteResult> DeleteAndReorderAsync(Guid id);
+        Task<List<Detail>> GetByIdsAsync(List<Guid> ids);
     }
 }

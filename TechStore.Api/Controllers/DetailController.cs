@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Core.Dtos;
 using Core.Entities.Concrete;
+using Core.Utils;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Services.Abstract;
@@ -68,52 +69,98 @@ public class DetailController : ControllerBase
     [HttpGet("get/product/details/{productId}")]
     public async Task<IActionResult> GetProductDetails(Guid productId)
     {
-        var propertyValue = await _detailService.GetProductDetailsAsync(productId);
-        var dtos = _mapper.Map<List<DetailDto>>(propertyValue);
-        if (propertyValue == null)
+        try
         {
-            return NotFound();
+            var propertyValue = await _detailService.GetProductDetailsAsync(productId);
+
+            if (propertyValue.Count == 0)
+            {
+                return NotFound();
+            }
+            var dtos = _mapper.Map<List<DetailDto>>(propertyValue);
+            return Ok(dtos);
         }
-        return Ok(dtos);
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, ex.Message);
+            return Problem();
+        }
     }
 
 
 
 
     // UPDATE
-    [HttpPut("update/{id}")]
-    public async Task<IActionResult> Update(Guid id, Detail entityToUpdate)
+    [HttpPut("update")]
+    public async Task<IActionResult> Update(UpdateDetailModel updatedEntity)
     {
-        var entity = await _detailService.GetAsync(id);
-        if (entity == null)
+        try
         {
-            return NotFound();
+            var entityToUpdate = await _detailService.GetAsync(updatedEntity.Id);
+            if (entityToUpdate == null)
+            {
+                return NotFound();
+            }
+            var detail = _mapper.Map(updatedEntity, entityToUpdate);
+            var updateEntityResult = await _detailService.UpdateAsync(detail);
+            if (updateEntityResult.IsSuccessful)
+            {
+                return Ok(_mapper.Map<DetailMinimalDto>(updateEntityResult.Entity));
+            }
+            return BadRequest();
         }
-        var updatedEntity = _detailService.UpdateAsync(entityToUpdate);
-        return Ok(updatedEntity);
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, ex.Message);
+            return Problem();
+        }
     }
 
     [HttpPut("update/product/details")]
-    public async Task<IActionResult> Update(List<Detail> details)
+    public async Task<IActionResult> Update(List<UpdateDetailModel> updatedEntities)
     {
-        var checkList = details.Select(d => _detailService.GetAsync(d.Id));
-        var itemList = await Task.WhenAll(checkList);
-        if (itemList.Length < details.Count || itemList.Length > details.Count)
+        try
         {
-            return BadRequest();
-        }
-        var updatedDetails = await _detailService.UpdateDetailsAsync(details);
+            var ids = updatedEntities.Select(ue => ue.Id).ToList();
+            var existingDetails = await _detailService.GetByIdsAsync(ids);
+            if (existingDetails.Count != updatedEntities.Count)
+            {
+                return BadRequest("Some entities were not found.");
+            }
+            foreach (var entity in existingDetails)
+            {
+                var updateModel = updatedEntities.Single(ue => ue.Id == entity.Id);
+                _mapper.Map(updateModel, entity);
+                entity.LastUpdate = DateTimeHelper.GetUtcNow();
+            }
 
-        return Ok(updatedDetails);
+            var updatedDetails = await _detailService.UpdateDetailsAsync(existingDetails);
+
+            return Ok(_mapper.Map<List<DetailMinimalDto>>(updatedDetails));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, ex.Message);
+            return Problem();
+        }
     }
 
     // DELETE
     [HttpDelete("delete/{id}")]
     public async Task<IActionResult> Delete(Guid id)
     {
+        try
+        {
+            EntityDeleteResult deleteResult = await _detailService.DeleteAndReorderAsync(id);
+            return deleteResult.IsSuccessful ? Ok() : NotFound();
+        }
+        catch (Exception ex)
+        {
 
-        EntityDeleteResult deleteResult = await _detailService.DeleteAndReorderAsync(id);
-        return deleteResult.IsSuccessful ? Ok() : NotFound();
+            _logger.LogError(ex, ex.Message);
+            return Problem();
+        }
+        
     }
 }
 

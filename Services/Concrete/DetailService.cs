@@ -29,7 +29,7 @@ public class DetailService : IDetailService
     {
         var detailProperty = await _propertyDal.GetAsNoTrackingAsync(p => p.Id == entity.PropertyId);
         var detailProduct = await _productDal.GetAsNoTrackingAsync(p => p.Id == entity.ProductId);
-        if(detailProperty != null && detailProduct != null)
+        if (detailProperty != null && detailProduct != null)
         {
             entity.RowOrder = await _detailDal.GetLastOrderAsync() + 1;
             entity.LastUpdate = DateTimeHelper.GetUtcNow();
@@ -39,19 +39,7 @@ public class DetailService : IDetailService
         return new EntityAddResult<Detail>(false, null, "Property or Product not found");
     }
 
-    public Task<Detail> DeleteAsync(Detail entity)
-    {
-        return _detailDal.DeleteAsync(entity);
 
-    }
-    public async Task<EntityDeleteResult> DeleteAndReorderAsync(Guid id)
-    {
-        var entity = await _detailDal.GetAsync(c => c.Id == id);
-        if (entity == null) return new EntityDeleteResult(false, "Entity not found");
-        var i = await _detailDal.DeleteAndReorderAsync(id);
-        return i > 0 ? new EntityDeleteResult(true, "Entity deleted") : new EntityDeleteResult(false, "Entity not deleted");
-
-    }
 
     public Task<Detail?> GetAsync(Guid id)
     {
@@ -87,18 +75,35 @@ public class DetailService : IDetailService
         return _detailDal.GetEntryCountAsync();
 
     }
-
-    public Task<Detail> UpdateAsync(Detail entity)
+    public Task<List<Detail>> GetByIdsAsync(List<Guid> ids)
     {
-        entity.LastUpdate = DateTime.UtcNow;
-        return _detailDal.UpdateAsync(entity);
+        return _detailDal.GetByIdsAsync(ids);
+    }
+
+    public async Task<EntityUpdateResult<Detail>> UpdateAsync(Detail entity)
+    {
+        entity.LastUpdate = DateTimeHelper.GetUtcNow();
+        var detail = await _detailDal.UpdateAsync(entity);
+        return new EntityUpdateResult<Detail>(true, detail);
 
     }
     public Task<List<Detail>> UpdateDetailsAsync(List<Detail> details)
     {
-        Parallel.ForEach
-            (details, d => d.LastUpdate = DateTime.UtcNow);
+        
         return _detailDal.UpdateDetailsAsync(details);
+
+    }
+    public Task<Detail> DeleteAsync(Detail entity)
+    {
+        return _detailDal.DeleteAsync(entity);
+
+    }
+    public async Task<EntityDeleteResult> DeleteAndReorderAsync(Guid id)
+    {
+        var entity = await _detailDal.GetAsync(c => c.Id == id);
+        if (entity == null) return new EntityDeleteResult(false, "Entity not found");
+        var i = await _detailDal.DeleteAndReorderAsync(id);
+        return i > 0 ? new EntityDeleteResult(true, "Entity deleted") : new EntityDeleteResult(false, "Entity not deleted");
 
     }
 }

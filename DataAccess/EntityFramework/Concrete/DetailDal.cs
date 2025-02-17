@@ -21,7 +21,12 @@ namespace DataAccess.EntityFramework.Concrete
         {
             _logger = logger;
         }
-
+        public async Task<List<Detail>> GetByIdsAsync(List<Guid> ids)
+        {
+            using EfDbContext context = new EfDbContext();
+            return await context.Details.Where(d => ids.Contains(d.Id))
+                .ToListAsync();
+        }
         public async Task<List<Detail>> GetAllWithPropsAsync(Guid productId)
         {
             using EfDbContext context = new EfDbContext();
@@ -45,7 +50,7 @@ namespace DataAccess.EntityFramework.Concrete
             {
                 transaction.Rollback();
                 _logger.LogError($"Error in DetailDal.UpdateDetailsAsync {e.Message}");
-                throw;
+                return new List<Detail>();
             }
         }
 
