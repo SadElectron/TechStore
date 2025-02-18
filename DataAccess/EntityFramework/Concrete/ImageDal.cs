@@ -126,5 +126,41 @@ namespace DataAccess.EntityFramework.Concrete
                 throw;
             }
         }
+        public new async Task<int> DeleteAndReorderAsync(Guid id)
+        {
+            using var context = new EfDbContext();
+            await using var transaction = await context.Database.BeginTransactionAsync();
+            try
+            {
+                var image = await context.Images
+                    .Where(e => e.Id == id)
+                    .Select(e => new { e.RowOrder, e.ImageOrder })
+                    .SingleOrDefaultAsync();
+
+                if (image == null)
+                {
+                    return 0; // Image not found, nothing to delete
+                }
+
+                int deletedEntryCount = await context.Images.Where(p => p.Id == id).ExecuteDeleteAsync();
+                if (deletedEntryCount > 0)
+                {
+                    await context.Images.Where(e => e.RowOrder > image.RowOrder)
+                            .ExecuteUpdateAsync(s => s.SetProperty(e => e.RowOrder, e => e.RowOrder - 1));
+                    await context.Images.Where(e => e.ImageOrder > image.ImageOrder)
+                            .ExecuteUpdateAsync(s => s.SetProperty(e => e.ImageOrder, e => e.ImageOrder - 1));
+                }
+
+                await transaction.CommitAsync();
+
+                return deletedEntryCount;
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                _logger.LogError(ex, "An error occurred while deleting and reordering images: {Message}", ex.Message);
+                throw;
+            }
+        }
     }
 }

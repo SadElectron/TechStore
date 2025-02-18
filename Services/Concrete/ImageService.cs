@@ -4,6 +4,7 @@ using DataAccess.EntityFramework.Abstract;
 using DataAccess.EntityFramework.Concrete;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Logging;
 using Services.Abstract;
 using System;
 using System.Collections.Concurrent;
@@ -17,19 +18,31 @@ namespace Services.Concrete
     public class ImageService : IImageService
     {
         private readonly IImageDal _imageDal;
-        private static readonly string[] AllowedFileTypes = { ".jpg", ".jpeg", ".png" };
-        public ImageService(IImageDal imageDal)
+        private readonly IProductDal _productDal;
+        private readonly ILogger<ImageService> _logger;
+        private static readonly string[] AllowedFileTypes = { ".jpg", ".jpeg", ".png", ".webp" };
+        public ImageService(IImageDal imageDal, IProductDal productDal, ILogger<ImageService> logger)
         {
             _imageDal = imageDal;
+            _productDal = productDal;
+            _logger = logger;
         }
 
         public async Task<IEnumerable<Image>> BulkAddAsync(ICollection<IFormFile> formFiles, Guid productId)
         {
+            if (productId == Guid.Empty)
+            {
+                throw new ArgumentException("Invalid product ID.");
+            }
             if (formFiles == null || !formFiles.Any())
             {
                 throw new ArgumentException("No files provided.", nameof(formFiles));
             }
-            
+            var productExists = await _productDal.ExistsAsync(productId);
+            if (!productExists)
+            {
+                throw new ArgumentException($"Product with ID {productId} does not exist.");
+            }
             var images = new ConcurrentBag<Image>();
 
             await Parallel.ForEachAsync(formFiles, async (file, cancellationToken) =>
@@ -86,14 +99,23 @@ namespace Services.Concrete
 
         public async Task<Image> DeleteAsync(Guid imageId)
         {
-            var image = await _imageDal.GetAsync(i => i.Id == imageId);
-            return await _imageDal.DeleteAsync(image);
+            try
+            {
+                var image = await _imageDal.GetAsync(i => i.Id == imageId);
+                if (image is null) throw new ArgumentException("Image not found.");
+                return await _imageDal.DeleteAsync(image);
+            }
+            catch (Exception ex)
+            {
+               _logger.LogWarning($"Error in ImageService.DeleteAsync {ex.Message}");
+                throw;
+            }
         }
         
         public async Task<EntityDeleteResult> DeleteAndReorderAsync(Guid id)
         {
-            var entity = await _imageDal.GetAsync(c => c.Id == id);
-            if (entity == null) return new EntityDeleteResult(false, "Entity not found");
+            var entity = await _imageDal.ExistsAsync(id);
+            if (!entity) return new EntityDeleteResult(false, "Entity not found");
             var i = await _imageDal.DeleteAndReorderAsync(id);
             return i > 0 ? new EntityDeleteResult(true, "Entity deleted") : new EntityDeleteResult(false, "Entity not deleted");
         }

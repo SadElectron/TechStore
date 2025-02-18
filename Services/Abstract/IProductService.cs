@@ -27,5 +27,6 @@ namespace Services.Abstract
         Task ReorderDb();
         Task ReorderCategoryProducts(Guid categoryId);
         Task<EntityDeleteResult> DeleteAndReorderAsync(Guid id);
+        Task<bool> ExistsAsync(Guid productId);
     }
 }

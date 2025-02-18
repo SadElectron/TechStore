@@ -196,4 +196,8 @@ public class ProductService : IProductService
     {
         return _productDal.GetAllAsNoTrackingAsync(p => EF.Functions.Like(p.ProductName, $"%{q}%"), p => p.RowOrder);
     }
+    public Task<bool> ExistsAsync(Guid productId)
+    {
+        return _productDal.ExistsAsync(productId);
+    }
 }

@@ -1,4 +1,5 @@
 ﻿using Core.Entities.Abstract;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System;
 using System.Collections.Generic;
@@ -21,16 +22,18 @@ namespace Core.DataAccess.EntityFramework.Abstract
         Task<List<TEntity>> GetAllAsNoTrackingAsync<Tkey>(int page, int itemCount, Expression<Func<TEntity, Tkey>> orderFilter);
         Task<List<TEntity>> GetAllAsNoTrackingAsync<Tkey>(Expression<Func<TEntity, bool>> filter, Expression<Func<TEntity, Tkey>> orderFilter);
         Task<List<TEntity>> GetAllAsNoTrackingAsync<Tkey>(Expression<Func<TEntity, bool>> filter, int page, int itemCount, Expression<Func<TEntity, Tkey>> orderFilter);
+        Task<int> GetEntryCountAsync();
+        Task<int> GetEntryCountAsync(Expression<Func<TEntity, bool>> filter);
+        Task<double> GetLastOrderAsync();
         Task<TEntity> AddAsync(TEntity entity);
         Task<TEntity> UpdateAsync(TEntity entity);
         Task UpdateAllAsync(List<TEntity> entities);
-        Task<TEntity> DeleteAsync(TEntity entity);
-        Task<int> GetEntryCountAsync();
-        Task<int> GetEntryCountAsync(Expression<Func<TEntity, bool>> filter);
-        Task SaveChangesAsync();
-        Task<int> DeleteAndReorderAsync(Guid id);
         Task<TEntity> UpdateAndReorderAsync(TEntity entity);
-        Task<double> GetLastOrderAsync();
+        Task<TEntity> DeleteAsync(TEntity entity);
+        Task<int> DeleteAndReorderAsync(Guid id);
+        Task SaveChangesAsync();
+        Task<bool> ExistsAsync(Guid id);
+        
     }
 
 

@@ -197,5 +197,11 @@ namespace Core.DataAccess.EntityFramework.Concrete
                 throw;
             }
         }
+
+        public async Task<bool> ExistsAsync(Guid id)
+        {
+            using var context = new TContext();
+            return await context.Set<TEntity>().AnyAsync(e => e.Id == id);
+        }
     }
 }
