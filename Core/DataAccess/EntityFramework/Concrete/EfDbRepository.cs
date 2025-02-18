@@ -24,95 +24,87 @@ namespace Core.DataAccess.EntityFramework.Concrete
             _logger = logger;
         }
 
-        public Task<TEntity?> GetAsync(Expression<Func<TEntity, bool>> filter)
-        {
-            using (var context = new TContext())
-            {
-                return context.Set<TEntity>().SingleOrDefaultAsync(filter);
-            }
-        }
-
-        public Task<TEntity?> GetAsNoTrackingAsync(Expression<Func<TEntity, bool>> filter)
+        public async Task<TEntity?> GetAsync(Expression<Func<TEntity, bool>> filter)
         {
             using var context = new TContext();
-            return context.Set<TEntity>().AsNoTracking().SingleOrDefaultAsync(filter);
+            return await context.Set<TEntity>().SingleOrDefaultAsync(filter);
         }
 
-        public Task<List<TEntity>> GetAllAsync()
+        public async Task<TEntity?> GetAsNoTrackingAsync(Expression<Func<TEntity, bool>> filter)
         {
             using var context = new TContext();
-            return context.Set<TEntity>().ToListAsync();
+            return await context.Set<TEntity>().AsNoTracking().SingleOrDefaultAsync(filter);
         }
 
-        public Task<List<TEntity>> GetAllAsync(int page, int itemCount, Expression<Func<TEntity, object>> orderFilter)
+        public async Task<List<TEntity>> GetAllAsync()
         {
             using var context = new TContext();
-            return context.Set<TEntity>().OrderBy(orderFilter).Skip((page - 1) * itemCount).Take(itemCount).ToListAsync();
+            return await context.Set<TEntity>().ToListAsync();
         }
 
-        public Task<List<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>> filter, int page, int itemCount, Expression<Func<TEntity, object>> orderFilter)
+        public async Task<List<TEntity>> GetAllAsync<Tkey>(int page, int itemCount, Expression<Func<TEntity, Tkey>> orderFilter)
         {
             using var context = new TContext();
-            return context.Set<TEntity>().Where(filter).OrderBy(orderFilter).Skip((page - 1) * itemCount).Take(itemCount).ToListAsync();
+            return await context.Set<TEntity>().OrderBy(orderFilter).Skip((page - 1) * itemCount).Take(itemCount).ToListAsync();
         }
 
-        public Task<List<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>> filter, Expression<Func<TEntity, object>> orderFilter)
+        public async Task<List<TEntity>> GetAllAsync<Tkey>(Expression<Func<TEntity, bool>> filter, int page, int itemCount, Expression<Func<TEntity, Tkey>> orderFilter)
         {
             using var context = new TContext();
-            return context.Set<TEntity>().Where(filter).OrderBy(orderFilter).ToListAsync();
+            return await context.Set<TEntity>().Where(filter).OrderBy(orderFilter).Skip((page - 1) * itemCount).Take(itemCount).ToListAsync();
         }
 
-        public Task<List<TEntity>> GetAllAsNoTrackingAsync(Expression<Func<TEntity, object>> orderFilter)
+        public async Task<List<TEntity>> GetAllAsync<Tkey>(Expression<Func<TEntity, bool>> filter, Expression<Func<TEntity, Tkey>> orderFilter)
         {
             using var context = new TContext();
-            return context.Set<TEntity>().OrderBy(orderFilter).AsNoTracking().ToListAsync();
+            return await context.Set<TEntity>().Where(filter).OrderBy(orderFilter).ToListAsync();
         }
 
-        public Task<List<TEntity>> GetAllAsNoTrackingAsync(int page, int itemCount, Expression<Func<TEntity, object>> orderFilter)
+        public async Task<List<TEntity>> GetAllAsNoTrackingAsync<Tkey>(Expression<Func<TEntity, Tkey>> orderFilter)
         {
             using var context = new TContext();
-            return context.Set<TEntity>().OrderBy(orderFilter).Skip((page - 1) * itemCount).Take(itemCount).AsNoTracking().ToListAsync();
+            return await context.Set<TEntity>().OrderBy(orderFilter).AsNoTracking().ToListAsync();
         }
 
-        public Task<List<TEntity>> GetAllAsNoTrackingAsync(Expression<Func<TEntity, bool>> filter, Expression<Func<TEntity, object>> orderFilter)
+        public async Task<List<TEntity>> GetAllAsNoTrackingAsync<Tkey>(int page, int itemCount, Expression<Func<TEntity, Tkey>> orderFilter)
         {
             using var context = new TContext();
-            return context.Set<TEntity>().Where(filter).OrderBy(orderFilter).AsNoTracking().ToListAsync();
+            return await context.Set<TEntity>().OrderBy(orderFilter).Skip((page - 1) * itemCount).Take(itemCount).AsNoTracking().ToListAsync();
         }
 
-        public Task<List<TEntity>> GetAllAsNoTrackingAsync(Expression<Func<TEntity, bool>> filter, int page, int itemCount, Expression<Func<TEntity, object>> orderFilter)
+        public async Task<List<TEntity>> GetAllAsNoTrackingAsync<Tkey>(Expression<Func<TEntity, bool>> filter, Expression<Func<TEntity, Tkey>> orderFilter)
         {
             using var context = new TContext();
-            return context.Set<TEntity>().Where(filter).OrderBy(orderFilter).Skip((page - 1) * itemCount).Take(itemCount).AsNoTracking().ToListAsync();
+            return await context.Set<TEntity>().Where(filter).OrderBy(orderFilter).AsNoTracking().ToListAsync();
+        }
+
+        public async Task<List<TEntity>> GetAllAsNoTrackingAsync<Tkey>(Expression<Func<TEntity, bool>> filter, int page, int itemCount, Expression<Func<TEntity, Tkey>> orderFilter)
+        {
+            using var context = new TContext();
+            return await context.Set<TEntity>().Where(filter).OrderBy(orderFilter).Skip((page - 1) * itemCount).Take(itemCount).AsNoTracking().ToListAsync();
         }
 
         public async Task<TEntity> AddAsync(TEntity entity)
         {
-            using (var context = new TContext())
-            {
-                var addedEntity = await context.Set<TEntity>().AddAsync(entity);
-                await context.SaveChangesAsync();
-                return addedEntity.Entity;
-            }
+            using var context = new TContext();
+            var addedEntity = await context.Set<TEntity>().AddAsync(entity);
+            await context.SaveChangesAsync();
+            return addedEntity.Entity;
         }
 
         public async Task<TEntity> UpdateAsync(TEntity entity)
         {
-            using (var context = new TContext())
-            {
-                var updatedEntity = context.Set<TEntity>().Update(entity);
-                await context.SaveChangesAsync();
-                return updatedEntity.Entity;
-            }
+            using var context = new TContext();
+            var updatedEntity = context.Set<TEntity>().Update(entity);
+            await context.SaveChangesAsync();
+            return updatedEntity.Entity;
         }
 
         public async Task UpdateAllAsync(List<TEntity> entities)
         {
-            using (var context = new TContext())
-            {
-                context.Set<TEntity>().UpdateRange(entities);
-                await context.SaveChangesAsync();
-            }
+            using var context = new TContext();
+            context.Set<TEntity>().UpdateRange(entities);
+            await context.SaveChangesAsync();
         }
 
         public async Task<TEntity> DeleteAsync(TEntity entity)
@@ -125,33 +117,29 @@ namespace Core.DataAccess.EntityFramework.Concrete
 
         public async Task<int> GetEntryCountAsync()
         {
-            using (var context = new TContext())
-            {
-                return await context.Set<TEntity>().CountAsync();
-            }
+            using var context = new TContext();
+            return await context.Set<TEntity>().CountAsync();
         }
 
-        public Task<int> GetEntryCountAsync(Expression<Func<TEntity, bool>> filter)
-        {
-            using (var context = new TContext())
-            {
-                return context.Set<TEntity>().Where(filter).CountAsync();
-            }
-        }
-        public Task<double> GetLastOrderAsync()
+        public async Task<int> GetEntryCountAsync(Expression<Func<TEntity, bool>> filter)
         {
             using var context = new TContext();
-            var lastOrder = context.Set<TEntity>()
+            return await context.Set<TEntity>().Where(filter).CountAsync();
+        }
+        public async Task<double> GetLastOrderAsync()
+        {
+            using var context = new TContext();
+            var lastOrder = await context.Set<TEntity>()
                 .OrderByDescending(u => u.RowOrder)
                 .Select(u => u.RowOrder)
                 .FirstOrDefaultAsync();
             return lastOrder;
         }
 
-        public Task SaveChangesAsync()
+        public async Task SaveChangesAsync()
         {
             using var context = new TContext();
-            return context.SaveChangesAsync();
+            await context.SaveChangesAsync();
         }
 
         public async Task<int> DeleteAndReorderAsync(Guid id)
