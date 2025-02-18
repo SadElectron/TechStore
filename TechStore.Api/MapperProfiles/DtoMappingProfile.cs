@@ -20,7 +20,7 @@ namespace TechStore.Api.MapperProfiles
             CreateMap<Product, CustomerProductDto>();
             CreateMap<Detail, CustomerDetailDto>().ForMember(cddto => cddto.PropName, opt => opt.MapFrom(d => d.Property!.PropName));
             CreateMap<Image, CustomerImageDto>();
-
+            CreateMap<Image, ImageDto>();
             CreateMap<Property, PropertyDto>();
             CreateMap<Property, CustomerProductFiltersDto>().ForMember( d=> d.Values, opt => opt.MapFrom( src => src.Details));
                 

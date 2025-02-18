@@ -30,14 +30,25 @@ namespace DataAccess.EntityFramework.Concrete
         }
         public async Task<IEnumerable<Image>> AddAllAsync(ICollection<Image> images)
         {
+            if (images == null || !images.Any())
+            {
+                throw new ArgumentException("No images provided.", nameof(images));
+            }
             using var context = new EfDbContext();
             using var transaction = await context.Database.BeginTransactionAsync();
             try
             {
-                double lastOrder = await context.Images.OrderByDescending(i => i.RowOrder)
-                .Select(i => i.RowOrder)
-                .FirstOrDefaultAsync();
-                double lastImageOrder = await context.Images.Where(i => i.ProductId == images.First().ProductId)
+                var productId = images.First().ProductId;
+
+                // Fetch the last RowOrder for the entire table
+                double lastOrder = await context.Images
+                    .OrderByDescending(i => i.RowOrder)
+                    .Select(i => i.RowOrder)
+                    .FirstOrDefaultAsync();
+
+                // Fetch the last ImageOrder for the specific product
+                double lastImageOrder = await context.Images
+                    .Where(i => i.ProductId == productId)
                     .OrderByDescending(i => i.ImageOrder)
                     .Select(i => i.ImageOrder)
                     .FirstOrDefaultAsync();
@@ -52,24 +63,20 @@ namespace DataAccess.EntityFramework.Concrete
                         image.ImageOrder = lastImageOrder;
                     }
                     image.LastUpdate = DateTimeHelper.GetUtcNow();
+                    image.CreatedAt = DateTimeHelper.GetUtcNow();
                 }
                 await context.Images.AddRangeAsync(images);
                 await context.SaveChangesAsync();
                 await transaction.CommitAsync();
+
+                return images;
             }
             catch (Exception e)
             {
                 transaction.Rollback();
                 _logger.LogError($"Error in ImageDal.AddAllAsync {e.Message}");
+                throw;
             }
-            
-            var addedImages = await context.Images
-                .Where(i => i.ProductId == images.First().ProductId)
-                .OrderBy(i => i.ImageOrder)
-                .AsNoTracking()
-                .ToListAsync();
-
-            return addedImages;
         }
         public Task<int> DeleteImagesAsync(Guid productId)
         {
@@ -78,8 +85,8 @@ namespace DataAccess.EntityFramework.Concrete
 
         }
 
-        
-        
+
+
         public async Task<Image?> UpdateOrderAsync(Guid imageId, int newOrder)
         {
             using var context = new EfDbContext();

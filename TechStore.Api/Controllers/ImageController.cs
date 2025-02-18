@@ -27,11 +27,10 @@ public class ImageController : ControllerBase
     [HttpGet("get/images/{productId}")]
     public async Task<IActionResult> GetAll(Guid productId)
     {
-
         var images = await _imageService.GetAllAsNoTrackingAsync(productId);
         if (images.Count == 0) return NotFound();
-        return Ok(images);
-
+        var imageDtos = _mapper.Map<List<ImageDto>>(images);
+        return Ok(imageDtos);
     }
 
 

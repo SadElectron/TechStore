@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Services.Abstract;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,7 +17,7 @@ namespace Services.Concrete
     public class ImageService : IImageService
     {
         private readonly IImageDal _imageDal;
-
+        private static readonly string[] AllowedFileTypes = { ".jpg", ".jpeg", ".png" };
         public ImageService(IImageDal imageDal)
         {
             _imageDal = imageDal;
@@ -24,21 +25,43 @@ namespace Services.Concrete
 
         public async Task<IEnumerable<Image>> BulkAddAsync(ICollection<IFormFile> formFiles, Guid productId)
         {
-
-            List<Image> images = new List<Image>();
-            foreach (var file in formFiles)
+            if (formFiles == null || !formFiles.Any())
             {
-                
-                using MemoryStream memoryStream = new();
-                await file.CopyToAsync(memoryStream);
-                images.Add(new()
+                throw new ArgumentException("No files provided.", nameof(formFiles));
+            }
+            
+            var images = new ConcurrentBag<Image>();
+
+            await Parallel.ForEachAsync(formFiles, async (file, cancellationToken) =>
+            {
+                if (file == null || file.Length == 0)
+                {
+                    throw new ArgumentException("Invalid file provided.");
+                }
+
+                if (!AllowedFileTypes.Contains(Path.GetExtension(file.FileName).ToLower()))
+                {
+                    throw new ArgumentException($"File '{file.FileName}' is not an allowed file type.");
+                }
+
+                const int maxFileSize = 10 * 1024 * 1024; // 10MB
+                if (file.Length > maxFileSize)
+                {
+                    throw new ArgumentException($"File '{file.FileName}' exceeds the maximum allowed size of 10MB.");
+                }
+
+                using var memoryStream = new MemoryStream();
+                await file.CopyToAsync(memoryStream, cancellationToken);
+
+                images.Add(new Image
                 {
                     Id = Guid.NewGuid(),
                     ProductId = productId,
                     File = memoryStream.ToArray()
                 });
-            }
-            return await _imageDal.AddAllAsync(images);
+            });
+
+            return await _imageDal.AddAllAsync(images.ToList());
         }
 
         public Task<int> DeleteImagesAsync(Guid productId)
