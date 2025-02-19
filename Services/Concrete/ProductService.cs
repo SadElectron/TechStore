@@ -9,6 +9,7 @@ using Services.Abstract;
 using System.Linq.Expressions;
 using Core.Utils;
 using DataAccess.EntityFramework.Concrete;
+using Core.Results;
 
 namespace Services.Concrete;
 
@@ -26,7 +27,69 @@ public class ProductService : IProductService
         _imageDal = imageDal;
         _detailDal = detailDal;
     }
+    public async Task<Product> GetAsync(Guid id)
+    {
 
+        var entity = await _productDal.GetAsNoTrackingAsync(p => p.Id == id);
+        return entity ?? new Product { ProductName = "" };
+
+    }
+    public Task<Product?> GetAsync(Expression<Func<Product, bool>> filter)
+    {
+        return _productDal.GetAsync(filter);
+    }
+    public Task<List<Product>> GetAllAsync(int page, int itemCount)
+    {
+        return _productDal.GetAllAsNoTrackingAsync(page, itemCount, p => p.RowOrder);
+    }
+    public Task<List<Product>> GetAllAsync(int page, int itemCount, Guid categoryId)
+    {
+        return _productDal.GetAllAsNoTrackingAsync(p => p.CategoryId == categoryId, page, itemCount, p => p.RowOrder);
+    }
+    public Task<int> GetEntryCountAsync()
+    {
+        return _productDal.GetEntryCountAsync();
+    }
+    public Task<int> GetProductCountAsync(Guid categoryId)
+    {
+        return _productDal.GetProductCount(categoryId);
+    }
+    public Task<Product?> GetAsNoTrackingAsync(Guid id)
+    {
+        return _productDal.GetAsNoTrackingAsync(p => p.Id == id);
+    }
+    public Task<CustomerProductDto?> GetFullForCustomer(Guid productId)
+    {
+        return _productDal.GetFullForCustomer(productId);
+    }
+    public Task<List<Product>> GetAllAsNoTrackingAsync(int page, int itemCount, Guid categoryId)
+    {
+        return _productDal.GetAllAsNoTrackingAsync(p => p.CategoryId == categoryId, page, itemCount, p => p.RowOrder);
+    }
+    public Task<List<Product>> GetAllWithImagesAsync(int page, int itemCount, Guid categoryId)
+    {
+        return _productDal.GetAllWithImagesAsync(p => p.CategoryId == categoryId, page, itemCount, p => p.RowOrder);
+    }
+    public Task<List<Product>> GetFilteredAsync(List<ProductFilterModel> filters, Guid categoryId, int page = 1, int itemCount = 10)
+    {
+        return _productDal.GetFilteredAsync(filters, categoryId, page, itemCount);
+    }
+    public Task<List<Product>> GetFilteredAndSortedAsync(FilterAndSortModel filterAndSortModel, Guid categoryId, int page = 1, int itemCount = 10)
+    {
+        return _productDal.GetFilteredAndSortedAsync(filterAndSortModel, categoryId, page, itemCount);
+    }
+    public Task<int> GetFilteredCountAsync(List<ProductFilterModel> filters, Guid categoryId)
+    {
+        return _productDal.GetFilteredCountAsync(filters, categoryId);
+    }
+    public Task<List<Product>> GetAllAsNoTrackingAsync(string q)
+    {
+        return _productDal.GetAllAsNoTrackingAsync(p => EF.Functions.Like(p.ProductName, $"%{q}%"), p => p.RowOrder);
+    }
+    public Task<bool> ExistsAsync(Guid productId)
+    {
+        return _productDal.ExistsAsync(productId);
+    }
     public async Task<Product> AddAsync(Product entity)
     {
         entity.LastUpdate = DateTimeHelper.GetUtcNow();
@@ -60,16 +123,16 @@ public class ProductService : IProductService
             using var memoryStream = new MemoryStream();
             await image.CopyToAsync(memoryStream);
             entity.Images.Add(new Image
-                {
-                    Id = Guid.NewGuid(),
-                    ProductId = productId,
-                    ImageOrder = imageOrder,
-                    RowOrder = imageRowOrder,
-                    File = memoryStream.ToArray(),
-                    LastUpdate = DateTimeHelper.GetUtcNow(),
-                    CreatedAt = DateTimeHelper.GetUtcNow()
-                    
-                });
+            {
+                Id = Guid.NewGuid(),
+                ProductId = productId,
+                ImageOrder = imageOrder,
+                RowOrder = imageRowOrder,
+                File = memoryStream.ToArray(),
+                LastUpdate = DateTimeHelper.GetUtcNow(),
+                CreatedAt = DateTimeHelper.GetUtcNow()
+
+            });
         }
 
         if (entity.Details != null)
@@ -92,43 +155,6 @@ public class ProductService : IProductService
         return await _productDal.AddAsync(entity);
 
     }
-
-    public async Task<EntityDeleteResult> DeleteAndReorderAsync(Guid id)
-    {
-        var entity = await _productDal.GetAsync(c => c.Id == id);
-        if (entity == null) return new EntityDeleteResult(false, "Entity not found");
-        var i = await _productDal.DeleteAndReorderAsync(id);
-        return i > 0 ? new EntityDeleteResult(true, "Entity deleted") : new EntityDeleteResult(false, "Entity not deleted");
-    }
-
-    public async Task<Product> GetAsync(Guid id)
-    {
-
-        var entity = await _productDal.GetAsNoTrackingAsync(p => p.Id == id);
-        return entity ?? new Product { ProductName = "" };
-
-    }
-
-    public Task<Product?> GetAsync(Expression<Func<Product, bool>> filter)
-    {
-        return _productDal.GetAsync(filter);
-    }
-
-    public Task<List<Product>> GetAllAsync(int page, int itemCount)
-    {
-        return _productDal.GetAllAsNoTrackingAsync(page, itemCount, p => p.RowOrder);
-    }
-
-    public Task<List<Product>> GetAllAsync(int page, int itemCount, Guid categoryId)
-    {
-        return _productDal.GetAllAsNoTrackingAsync(p => p.CategoryId == categoryId, page, itemCount, p => p.RowOrder);
-    }
-
-    public Task<int> GetEntryCountAsync()
-    {
-        return _productDal.GetEntryCountAsync();
-    }
-
     public async Task<Product> UpdateAndReorderAsync(Product entity)
     {
 
@@ -147,57 +173,11 @@ public class ProductService : IProductService
             return new Product { ProductName = string.Empty };
         }
     }
-
-    public async Task ReorderDb()
+    public async Task<EntityDeleteResult> DeleteAndReorderAsync(Guid id)
     {
-        await _productDal.ReorderDb();
-    }
-    public async Task ReorderCategoryProducts(Guid categoryId)
-    {
-        await _productDal.ReorderCategoryProducts(categoryId);
-    }
-
-    public Task<int> GetProductCountAsync(Guid categoryId)
-    {
-        return _productDal.GetProductCount(categoryId);
-    }
-
-    public Task<Product?> GetAsNoTrackingAsync(Guid id)
-    {
-        return _productDal.GetAsNoTrackingAsync(p => p.Id == id);
-    }
-    public Task<CustomerProductDto?> GetFullForCustomer(Guid productId)
-    {
-        return _productDal.GetFullForCustomer(productId);
-    }
-
-    public Task<List<Product>> GetAllAsNoTrackingAsync(int page, int itemCount, Guid categoryId)
-    {
-        return _productDal.GetAllAsNoTrackingAsync(p => p.CategoryId == categoryId, page, itemCount, p => p.RowOrder);
-    }
-    public Task<List<Product>> GetAllWithImagesAsync(int page, int itemCount, Guid categoryId)
-    {
-        return _productDal.GetAllWithImagesAsync(p => p.CategoryId == categoryId, page, itemCount, p => p.RowOrder);
-    }
-    public Task<List<Product>> GetFilteredAsync(List<ProductFilterModel> filters, Guid categoryId, int page = 1, int itemCount = 10)
-    {
-        return _productDal.GetFilteredAsync(filters, categoryId, page, itemCount);
-    }
-    public Task<List<Product>> GetFilteredAndSortedAsync(FilterAndSortModel filterAndSortModel, Guid categoryId, int page = 1, int itemCount = 10)
-    {
-        return _productDal.GetFilteredAndSortedAsync(filterAndSortModel, categoryId, page, itemCount);
-    }
-    public Task<int> GetFilteredCountAsync(List<ProductFilterModel> filters, Guid categoryId)
-    {
-        return _productDal.GetFilteredCountAsync(filters, categoryId);
-    }
-
-    public Task<List<Product>> GetAllAsNoTrackingAsync(string q)
-    {
-        return _productDal.GetAllAsNoTrackingAsync(p => EF.Functions.Like(p.ProductName, $"%{q}%"), p => p.RowOrder);
-    }
-    public Task<bool> ExistsAsync(Guid productId)
-    {
-        return _productDal.ExistsAsync(productId);
+        var entity = await _productDal.GetAsync(c => c.Id == id);
+        if (entity == null) return new EntityDeleteResult(false, "Entity not found");
+        var i = await _productDal.DeleteAndReorderAsync(id);
+        return i > 0 ? new EntityDeleteResult(true, "Entity deleted") : new EntityDeleteResult(false, "Entity not deleted");
     }
 }

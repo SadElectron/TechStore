@@ -43,36 +43,6 @@ public class ProductDal : EfDbRepository<Product, EfDbContext>, IProductDal
         return product;
 
     }
-    public async Task ReorderDb()
-    {
-
-        using var context = new EfDbContext();
-        int loopOrder = 1;
-
-        foreach (var product in context.Products.OrderBy(p => p.RowOrder))
-        {
-
-            product.RowOrder = loopOrder;
-            loopOrder++;
-        }
-        await context.SaveChangesAsync();
-
-    }
-
-    public async Task ReorderCategoryProducts(Guid categoryId)
-    {
-        using var context = new EfDbContext();
-
-        int loopOrder = 1;
-        foreach (var product in context.Products.Where(p => p.CategoryId == categoryId).OrderBy(p => p.RowOrder))
-        {
-            product.RowOrder = loopOrder;
-            loopOrder++;
-        }
-        await context.SaveChangesAsync();
-
-    }
-
     public Task<int> GetProductCount(Guid categoryId)
     {
 
@@ -80,9 +50,6 @@ public class ProductDal : EfDbRepository<Product, EfDbContext>, IProductDal
         return context.Products.Where(p => p.CategoryId == categoryId).CountAsync();
 
     }
-
-    
-
     public Task<List<Product>> GetAllWithImagesAsync(Expression<Func<Product, bool>> filter, int page, int itemCount, Expression<Func<Product, object>> orderFilter)
     {
         using var context = new EfDbContext();

@@ -1,5 +1,5 @@
-﻿using Core.Dtos;
-using Core.Entities.Concrete;
+﻿using Core.Entities.Concrete;
+using Core.Results;
 using Core.Utils;
 using DataAccess.EntityFramework.Abstract;
 using Microsoft.AspNetCore.Mvc.RazorPages;

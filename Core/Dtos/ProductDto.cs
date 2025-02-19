@@ -5,7 +5,7 @@ public class ProductDto
 {
     public Guid Id { get; set; }
     public Guid CategoryId { get; set; }
-    public int Order { get; set; }
+    public int RowOrder { get; set; }
     public required string ProductName { get; set; }
     public int Stock { get; set; }
     public int SoldQuantity { get; set; }

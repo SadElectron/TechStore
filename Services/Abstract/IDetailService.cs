@@ -1,5 +1,5 @@
-﻿using Core.Dtos;
-using Core.Entities.Concrete;
+﻿using Core.Entities.Concrete;
+using Core.Results;
 using System;
 using System.Collections.Generic;
 using System.Linq;

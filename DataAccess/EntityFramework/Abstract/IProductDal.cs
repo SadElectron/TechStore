@@ -16,8 +16,6 @@ namespace DataAccess.EntityFramework.Abstract
     {
         Task<CustomerProductDto?> GetFullForCustomer(Guid productId);
         Task<int> GetProductCount(Guid categoryId);
-        Task ReorderCategoryProducts(Guid categoryId);
-        Task ReorderDb();
         Task<List<Product>> GetAllWithImagesAsync(Expression<Func<Product, bool>> filter, int page, int itemCount, Expression<Func<Product, object>> orderFilter);
         Task<List<Product>> GetFilteredAsync(List<ProductFilterModel> filters, Guid categoryId, int page = 1, int itemCount = 10);
         Task<List<Product>> GetFilteredAndSortedAsync(FilterAndSortModel filterAndSortModel, Guid categoryId, int page = 1, int itemCount = 10);

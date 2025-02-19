@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Core.Dtos;
+namespace Core.Results;
 
 public record RegisterUserResult(User user, bool success, string failReason = "");
 public record LoginResult(Guid Id, string Email, string Token, bool Status);

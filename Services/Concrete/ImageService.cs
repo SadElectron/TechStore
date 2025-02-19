@@ -1,5 +1,5 @@
-﻿using Core.Dtos;
-using Core.Entities.Concrete;
+﻿using Core.Entities.Concrete;
+using Core.Results;
 using DataAccess.EntityFramework.Abstract;
 using DataAccess.EntityFramework.Concrete;
 using Microsoft.AspNetCore.Http;

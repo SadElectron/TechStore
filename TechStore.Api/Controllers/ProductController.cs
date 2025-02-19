@@ -1,6 +1,7 @@
 using AutoMapper;
 using Core.Dtos;
 using Core.Entities.Concrete;
+using Core.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
@@ -26,22 +27,11 @@ public class ProductController : ControllerBase
         _mapper = mapper;
         _logger = logger;
     }
-
-    // CREATE
-    [HttpPost("Create")]
-    public async Task<IActionResult> CreateProduct([FromForm] Product entity, [FromForm] List<IFormFile> images)
-    {
-
-        Product addedEntity = await _productService.AddAsync(entity, images);
-        var addedEntityDto = _mapper.Map<ProductDto>(addedEntity);
-        return Ok(addedEntityDto);
-    }
-
     // READ
     [HttpGet("Get/{id}")]
     public async Task<IActionResult> GetProduct(Guid id)
     {
-        var entity = await _productService.GetAsync(id);
+        var entity = await _productService.GetAsNoTrackingAsync(id);
         if (entity == null)
         {
             return NotFound();
@@ -70,27 +60,23 @@ public class ProductController : ControllerBase
         var entityCount = await _productService.GetEntryCountAsync();
         return Ok(entityCount);
     }
+
     [HttpGet("Get/Count/{categoryId}")]
     public async Task<IActionResult> GetProductCount(Guid categoryId)
     {
         var productCount = await _productService.GetProductCountAsync(categoryId);
         return Ok(productCount);
     }
-    [HttpGet("Reorder")]
-    public async Task<IActionResult> Reorder()
+
+    [HttpPost("Create")]
+    public async Task<IActionResult> CreateProduct([FromForm] Product entity, [FromForm] List<IFormFile> images)
     {
-        await _productService.ReorderDb();
-        return Ok();
-    }
-    [HttpGet("Reorder/{categoryId}")]
-    public async Task<IActionResult> ReorderCategory(Guid categoryId)
-    {
-        await _productService.ReorderCategoryProducts(categoryId);
-        return Ok();
+
+        Product addedEntity = await _productService.AddAsync(entity, images);
+        var addedEntityDto = _mapper.Map<ProductDto>(addedEntity);
+        return Ok(addedEntityDto);
     }
 
-
-    // UPDATE
     [HttpPut("Update")]
     public async Task<IActionResult> UpdateProduct([FromBody]Product entityToUpdate)
     {
@@ -104,8 +90,6 @@ public class ProductController : ControllerBase
         return Ok(entityDto);
     }
 
-
-    // DELETE
     [HttpDelete("Delete/{id}")]
     public async Task<IActionResult> Delete(Guid id)
     {
