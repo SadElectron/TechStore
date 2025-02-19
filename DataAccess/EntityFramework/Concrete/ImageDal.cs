@@ -87,42 +87,45 @@ namespace DataAccess.EntityFramework.Concrete
 
 
 
-        public async Task<Image?> UpdateOrderAsync(Guid imageId, int newOrder)
+        public async Task<Image?> UpdateOrderAsync(Guid imageId, double newOrder)
         {
             using var context = new EfDbContext();
             using var transaction = await context.Database.BeginTransactionAsync();
 
             try
             {
-                var image = await context.Images.Where(i => i.Id == imageId).SingleOrDefaultAsync();
+                var image = await context.Images.Where(i => i.Id == imageId)
+                    .Select(i => new { i.Id, i.ImageOrder, i.ProductId })
+                    .SingleOrDefaultAsync();
                 if (image is null) return null;
-                if (image.RowOrder < newOrder)
+                if (image.ImageOrder < newOrder)
                 {
                     // Shift entities up
-                    await context.Images.Where(i => i.RowOrder > image.RowOrder && i.RowOrder <= newOrder && i.ProductId == image.ProductId)
-                        .OrderBy(e => e.RowOrder)
-                        .ExecuteUpdateAsync(s => s.SetProperty(i => i.RowOrder, i => i.RowOrder - 1));
+                    await context.Images.Where(i => i.ImageOrder > image.ImageOrder && i.ImageOrder <= newOrder && i.ProductId == image.ProductId)
+                        .ExecuteUpdateAsync(s => s.SetProperty(i => i.ImageOrder, i => i.ImageOrder - 1));
+                    await context.Images.Where(i => i.Id == imageId).ExecuteUpdateAsync(s => s
+                        .SetProperty(i => i.ImageOrder, Math.Floor(newOrder))
+                        .SetProperty(i => i.LastUpdate, DateTimeHelper.GetUtcNow()));
 
 
                 }
-                else if (image.RowOrder > newOrder)
+                else if (image.ImageOrder > newOrder)
                 {
                     // Shift entities down
-                    await context.Images.Where(i => i.RowOrder < image.RowOrder && i.RowOrder >= newOrder && i.ProductId == image.ProductId)
-                        .OrderByDescending(e => e.RowOrder)
-                        .ExecuteUpdateAsync(s => s.SetProperty(i => i.RowOrder, i => i.RowOrder + 1));
+                    await context.Images.Where(i => i.ImageOrder < image.ImageOrder && i.ImageOrder >= newOrder && i.ProductId == image.ProductId)
+                        .ExecuteUpdateAsync(s => s.SetProperty(i => i.ImageOrder, i => i.ImageOrder + 1));
+                    await context.Images.Where(i => i.Id == imageId).ExecuteUpdateAsync(s => s
+                        .SetProperty(i => i.ImageOrder, Math.Ceiling(newOrder))
+                        .SetProperty(i => i.LastUpdate, DateTimeHelper.GetUtcNow()));
 
                 }
-                image.LastUpdate = DateTimeHelper.GetUtcNow();
-                image.RowOrder = newOrder;
-                await context.SaveChangesAsync();
+
                 await transaction.CommitAsync();
-                return image;
+                return await context.Images.FindAsync(image.Id);
             }
             catch
             {
                 await transaction.RollbackAsync();
-                //log fail
                 throw;
             }
         }

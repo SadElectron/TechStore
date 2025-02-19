@@ -203,5 +203,10 @@ namespace Core.DataAccess.EntityFramework.Concrete
             using var context = new TContext();
             return await context.Set<TEntity>().AnyAsync(e => e.Id == id);
         }
+        public async Task<bool> ExistsAsync(Expression<Func<TEntity, bool>> filter)
+        {
+            using var context = new TContext();
+            return await context.Set<TEntity>().AnyAsync(filter);
+        }
     }
 }

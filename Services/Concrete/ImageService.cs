@@ -77,17 +77,14 @@ namespace Services.Concrete
             return await _imageDal.AddAllAsync(images.ToList());
         }
 
-        public Task<int> DeleteImagesAsync(Guid productId)
-        {
-            return _imageDal.DeleteImagesAsync(productId);
-        }
-        
+
+
         public Task<List<Image>> GetImagesAsync(Guid productId)
         {
             return _imageDal.GetAllAsync(i => i.ProductId == productId, i => i.RowOrder);
         }
 
-        public Task<Image?> UpdateOrderAsync(Guid imageId, int newOrder)
+        public Task<Image?> UpdateOrderAsync(Guid imageId, double newOrder)
         {
             return _imageDal.UpdateOrderAsync(imageId, newOrder);
         }
@@ -107,11 +104,19 @@ namespace Services.Concrete
             }
             catch (Exception ex)
             {
-               _logger.LogWarning($"Error in ImageService.DeleteAsync {ex.Message}");
+                _logger.LogWarning($"Error in ImageService.DeleteAsync {ex.Message}");
                 throw;
             }
         }
-        
+        public async Task<int> DeleteImagesAsync(Guid productId)
+        {
+
+            bool exists = await _imageDal.ExistsAsync(i => i.ProductId == productId);
+            if (!exists) return 0;
+
+            return await _imageDal.DeleteImagesAsync(productId);
+        }
+
         public async Task<EntityDeleteResult> DeleteAndReorderAsync(Guid id)
         {
             var entity = await _imageDal.ExistsAsync(id);

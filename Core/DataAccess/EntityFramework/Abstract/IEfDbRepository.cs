@@ -33,7 +33,7 @@ namespace Core.DataAccess.EntityFramework.Abstract
         Task<int> DeleteAndReorderAsync(Guid id);
         Task SaveChangesAsync();
         Task<bool> ExistsAsync(Guid id);
-        
+        Task<bool> ExistsAsync(Expression<Func<TEntity, bool>> filter);
     }
 
 

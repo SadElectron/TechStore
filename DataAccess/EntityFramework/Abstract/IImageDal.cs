@@ -13,7 +13,7 @@ namespace DataAccess.EntityFramework.Abstract
     {
         Task<IEnumerable<Image>> AddAllAsync(ICollection<Image> images);
         Task<int> DeleteImagesAsync(Guid productId);
-        Task<Image?> UpdateOrderAsync(Guid imageId, int newOrder);
+        Task<Image?> UpdateOrderAsync(Guid imageId, double newOrder);
         Task<double> GetLastImageOrderAsync(Expression<Func<Image, bool>> filter);
         new Task<int> DeleteAndReorderAsync(Guid id);
     }

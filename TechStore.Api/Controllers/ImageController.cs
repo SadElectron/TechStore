@@ -42,7 +42,7 @@ public class ImageController : ControllerBase
     }
 
     [HttpPut("update/order/{imageId}")]
-    public async Task<IActionResult> UpdateOrder(Guid imageId, int newOrder)
+    public async Task<IActionResult> UpdateOrder(Guid imageId, double newOrder)
     {
         var result = await _imageService.UpdateOrderAsync(imageId, newOrder);
         if (result == null) return BadRequest();
