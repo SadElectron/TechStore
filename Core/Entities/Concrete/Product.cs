@@ -9,6 +9,7 @@ namespace Core.Entities.Concrete
 {
     public class Product : Entity, IEntity
     {
+        public double ProductOrder { get; set; }
         public Guid CategoryId { get; set; }
         public required string ProductName { get; set; }
         public int Stock { get; set; }

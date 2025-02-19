@@ -11,5 +11,4 @@ public class ProductDto
     public int SoldQuantity { get; set; }
     public double Price { get; set; }
     public DateTime LastUpdate { get; set; }
-    public ICollection<DetailDto> Details { get; set; } = new List<DetailDto>();
 }
