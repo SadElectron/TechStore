@@ -46,8 +46,8 @@ public class ImageController : ControllerBase
     {
         var result = await _imageService.UpdateOrderAsync(imageId, newOrder);
         if (result == null) return BadRequest();
-
-        return Ok(result);
+        var dto = _mapper.Map<ImageDto>(result);
+        return Ok(dto);
     }
     [HttpDelete("Delete/{id}")]
     public async Task<IActionResult> Delete(Guid id)

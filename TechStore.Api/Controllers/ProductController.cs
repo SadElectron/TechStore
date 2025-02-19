@@ -13,7 +13,6 @@ namespace TechStore.Api.Controllers;
 
 [EnableCors("AllowSpecificOrigin")]
 [Route("api/v1/[controller]")]
-[Authorize(Policy = "Admin")]
 [ApiController]
 public class ProductController : ControllerBase
 {
