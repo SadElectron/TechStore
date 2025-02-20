@@ -20,29 +20,42 @@ namespace TechStore.Api.Middlewares
             {
                 await _next(context);
             }
-            catch (KeyNotFoundException ex)  
+            catch (KeyNotFoundException ex)
             {
-                _logger.LogWarning(ex, "Resource not found.");
+                LogRequestDetails(context, $"Resource not found: {ex.Message}");
                 await HandleExceptionAsync(context, ex, HttpStatusCode.NotFound, "Resource not found.");
             }
             catch (UnauthorizedAccessException ex)
             {
-                _logger.LogWarning(ex, "Unauthorized access.");
+                LogRequestDetails(context, $"Unauthorized access: {ex.Message}");
                 await HandleExceptionAsync(context, ex, HttpStatusCode.Unauthorized, "Unauthorized access.");
             }
             catch (ArgumentException ex)
             {
-                _logger.LogWarning(ex, "Bad request: {Message}", ex.Message);
+                LogRequestDetails(context, $"Bad request: {ex.Message}");
                 await HandleExceptionAsync(context, ex, HttpStatusCode.BadRequest, $"Bad request: {ex.Message}");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An unexpected error occurred.");
+                LogRequestDetails(context, $"An unexpected error occurred.");
                 await HandleExceptionAsync(context, ex, HttpStatusCode.InternalServerError, "An unexpected error occurred. Please try again later.");
             }
         }
+        private void LogRequestDetails(HttpContext context, string message)
+        {
+            var requestId = context.TraceIdentifier;
+            var clientIp = context.Connection.RemoteIpAddress?.ToString();
+            var endpoint = context.Request;
+            var error = $@"======== Error Log ========
+Message: {message}
+Request ID: {context.TraceIdentifier}
+Client IP: {context.Connection.RemoteIpAddress}
+Endpoint: {context.Request?.Method} {context.Request?.Path}
+=============================";
+            _logger.LogWarning(error);
+        }
 
-        private  async Task HandleExceptionAsync(HttpContext context, Exception exception, HttpStatusCode statusCode, string message)
+        private async Task HandleExceptionAsync(HttpContext context, Exception exception, HttpStatusCode statusCode, string message)
         {
 
             context.Response.ContentType = "application/json";

@@ -40,6 +40,10 @@ public class ProductService : IProductService
     }
     public Task<List<Product>> GetAllAsync(int page, int itemCount)
     {
+        // Validate parameters
+        if (page <= 0 || itemCount <= 0)
+            return Task.FromResult<List<Product>>(new()); // Return empty list instead of throwing an error
+
         return _productDal.GetAllAsNoTrackingAsync(page, itemCount, p => p.RowOrder);
     }
     public Task<List<Product>> GetAllAsync(int page, int itemCount, Guid categoryId)

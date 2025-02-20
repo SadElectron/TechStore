@@ -31,41 +31,67 @@ public class ProductController : ControllerBase
     [HttpGet("Get/{id}")]
     public async Task<IActionResult> GetProduct(Guid id)
     {
-        var entity = await _productService.GetAsNoTrackingAsync(id);
-        if (entity == null)
+        try
         {
-            return NotFound();
+            var entity = await _productService.GetAsNoTrackingAsync(id);
+            if (entity == null)
+            {
+                return NotFound();
+            }
+            var dto = _mapper.Map<ProductDto>(entity);
+            return Ok(dto);
         }
-        var dto = _mapper.Map<ProductDto>(entity);
-        return Ok(dto);
+        catch (Exception ex)
+        {
+
+            return BadRequest(new { message = ex.Message });
+        }
+
     }
 
     [HttpGet("Get/{page}/{count}")]
     public async Task<IActionResult> GetProducts(int page, int count)
     {
-        var entities = await _productService.GetAllAsync(page, count);
-        if (entities == null)
+        try
         {
-            return Ok(new());
+            var entities = await _productService.GetAllAsync(page, count);
+            var dtos = _mapper.Map<ICollection<ProductDto>>(entities);
+            return Ok(dtos);
         }
-        var dtos = _mapper.Map<ICollection<ProductDto>>(entities);
-
-
-        return Ok(dtos);
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
     [HttpGet("Get/Count")]
     public async Task<IActionResult> GetEntryCount()
     {
-        var entityCount = await _productService.GetEntryCountAsync();
-        return Ok(entityCount);
+        try
+        {
+            var entityCount = await _productService.GetEntryCountAsync();
+            return Ok(entityCount);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
     [HttpGet("Get/Count/{categoryId}")]
     public async Task<IActionResult> GetProductCount(Guid categoryId)
     {
-        var productCount = await _productService.GetProductCountAsync(categoryId);
-        return Ok(productCount);
+        try
+        {
+            var productCount = await _productService.GetProductCountAsync(categoryId);
+            return Ok(productCount);
+        }
+        catch (Exception ex)
+        {
+
+            return BadRequest(new { message = ex.Message });
+        }
+        
     }
 
     [HttpPost("Create")]
@@ -78,9 +104,9 @@ public class ProductController : ControllerBase
     }
 
     [HttpPut("Update")]
-    public async Task<IActionResult> UpdateProduct([FromBody]Product entityToUpdate)
+    public async Task<IActionResult> UpdateProduct([FromBody] Product entityToUpdate)
     {
-        
+
         var updatedEntity = await _productService.UpdateAndReorderAsync(entityToUpdate);
         if (updatedEntity.ProductName == string.Empty)
         {
