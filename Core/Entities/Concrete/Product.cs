@@ -15,6 +15,7 @@ namespace Core.Entities.Concrete
         public int Stock { get; set; }
         public int SoldQuantity { get; set; }
         public double Price { get; set; }
+
         public Category? Category { get; set; }
         public ICollection<Detail> Details { get; set; } = new List<Detail>();
         public ICollection<Image> Images { get; set; } = new List<Image>();

@@ -179,4 +179,10 @@ public class ProductDal : EfDbRepository<Product, EfDbContext>, IProductDal
 
         return productCount;
     }
+
+    public async Task<double> GetLastProductOrderAsync()
+    {
+        using var context = new EfDbContext();
+        return await context.Products.MaxAsync(p => (double?)p.ProductOrder) ?? 0;
+    }
 }

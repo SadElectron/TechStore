@@ -129,11 +129,8 @@ namespace Core.DataAccess.EntityFramework.Concrete
         public async Task<double> GetLastOrderAsync()
         {
             using var context = new TContext();
-            var lastOrder = await context.Set<TEntity>()
-                .OrderByDescending(u => u.RowOrder)
-                .Select(u => u.RowOrder)
-                .FirstOrDefaultAsync();
-            return lastOrder;
+
+            return await context.Set<TEntity>().MaxAsync(e => (double?)e.RowOrder) ?? 0;
         }
 
         public async Task SaveChangesAsync()

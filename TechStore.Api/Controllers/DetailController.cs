@@ -31,7 +31,7 @@ public class DetailController : ControllerBase
     public async Task<IActionResult> Create(CreateDetailModel model)
     {
         var detail = _mapper.Map<Detail>(model);
-        EntityAddResult<Detail> entityAddResult = await _detailService.AddAsync(detail);
+        EntityCreateResult<Detail> entityAddResult = await _detailService.AddAsync(detail);
         if (entityAddResult.IsSuccessful)
         {
             return CreatedAtRoute("GetDetail", new { id = entityAddResult.Entity!.Id }, _mapper.Map<DetailMinimalDto>(entityAddResult.Entity));

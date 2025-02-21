@@ -11,7 +11,7 @@ namespace Services.Abstract
 {
     public interface IDetailService
     {
-        Task<EntityAddResult<Detail>> AddAsync(Detail entity);
+        Task<EntityCreateResult<Detail>> AddAsync(Detail entity);
         Task<List<Detail>> GetAllAsync(int page, int itemCount);
         Task<Detail?> GetAsync(Guid id);
         Task<Detail?> GetAsync(Expression<Func<Detail, bool>> filter);

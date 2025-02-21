@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Services.Abstract;
 using Services.Concrete;
+using TechStore.Api.Models;
 
 
 namespace TechStore.Api.Controllers;
@@ -95,11 +96,39 @@ public class ProductController : ControllerBase
     }
 
     [HttpPost("Create")]
-    public async Task<IActionResult> CreateProduct([FromForm] Product entity, [FromForm] List<IFormFile> images)
+    public async Task<IActionResult> CreateProduct(CreateProductModel model, [FromServices]ICategoryService categoryService)
     {
+        var errors = new List<string>();
 
-        Product addedEntity = await _productService.AddAsync(entity, images);
-        var addedEntityDto = _mapper.Map<ProductDto>(addedEntity);
+        // Validate CategoryId
+        if (model.CategoryId == Guid.Empty)
+            errors.Add("CategoryId is required and cannot be empty.");
+        if (!await categoryService.ExistsAsync(model.CategoryId))
+            errors.Add("Category not found.");
+
+        // Validate ProductName
+        if (string.IsNullOrWhiteSpace(model.ProductName) || model.ProductName.Length < 2)
+            errors.Add("ProductName is required and must be at least 2 characters long.");
+
+        // Validate Stock
+        if (model.Stock < 1)
+            errors.Add("Stock must be at least 1.");
+
+        // Validate Price
+        if (model.Price <= 0)
+            errors.Add("Price must be greater than zero.");
+
+        if (errors.Any())
+            return BadRequest(new { message = "Validation failed.", errors });
+
+        var entity = _mapper.Map<Product>(model);
+
+        var createEntityResult = await _productService.AddAsync(entity);
+        if(!createEntityResult.IsSuccessful)
+        {
+            return BadRequest(new { message = createEntityResult.Message});
+        }
+        var addedEntityDto = _mapper.Map<ProductDto>(createEntityResult.Entity);
         return Ok(addedEntityDto);
     }
 

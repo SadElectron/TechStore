@@ -10,6 +10,7 @@ using System.Linq.Expressions;
 using Core.Utils;
 using DataAccess.EntityFramework.Concrete;
 using Core.Results;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Services.Concrete;
 
@@ -18,14 +19,16 @@ public class ProductService : IProductService
     private readonly IProductDal _productDal;
     private readonly IImageDal _imageDal;
     private readonly IDetailDal _detailDal;
+    private readonly ICategoryDal _categoryDal;
     private readonly IMapper _mapper;
 
-    public ProductService(IProductDal productDal, IMapper mapper, IImageDal imageDal, IDetailDal detailDal)
+    public ProductService(IProductDal productDal, IMapper mapper, IImageDal imageDal, IDetailDal detailDal, ICategoryDal categoryDal)
     {
         _productDal = productDal;
         _mapper = mapper;
         _imageDal = imageDal;
         _detailDal = detailDal;
+        _categoryDal = categoryDal;
     }
     public async Task<Product> GetAsync(Guid id)
     {
@@ -42,7 +45,7 @@ public class ProductService : IProductService
     {
         // Validate parameters
         if (page <= 0 || itemCount <= 0)
-            return Task.FromResult<List<Product>>(new()); // Return empty list instead of throwing an error
+            return Task.FromResult<List<Product>>(new());
 
         return _productDal.GetAllAsNoTrackingAsync(page, itemCount, p => p.RowOrder);
     }
@@ -94,69 +97,16 @@ public class ProductService : IProductService
     {
         return _productDal.ExistsAsync(productId);
     }
-    public async Task<Product> AddAsync(Product entity)
+    public async Task<EntityCreateResult<Product>> AddAsync(Product entity)
     {
+        
+        entity.ProductOrder = await _productDal.GetLastProductOrderAsync() + 1;
+        entity.RowOrder = await _productDal.GetLastOrderAsync() + 1;
+        entity.SoldQuantity = 0;
         entity.LastUpdate = DateTimeHelper.GetUtcNow();
         entity.CreatedAt = DateTimeHelper.GetUtcNow();
-        entity.RowOrder = await _productDal.GetLastOrderAsync() + 1;
-
-        if (entity.Details != null)
-        {
-            foreach (var detail in entity.Details)
-            {
-                detail.LastUpdate = DateTimeHelper.GetUtcNow();
-            }
-        }
-
-        return await _productDal.AddAsync(entity);
-    }
-    public async Task<Product> AddAsync(Product entity, List<IFormFile> imageList)
-    {
-
-        //control image length and extension
-
-        var productId = Guid.NewGuid();
-        var imageRowOrder = await _imageDal.GetLastOrderAsync();
-        var imageOrder = 0;
-        entity.Images = new List<Image>();
-        foreach (var image in imageList)
-        {
-
-            imageRowOrder++;
-            imageOrder++;
-            using var memoryStream = new MemoryStream();
-            await image.CopyToAsync(memoryStream);
-            entity.Images.Add(new Image
-            {
-                Id = Guid.NewGuid(),
-                ProductId = productId,
-                ImageOrder = imageOrder,
-                RowOrder = imageRowOrder,
-                File = memoryStream.ToArray(),
-                LastUpdate = DateTimeHelper.GetUtcNow(),
-                CreatedAt = DateTimeHelper.GetUtcNow()
-
-            });
-        }
-
-        if (entity.Details != null)
-        {
-            var detailRowOrder = await _detailDal.GetLastOrderAsync();
-            foreach (var detail in entity.Details)
-            {
-                detailRowOrder++;
-                detail.Id = Guid.NewGuid();
-                detail.ProductId = productId;
-                detail.RowOrder = detailRowOrder;
-                detail.LastUpdate = DateTimeHelper.GetUtcNow();
-                detail.CreatedAt = DateTimeHelper.GetUtcNow();
-            }
-        }
-        entity.LastUpdate = DateTimeHelper.GetUtcNow();
-        entity.CreatedAt = DateTimeHelper.GetUtcNow();
-        entity.Id = productId;
-        entity.RowOrder = await _productDal.GetLastOrderAsync() + 1;
-        return await _productDal.AddAsync(entity);
+        var addedEntity = await _productDal.AddAsync(entity);
+        return new EntityCreateResult<Product>(true, addedEntity);
 
     }
     public async Task<Product> UpdateAndReorderAsync(Product entity)

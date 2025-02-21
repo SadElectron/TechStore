@@ -25,7 +25,7 @@ public class DetailService : IDetailService
         _propertyDal = propertyDal;
         _productDal = productDal;
     }
-    public async Task<EntityAddResult<Detail>> AddAsync(Detail entity)
+    public async Task<EntityCreateResult<Detail>> AddAsync(Detail entity)
     {
         var detailProperty = await _propertyDal.GetAsNoTrackingAsync(p => p.Id == entity.PropertyId);
         var detailProduct = await _productDal.GetAsNoTrackingAsync(p => p.Id == entity.ProductId);
@@ -34,9 +34,9 @@ public class DetailService : IDetailService
             entity.RowOrder = await _detailDal.GetLastOrderAsync() + 1;
             entity.LastUpdate = DateTimeHelper.GetUtcNow();
             entity.CreatedAt = DateTimeHelper.GetUtcNow();
-            return new EntityAddResult<Detail>(true, await _detailDal.AddAsync(entity));
+            return new EntityCreateResult<Detail>(true, await _detailDal.AddAsync(entity));
         }
-        return new EntityAddResult<Detail>(false, null, "Property or Product not found");
+        return new EntityCreateResult<Detail>(false, null, "Property or Product not found");
     }
 
 

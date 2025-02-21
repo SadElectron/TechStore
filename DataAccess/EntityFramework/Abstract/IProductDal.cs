@@ -20,5 +20,6 @@ namespace DataAccess.EntityFramework.Abstract
         Task<List<Product>> GetFilteredAsync(List<ProductFilterModel> filters, Guid categoryId, int page = 1, int itemCount = 10);
         Task<List<Product>> GetFilteredAndSortedAsync(FilterAndSortModel filterAndSortModel, Guid categoryId, int page = 1, int itemCount = 10);
         Task<int> GetFilteredCountAsync(List<ProductFilterModel> filters, Guid categoryId);
+        Task<double> GetLastProductOrderAsync();
     }
 }

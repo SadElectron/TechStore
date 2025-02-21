@@ -3,6 +3,7 @@ using Core.Results;
 using Core.Utils;
 using DataAccess.EntityFramework.Abstract;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 using Services.Abstract;
 using System;
 using System.Collections.Generic;
@@ -91,5 +92,15 @@ public class CategoryService : ICategoryService
         if (entity == null) return new EntityDeleteResult(false, "Entity not found");
         var i = await _categoryDal.DeleteAndReorderAsync(id);
         return i > 0 ? new EntityDeleteResult(true, "Entity deleted") : new EntityDeleteResult(false, "Entity not deleted");
+    }
+    public async Task<bool> ExistsAsync(Guid id)
+    {
+
+        return await _categoryDal.ExistsAsync(id);
+    }
+    public async Task<bool> ExistsAsync(Expression<Func<Category, bool>> filter)
+    {
+
+        return await _categoryDal.ExistsAsync(filter);
     }
 }

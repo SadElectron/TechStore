@@ -22,8 +22,7 @@ namespace Services.Abstract
         Task<List<Product>> GetFilteredAndSortedAsync(FilterAndSortModel filterAndSortModel, Guid categoryId, int page = 1, int itemCount = 10);
         Task<int> GetFilteredCountAsync(List<ProductFilterModel> filters, Guid categoryId);
         Task<List<Product>> GetAllAsNoTrackingAsync(string q);
-        Task<Product> AddAsync(Product entity);
-        Task<Product> AddAsync(Product entity, List<IFormFile> imageList);
+        Task<EntityCreateResult<Product>> AddAsync(Product entity);
         Task<Product> UpdateAndReorderAsync(Product entity);
         Task<EntityDeleteResult> DeleteAndReorderAsync(Guid id);
         Task<bool> ExistsAsync(Guid productId);
