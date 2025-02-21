@@ -1,6 +1,8 @@
 using AutoMapper.EquivalencyExpression;
 using DataAccess.EntityFramework.Abstract;
 using DataAccess.EntityFramework.Concrete;
+using FluentValidation.AspNetCore;
+using FluentValidation;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -16,6 +18,8 @@ using System.Text;
 using System.Text.Json.Serialization;
 using TechStore.Api.MapperProfiles;
 using TechStore.Api.Middlewares;
+using TechStore.Api.Models;
+using TechStore.Api.Validation;
 
 namespace TechStore.Api
 {
@@ -104,6 +108,7 @@ namespace TechStore.Api
             builder.Services.AddScoped<TokenProvider>();
             builder.Services.AddSingleton<IAuthorizationHandler, RoleAuthorizationHandler>();
 
+            builder.Services.AddScoped<IValidator<CreateProductModel>, CreateProductModelValidator>();
 
             builder.Services.AddScoped<IProductService, ProductService>();
             builder.Services.AddScoped<IPropertyService, PropertyService>();

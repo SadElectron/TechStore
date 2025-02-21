@@ -2,7 +2,7 @@ using AutoMapper;
 using Core.Dtos;
 using Core.Entities.Concrete;
 using Core.Results;
-using Microsoft.AspNetCore.Authorization;
+using FluentValidation;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
@@ -96,31 +96,14 @@ public class ProductController : ControllerBase
     }
 
     [HttpPost("Create")]
-    public async Task<IActionResult> CreateProduct(CreateProductModel model, [FromServices]ICategoryService categoryService)
+    public async Task<IActionResult> CreateProduct(CreateProductModel model, [FromServices] IValidator<CreateProductModel> validator)
     {
-        var errors = new List<string>();
 
-        // Validate CategoryId
-        if (model.CategoryId == Guid.Empty)
-            errors.Add("CategoryId is required and cannot be empty.");
-        if (!await categoryService.ExistsAsync(model.CategoryId))
-            errors.Add("Category not found.");
-
-        // Validate ProductName
-        if (string.IsNullOrWhiteSpace(model.ProductName) || model.ProductName.Length < 2)
-            errors.Add("ProductName is required and must be at least 2 characters long.");
-
-        // Validate Stock
-        if (model.Stock < 1)
-            errors.Add("Stock must be at least 1.");
-
-        // Validate Price
-        if (model.Price <= 0)
-            errors.Add("Price must be greater than zero.");
-
-        if (errors.Any())
-            return BadRequest(new { message = "Validation failed.", errors });
-
+        var validationResult = await validator.ValidateAsync(model);
+        if (!validationResult.IsValid)
+        {
+            return BadRequest(new { message = "Validation failed.", errors = validationResult.Errors });
+        }
         var entity = _mapper.Map<Product>(model);
 
         var createEntityResult = await _productService.AddAsync(entity);
