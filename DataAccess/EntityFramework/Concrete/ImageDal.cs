@@ -87,11 +87,11 @@ namespace DataAccess.EntityFramework.Concrete
 
 
 
-        public async Task<Image?> UpdateOrderAsync(Guid imageId, double newOrder)
+        public async Task<Image?> UpdateImageOrderAsync(Guid imageId, double newOrder)
         {
             using var context = new EfDbContext();
             using var transaction = await context.Database.BeginTransactionAsync();
-
+            var timeNow = DateTimeHelper.GetUtcNow();
             try
             {
                 var image = await context.Images.Where(i => i.Id == imageId)
@@ -105,7 +105,7 @@ namespace DataAccess.EntityFramework.Concrete
                         .ExecuteUpdateAsync(s => s.SetProperty(i => i.ImageOrder, i => i.ImageOrder - 1));
                     await context.Images.Where(i => i.Id == imageId).ExecuteUpdateAsync(s => s
                         .SetProperty(i => i.ImageOrder, Math.Floor(newOrder))
-                        .SetProperty(i => i.LastUpdate, DateTimeHelper.GetUtcNow()));
+                        .SetProperty(i => i.LastUpdate, timeNow));
 
 
                 }
@@ -116,7 +116,7 @@ namespace DataAccess.EntityFramework.Concrete
                         .ExecuteUpdateAsync(s => s.SetProperty(i => i.ImageOrder, i => i.ImageOrder + 1));
                     await context.Images.Where(i => i.Id == imageId).ExecuteUpdateAsync(s => s
                         .SetProperty(i => i.ImageOrder, Math.Ceiling(newOrder))
-                        .SetProperty(i => i.LastUpdate, DateTimeHelper.GetUtcNow()));
+                        .SetProperty(i => i.LastUpdate, timeNow));
 
                 }
 

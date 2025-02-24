@@ -23,8 +23,10 @@ namespace Services.Abstract
         Task<int> GetFilteredCountAsync(List<ProductFilterModel> filters, Guid categoryId);
         Task<List<Product>> GetAllAsNoTrackingAsync(string q);
         Task<EntityCreateResult<Product>> AddAsync(Product entity);
-        Task<Product> UpdateAndReorderAsync(Product entity);
-        Task<EntityDeleteResult> DeleteAndReorderAsync(Guid id);
+        Task<Product> UpdateAsync(Product entity);
+        Task<EntityDeleteResult> DeleteAsync(Guid id);
         Task<bool> ExistsAsync(Guid productId);
+        Task<double> GetLastProductOrderAsync();
+        Task<Product> UpdateProductOrderAsync(Guid id, double newOrder);
     }
 }

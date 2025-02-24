@@ -23,7 +23,6 @@ public interface ICategoryService
     Task<Category?> GetAsNoTrackingAsync(Guid id);
     Task<List<Category>> GetFullAsync(int page = 1, int count = 10, int productPage = 1, int productCount = 10);
     Task<Category> UpdateAsync(Category entity);
-    Task<Category> UpdateAndReorderAsync(Category entity);
     Task<EntityDeleteResult> DeleteAndReorderAsync(Guid id);
     Task<bool> ExistsAsync(Guid id);
     Task<bool> ExistsAsync(Expression<Func<Category, bool>> filter);

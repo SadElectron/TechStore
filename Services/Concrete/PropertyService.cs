@@ -79,7 +79,7 @@ public class PropertyService : IPropertyService
             return null;
         }
         entityToUpdate.CategoryId = entity.CategoryId;
-        var dbResult = await _propertyDal.UpdateAndReorderAsync(entityToUpdate);
+        var dbResult = await _propertyDal.UpdateAsync(entityToUpdate);
         if (dbResult == null)
         {
             //Log db fail

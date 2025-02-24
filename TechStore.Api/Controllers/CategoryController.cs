@@ -11,7 +11,7 @@ using Services.Concrete;
 using System.Reflection.Metadata.Ecma335;
 using TechStore.Api.Models;
 
-namespace TechStore.Api.Controllers;
+namespace TechStore.Api.Models;
 
 [EnableCors("AllowSpecificOrigin")]
 [Route("api/v1/[controller]")]
@@ -28,18 +28,7 @@ public class CategoryController : ControllerBase
         _logger = logger;
     }
 
-    // CREATE
-    [HttpPost("Create")]
-    public async Task<IActionResult> Create([FromBody] CreateCategoryModel model)
-    {
-        var category = _mapper.Map<Category>(model);
-        var addedEntity = await _categoryService.AddAsync(category);
-        if (addedEntity != null)
-        {
-            return CreatedAtRoute("GetCategory", new { id = addedEntity.Id }, _mapper.Map<CategoryDto>(addedEntity));
-        }
-        return BadRequest();
-    }
+    
 
     // READ
     [HttpGet("Get/{id}", Name = "GetCategory")]
@@ -102,26 +91,65 @@ public class CategoryController : ControllerBase
         var count = await _categoryService.GetPropertyCount(categoryId);
         return Ok(count);
     }
-
+    // CREATE
+    [HttpPost("Create")]
+    public async Task<IActionResult> Create([FromBody] CreateCategoryModel model)
+    {
+        try
+        {
+            var category = _mapper.Map<Category>(model);
+            var addedEntity = await _categoryService.AddAsync(category);
+            if (addedEntity != null)
+            {
+                return CreatedAtRoute("GetCategory", new { id = addedEntity.Id }, _mapper.Map<CategoryDto>(addedEntity));
+            }
+            return BadRequest();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning($"Error in CategoryController.Create {ex.Message}");
+            return BadRequest();
+            
+        }
+        
+    }
     // UPDATE
     [HttpPut("Update")]
     public async Task<IActionResult> Update(UpdateCategoryModel entityToUpdate)
     {
-        var entity = await _categoryService.GetAsync(entityToUpdate.Id);
-        if (entity == null)
+        try
         {
-            return NotFound();
+            var entity = await _categoryService.GetAsync(entityToUpdate.Id);
+            if (entity == null)
+            {
+                return NotFound();
+            }
+            var category = _mapper.Map(entityToUpdate, entity);
+            var updatedEntity = await _categoryService.UpdateAsync(category);
+            return Ok(_mapper.Map<CategoryMinimalDto>(updatedEntity));
         }
-        var category = _mapper.Map(entityToUpdate, entity);
-        var updatedEntity = await _categoryService.UpdateAndReorderAsync(category);
-        return Ok(_mapper.Map<CategoryMinimalDto>(updatedEntity));
+        catch (Exception ex)
+        {
+            _logger.LogWarning($"Error in CategoryController.Update {ex.Message}");
+            return BadRequest();
+        }
+        
     }
 
     // DELETE
     [HttpDelete("Delete/{id}")]
     public async Task<IActionResult> Delete(Guid id)
     {
-        EntityDeleteResult deleteResult = await _categoryService.DeleteAndReorderAsync(id);
-        return deleteResult.IsSuccessful ? Ok() : NotFound();
+        try
+        {
+            EntityDeleteResult deleteResult = await _categoryService.DeleteAndReorderAsync(id);
+            return deleteResult.IsSuccessful ? Ok() : NotFound();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning($"Error in CategoryController.Delete {ex.Message}");
+            return BadRequest();
+        }
+        
     }
 }

@@ -3,6 +3,7 @@ using Core.Dtos;
 using Core.Entities.Abstract;
 using Core.Entities.Concrete;
 using Core.RequestModels;
+using Core.Results;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,5 +22,6 @@ namespace DataAccess.EntityFramework.Abstract
         Task<List<Product>> GetFilteredAndSortedAsync(FilterAndSortModel filterAndSortModel, Guid categoryId, int page = 1, int itemCount = 10);
         Task<int> GetFilteredCountAsync(List<ProductFilterModel> filters, Guid categoryId);
         Task<double> GetLastProductOrderAsync();
+        Task<Product> UpdateProductOrderAsync(Guid productId, double newOrder);
     }
 }

@@ -109,6 +109,10 @@ namespace TechStore.Api
             builder.Services.AddSingleton<IAuthorizationHandler, RoleAuthorizationHandler>();
 
             builder.Services.AddScoped<IValidator<CreateProductModel>, CreateProductModelValidator>();
+            builder.Services.AddScoped<IValidator<UpdateProductModel>, UpdateProductModelValidator>();
+            builder.Services.AddScoped<IValidator<UpdateProductOrderModel>, UpdateProductOrderModelValidator>();
+            builder.Services.AddScoped<IValidator<DeleteProductModel>, DeleteProductValidator>();
+
 
             builder.Services.AddScoped<IProductService, ProductService>();
             builder.Services.AddScoped<IPropertyService, PropertyService>();

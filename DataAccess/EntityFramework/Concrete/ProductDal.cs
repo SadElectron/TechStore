@@ -1,24 +1,21 @@
 ﻿using Core.DataAccess.EntityFramework.Concrete;
 using Core.Dtos;
-using Core.Entities.Abstract;
 using Core.Entities.Concrete;
 using Core.RequestModels;
+using Core.Results;
+using Core.Utils;
 using DataAccess.EntityFramework.Abstract;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace DataAccess.EntityFramework.Concrete;
 
 public class ProductDal : EfDbRepository<Product, EfDbContext>, IProductDal
 {
     private readonly ILogger<Product> _logger;
-    public ProductDal(ILogger<Product> logger): base(logger)
+    public ProductDal(ILogger<Product> logger) : base(logger)
     {
         _logger = logger;
     }
@@ -61,7 +58,6 @@ public class ProductDal : EfDbRepository<Product, EfDbContext>, IProductDal
             .AsNoTracking()
             .ToListAsync();
     }
-
     public async Task<List<Product>> GetFilteredAsync(List<ProductFilterModel> filters, Guid categoryId, int page = 1, int itemCount = 10)
     {
         using var context = new EfDbContext();
@@ -179,10 +175,76 @@ public class ProductDal : EfDbRepository<Product, EfDbContext>, IProductDal
 
         return productCount;
     }
-
     public async Task<double> GetLastProductOrderAsync()
     {
         using var context = new EfDbContext();
         return await context.Products.MaxAsync(p => (double?)p.ProductOrder) ?? 0;
+    }
+    public async Task<Product> UpdateProductOrderAsync(Guid productId, double newOrder)
+    {
+        using var context = new EfDbContext();
+        using var transaction = await context.Database.BeginTransactionAsync();
+        var timeNow = DateTimeHelper.GetUtcNow();
+        try
+        {
+            var product = await context.Products.Where(p => p.Id == productId)
+                .Select(p => new { p.Id, p.ProductOrder, p.CategoryId })
+                .SingleOrDefaultAsync();
+            if (product.ProductOrder < newOrder)
+            {
+                // Shift entities up
+                await context.Products.Where(p => p.ProductOrder > product.ProductOrder && p.ProductOrder <= newOrder && p.CategoryId == product.CategoryId)
+                    .ExecuteUpdateAsync(s => s.SetProperty(p => p.ProductOrder, p => p.ProductOrder - 1));
+                await context.Products.Where(p => p.Id == productId).ExecuteUpdateAsync(s => s
+                    .SetProperty(p => p.ProductOrder, Math.Floor(newOrder))
+                    .SetProperty(p => p.LastUpdate, timeNow));
+            }
+            else if (product.ProductOrder > newOrder)
+            {
+                // Shift entities down
+                await context.Products.Where(p => p.ProductOrder < product.ProductOrder && p.ProductOrder >= newOrder && p.CategoryId == product.CategoryId)
+                    .ExecuteUpdateAsync(s => s.SetProperty(p => p.ProductOrder, p => p.ProductOrder + 1));
+                await context.Products.Where(p => p.Id == productId).ExecuteUpdateAsync(s => s
+                    .SetProperty(p => p.ProductOrder, Math.Ceiling(newOrder))
+                    .SetProperty(p => p.LastUpdate, timeNow));
+            }
+
+            await transaction.CommitAsync();
+            return await context.Products.FindAsync(product.Id);
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+    }
+    public override async Task<EntityDeleteResult> DeleteAsync(Guid id)
+    {
+        using var context = new EfDbContext();
+        var transaction = context.Database.BeginTransaction();
+        var product = await context.Products.FindAsync(id);
+        try
+        {
+            var rowOrder = product.RowOrder;
+            var productOrder = product.ProductOrder;
+            int result = await context.Products.Where(p => p.Id == product.Id).ExecuteDeleteAsync();
+            if (result > 0) 
+            {
+                await context.Products.Where(p => p.RowOrder > rowOrder).ExecuteUpdateAsync(s => s.SetProperty(p => p.RowOrder, p => p.RowOrder - 1));
+                await context.Products.Where(p => p.ProductOrder > productOrder).ExecuteUpdateAsync(s => s.SetProperty(p => p.ProductOrder, p => p.ProductOrder - 1));
+                await transaction.CommitAsync();
+                return new EntityDeleteResult(true, "Product deleted successfully");
+            }
+            else
+            {
+                return new EntityDeleteResult(false, "Product not found");
+            }
+            
+
+        }
+        catch (Exception ex )
+        {
+            return new EntityDeleteResult(false, $"Something Went Wrong {ex.Message}");
+        }
     }
 }

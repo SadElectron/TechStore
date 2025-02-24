@@ -11,6 +11,7 @@ using Core.Utils;
 using DataAccess.EntityFramework.Concrete;
 using Core.Results;
 using Microsoft.AspNetCore.Mvc;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Services.Concrete;
 
@@ -93,13 +94,17 @@ public class ProductService : IProductService
     {
         return _productDal.GetAllAsNoTrackingAsync(p => EF.Functions.Like(p.ProductName, $"%{q}%"), p => p.RowOrder);
     }
+    public Task<double> GetLastProductOrderAsync()
+    {
+        return _productDal.GetLastProductOrderAsync();
+    }
     public Task<bool> ExistsAsync(Guid productId)
     {
         return _productDal.ExistsAsync(productId);
     }
     public async Task<EntityCreateResult<Product>> AddAsync(Product entity)
     {
-        
+
         entity.ProductOrder = await _productDal.GetLastProductOrderAsync() + 1;
         entity.RowOrder = await _productDal.GetLastOrderAsync() + 1;
         entity.SoldQuantity = 0;
@@ -109,29 +114,18 @@ public class ProductService : IProductService
         return new EntityCreateResult<Product>(true, addedEntity);
 
     }
-    public async Task<Product> UpdateAndReorderAsync(Product entity)
+    public async Task<Product> UpdateAsync(Product entity)
     {
-
-        var entityToUpdate = await _productDal.GetAsNoTrackingAsync(p => p.Id == entity.Id);
-        if (entityToUpdate != null) // update and reorder
-        {
-            return await _productDal.UpdateAndReorderAsync(entity);
-
-        }
-        else if (entityToUpdate == null) //No entry
-        {
-            return new Product { ProductName = string.Empty };
-        }
-        else //bad request
-        {
-            return new Product { ProductName = string.Empty };
-        }
+        var oldEntity = await _productDal.GetAsNoTrackingAsync(p => p.Id == entity.Id);
+        
+        return await _productDal.UpdateAsync(entity);
     }
-    public async Task<EntityDeleteResult> DeleteAndReorderAsync(Guid id)
+    public async Task<Product> UpdateProductOrderAsync(Guid id, double newOrder)
     {
-        var entity = await _productDal.GetAsync(c => c.Id == id);
-        if (entity == null) return new EntityDeleteResult(false, "Entity not found");
-        var i = await _productDal.DeleteAndReorderAsync(id);
-        return i > 0 ? new EntityDeleteResult(true, "Entity deleted") : new EntityDeleteResult(false, "Entity not deleted");
+        return await _productDal.UpdateProductOrderAsync(id, newOrder);
+    }
+    public Task<EntityDeleteResult> DeleteAsync(Guid id)
+    {
+        return _productDal.DeleteAsync(id);
     }
 }

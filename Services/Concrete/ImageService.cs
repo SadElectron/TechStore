@@ -86,7 +86,7 @@ namespace Services.Concrete
 
         public Task<Image?> UpdateOrderAsync(Guid imageId, double newOrder)
         {
-            return _imageDal.UpdateOrderAsync(imageId, newOrder);
+            return _imageDal.UpdateImageOrderAsync(imageId, newOrder);
         }
 
         public Task<List<Image>> GetAllAsNoTrackingAsync(Guid productId)
@@ -94,13 +94,11 @@ namespace Services.Concrete
             return _imageDal.GetAllAsNoTrackingAsync(i => i.ProductId == productId, i => i.RowOrder);
         }
 
-        public async Task<Image> DeleteAsync(Guid imageId)
+        public async Task<EntityDeleteResult> DeleteAsync(Guid id)
         {
             try
             {
-                var image = await _imageDal.GetAsync(i => i.Id == imageId);
-                if (image is null) throw new ArgumentException("Image not found.");
-                return await _imageDal.DeleteAsync(image);
+                return await _imageDal.DeleteAsync(id);
             }
             catch (Exception ex)
             {

@@ -40,6 +40,8 @@ namespace TechStore.Api.MapperProfiles
             CreateMap<Product, ProductDto>();
             CreateMap<ProductDto, Product>().ForMember(p => p.Category, opt => opt.Ignore());
             CreateMap<CreateProductModel, Product>();
+            CreateMap<UpdateProductModel, Product>();
+            
 
         }
     }

@@ -80,7 +80,7 @@ namespace Services.Concrete
         public async Task DeleteTokenAsync(string token)
         {
             var refreshToken = await _refreshTokenDal.GetAsNoTrackingAsync(r => r.Token == token);
-            await _refreshTokenDal.DeleteAsync(refreshToken!);
+            await _refreshTokenDal.DeleteAsync(refreshToken!.Id);
         }
 
         public async Task<RegisterUserResult> Register(User user, string role)

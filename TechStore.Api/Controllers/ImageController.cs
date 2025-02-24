@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Services.Abstract;
 using Services.Concrete;
 
-namespace TechStore.Api.Controllers;
+namespace TechStore.Api.Models;
 
 [EnableCors("AllowSpecificOrigin")]
 [Route("api/v1/[controller]")]

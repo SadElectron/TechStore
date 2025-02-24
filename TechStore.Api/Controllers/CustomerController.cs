@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Services.Abstract;
 using System.Diagnostics;
 
-namespace TechStore.Api.Controllers;
+namespace TechStore.Api.Models;
 
 [EnableCors("AllowSpecificOrigin")]
 [Route("api/v1/[controller]")]

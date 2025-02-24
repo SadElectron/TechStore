@@ -20,7 +20,7 @@ namespace Services.Abstract
         Task<Detail?> GetAsNoTrackingAsync(Guid id);
         Task<EntityUpdateResult<Detail>> UpdateAsync(Detail entity);
         Task<List<Detail>> UpdateDetailsAsync(List<Detail> details);
-        Task<Detail> DeleteAsync(Detail entity);
+        Task<EntityDeleteResult> DeleteAsync(Guid id);
         Task<EntityDeleteResult> DeleteAndReorderAsync(Guid id);
         Task<List<Detail>> GetByIdsAsync(List<Guid> ids);
     }

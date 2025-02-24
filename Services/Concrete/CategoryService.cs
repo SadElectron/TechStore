@@ -77,13 +77,7 @@ public class CategoryService : ICategoryService
 
     public Task<Category> UpdateAsync(Category entity)
     {
-        entity.LastUpdate = DateTimeHelper.GetUtcNow();
         return _categoryDal.UpdateAsync(entity);
-    }
-
-    public Task<Category> UpdateAndReorderAsync(Category entity)
-    {
-        return _categoryDal.UpdateAndReorderAsync(entity);
     }
 
     public async Task<EntityDeleteResult> DeleteAndReorderAsync(Guid id)

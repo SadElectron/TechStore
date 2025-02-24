@@ -1,4 +1,5 @@
 ﻿using Core.Entities.Abstract;
+using Core.Results;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System;
@@ -26,10 +27,9 @@ namespace Core.DataAccess.EntityFramework.Abstract
         Task<int> GetEntryCountAsync(Expression<Func<TEntity, bool>> filter);
         Task<double> GetLastOrderAsync();
         Task<TEntity> AddAsync(TEntity entity);
-        Task<TEntity> UpdateAsync(TEntity entity);
         Task UpdateAllAsync(List<TEntity> entities);
-        Task<TEntity> UpdateAndReorderAsync(TEntity entity);
-        Task<TEntity> DeleteAsync(TEntity entity);
+        Task<TEntity> UpdateAsync(TEntity entity);
+        Task<EntityDeleteResult> DeleteAsync(Guid id);
         Task<int> DeleteAndReorderAsync(Guid id);
         Task SaveChangesAsync();
         Task<bool> ExistsAsync(Guid id);

@@ -93,9 +93,9 @@ public class DetailService : IDetailService
         return _detailDal.UpdateDetailsAsync(details);
 
     }
-    public Task<Detail> DeleteAsync(Detail entity)
+    public Task<EntityDeleteResult> DeleteAsync(Guid id)
     {
-        return _detailDal.DeleteAsync(entity);
+        return _detailDal.DeleteAsync(id);
 
     }
     public async Task<EntityDeleteResult> DeleteAndReorderAsync(Guid id)

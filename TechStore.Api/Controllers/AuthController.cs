@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Services.Abstract;
 using Services.Authentication.Jwt;
 
-namespace TechStore.Api.Controllers;
+namespace TechStore.Api.Models;
 
 [EnableCors("AllowSpecificOrigin")]
 [Route("api/v1/[controller]")]

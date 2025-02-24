@@ -8,10 +8,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Services.Abstract;
 using Services.Concrete;
+using System.ComponentModel.DataAnnotations;
 using TechStore.Api.Models;
+using TechStore.Api.Validation;
 
 
-namespace TechStore.Api.Controllers;
+namespace TechStore.Api.Models;
 
 [EnableCors("AllowSpecificOrigin")]
 [Route("api/v1/[controller]")]
@@ -98,41 +100,98 @@ public class ProductController : ControllerBase
     [HttpPost("Create")]
     public async Task<IActionResult> CreateProduct(CreateProductModel model, [FromServices] IValidator<CreateProductModel> validator)
     {
-
-        var validationResult = await validator.ValidateAsync(model);
-        if (!validationResult.IsValid)
+        try
         {
-            return BadRequest(new { message = "Validation failed.", errors = validationResult.Errors });
-        }
-        var entity = _mapper.Map<Product>(model);
+            var validationResult = await validator.ValidateAsync(model);
+            if (!validationResult.IsValid)
+            {
+                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
+            }
+            var entity = _mapper.Map<Product>(model);
 
-        var createEntityResult = await _productService.AddAsync(entity);
-        if(!createEntityResult.IsSuccessful)
-        {
-            return BadRequest(new { message = createEntityResult.Message});
+            var createEntityResult = await _productService.AddAsync(entity);
+            if (!createEntityResult.IsSuccessful)
+            {
+                return BadRequest(new { message = createEntityResult.Message });
+            }
+            var addedEntityDto = _mapper.Map<ProductDto>(createEntityResult.Entity);
+            return Ok(addedEntityDto);
         }
-        var addedEntityDto = _mapper.Map<ProductDto>(createEntityResult.Entity);
-        return Ok(addedEntityDto);
+        catch (Exception ex)
+        {
+
+            _logger.LogWarning($"Error in ProductController.CreateProduct {ex.Message}");
+            return BadRequest();
+        }
+        
     }
 
     [HttpPut("Update")]
-    public async Task<IActionResult> UpdateProduct([FromBody] Product entityToUpdate)
+    public async Task<IActionResult> UpdateProduct([FromBody] UpdateProductModel model, [FromServices] IValidator<UpdateProductModel> validator)
     {
-
-        var updatedEntity = await _productService.UpdateAndReorderAsync(entityToUpdate);
-        if (updatedEntity.ProductName == string.Empty)
+        try
         {
+            var validationResult = await validator.ValidateAsync(model);
+            if (!validationResult.IsValid)
+            {
+                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
+            }
+            var entity = await _productService.GetAsNoTrackingAsync(model.Id);
+            var product = _mapper.Map(model, entity);
+            var updatedEntity = await _productService.UpdateAsync(product);
+            var entityDto = _mapper.Map<ProductDto>(updatedEntity);
+            return Ok(entityDto);
+        }
+        catch (Exception ex )
+        {
+            _logger.LogWarning($"Error in ProductController.UpdateProduct {ex.Message}");
             return BadRequest();
         }
-        var entityDto = _mapper.Map<ProductDto>(updatedEntity);
-        return Ok(entityDto);
+    }
+    [HttpPut("update/productorder")]
+    public async Task<IActionResult> UpdateProductOrder([FromBody] UpdateProductOrderModel model, [FromServices] IValidator<UpdateProductOrderModel> validator)
+    {
+        try
+        {
+            var validationResult = await validator.ValidateAsync(model);
+            if (!validationResult.IsValid)
+            {
+                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
+            }
+           
+            var updatedEntity = await _productService.UpdateProductOrderAsync(model.Id, model.ProductOrder);
+            var entityDto = _mapper.Map<ProductDto>(updatedEntity);
+            return Ok(entityDto);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning($"Error in ProductController.UpdateProductOrder {ex.Message}");
+            return BadRequest();
+        }
     }
 
-    [HttpDelete("Delete/{id}")]
-    public async Task<IActionResult> Delete(Guid id)
+    [HttpDelete("Delete")]
+    public async Task<IActionResult> Delete([FromBody]DeleteProductModel model, [FromServices] IValidator<DeleteProductModel> validator)
     {
 
-        EntityDeleteResult deleteResult = await _productService.DeleteAndReorderAsync(id);
-        return deleteResult.IsSuccessful ? Ok() : NotFound();
+        try
+        {
+            var validationResult = await validator.ValidateAsync(model);
+            if (!validationResult.IsValid)
+            {
+                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
+            }
+            EntityDeleteResult deleteResult = await _productService.DeleteAsync(model.Id);
+            return deleteResult.IsSuccessful ? Ok() : NotFound();
+        }
+        catch (Exception ex) 
+        {
+            _logger.LogWarning($"Error in ProductController.Delete {ex.Message}");
+            return BadRequest();
+        }
     }
 }
