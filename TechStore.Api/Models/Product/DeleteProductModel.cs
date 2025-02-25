@@ -1,4 +1,4 @@
-﻿namespace TechStore.Api.Models;
+﻿namespace TechStore.Api.Models.Product;
 
 public class DeleteProductModel
 {

@@ -1,17 +1,10 @@
 ﻿using Core.Entities.Concrete;
 using Core.Results;
 using DataAccess.EntityFramework.Abstract;
-using DataAccess.EntityFramework.Concrete;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using Services.Abstract;
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Services.Concrete
 {

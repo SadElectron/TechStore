@@ -3,7 +3,9 @@ using AutoMapper.Collection;
 using AutoMapper.EquivalencyExpression;
 using Core.Dtos;
 using Core.Entities.Concrete;
-using TechStore.Api.Models;
+using TechStore.Api.Models.Category;
+using TechStore.Api.Models.Detail;
+using TechStore.Api.Models.Product;
 
 namespace TechStore.Api.MapperProfiles
 {

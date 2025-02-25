@@ -26,4 +26,5 @@ public interface ICategoryService
     Task<EntityDeleteResult> DeleteAndReorderAsync(Guid id);
     Task<bool> ExistsAsync(Guid id);
     Task<bool> ExistsAsync(Expression<Func<Category, bool>> filter);
+    Task<double> GetLastRowOrder();
 }

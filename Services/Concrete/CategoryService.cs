@@ -2,15 +2,8 @@
 using Core.Results;
 using Core.Utils;
 using DataAccess.EntityFramework.Abstract;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
 using Services.Abstract;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Services.Concrete;
 
@@ -25,9 +18,10 @@ public class CategoryService : ICategoryService
 
     public async Task<Category> AddAsync(Category entity)
     {
+        var timeNowUtc = DateTimeHelper.GetUtcNow();
         entity.RowOrder = await _categoryDal.GetLastOrderAsync() + 1;
-        entity.LastUpdate = DateTimeHelper.GetUtcNow();
-        entity.CreatedAt = DateTimeHelper.GetUtcNow();
+        entity.LastUpdate = timeNowUtc;
+        entity.CreatedAt = timeNowUtc;
         return await _categoryDal.AddAsync(entity);
     }
 
@@ -73,6 +67,10 @@ public class CategoryService : ICategoryService
     public Task<List<Category>> GetFullAsync(int page = 1, int count = 10, int productPage = 1, int productCount = 10)
     {
         return _categoryDal.GetFullAsync(page, count, productPage, productCount);
+    }
+    public Task<double> GetLastRowOrder()
+    {
+        return _categoryDal.GetLastOrderAsync();
     }
 
     public Task<Category> UpdateAsync(Category entity)

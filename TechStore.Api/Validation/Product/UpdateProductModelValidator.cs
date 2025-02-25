@@ -1,8 +1,8 @@
 ﻿using FluentValidation;
 using Services.Abstract;
-using TechStore.Api.Models;
+using TechStore.Api.Models.Product;
 
-namespace TechStore.Api.Validation;
+namespace TechStore.Api.Validation.Product;
 
 public class UpdateProductModelValidator : AbstractValidator<UpdateProductModel>
 {

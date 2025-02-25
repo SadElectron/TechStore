@@ -2,16 +2,18 @@
 using Core.Dtos;
 using Core.Entities.Concrete;
 using Core.Results;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services.Abstract;
 using Services.Concrete;
+using System.ComponentModel.DataAnnotations;
 using System.Reflection.Metadata.Ecma335;
-using TechStore.Api.Models;
+using TechStore.Api.Models.Category;
 
-namespace TechStore.Api.Models;
+namespace TechStore.Api.Controllers;
 
 [EnableCors("AllowSpecificOrigin")]
 [Route("api/v1/[controller]")]
@@ -28,75 +30,163 @@ public class CategoryController : ControllerBase
         _logger = logger;
     }
 
-    
 
     // READ
-    [HttpGet("Get/{id}", Name = "GetCategory")]
-    public async Task<IActionResult> GetCategory(Guid id)
+    [HttpGet("Get/{Id}", Name = "GetCategory")]
+    public async Task<IActionResult> GetCategory([FromRoute] CategoryIdModel model, IValidator<CategoryIdModel> validator)
     {
-        var category = await _categoryService.GetAsNoTrackingAsync(id);
-        if (category == null)
+        try
         {
-            return NotFound();
+            var validationResult = await validator.ValidateAsync(model);
+            if (!validationResult.IsValid)
+            {
+                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
+            }
+            var category = await _categoryService.GetAsNoTrackingAsync(model.Id);
+            var categoryMinimalDto = _mapper.Map<CategoryMinimalDto>(category);
+            return Ok(categoryMinimalDto);
         }
-        var categoryMinimalDto = _mapper.Map<CategoryMinimalDto>(category);
-        return Ok(categoryMinimalDto);
+        catch (Exception ex)
+        {
+
+            _logger.LogWarning($"Error in CategoryController.GetCategory {ex.Message}");
+            return Problem();
+        }
+        
     }
 
-    [HttpGet("Get/{page}/{count}")]
-    public async Task<IActionResult> GetCategories(int page = 1, int count = 10)
+    [HttpGet("Get/{Page}/{Count}")]
+    public async Task<IActionResult> GetCategories([FromRoute] GetCategoriesModel model, IValidator<GetCategoriesModel> validator)
     {
-        var categories = await _categoryService.GetAllAsync(page, count);
-        if (categories.Count == 0)
+        try
         {
-            return NotFound();
-        }
-        var categoryDtos = _mapper.Map<List<Category>, IEnumerable<CategoryDto>>(categories);
+            var validationResult = await validator.ValidateAsync(model);
+            if (!validationResult.IsValid)
+            {
+                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
+            }
 
-        var taskList = categoryDtos.Select(async c => c.ProductCount = await _categoryService.GetProductCountAsync(c.Id));
-        await Task.WhenAll(taskList);
-        return Ok(categoryDtos);
+            var categories = await _categoryService.GetAllAsync(model.Page, model.Count);
+            if (categories.Count == 0)
+            {
+                return Ok(Array.Empty<object>());
+            }
+            var categoryDtos = _mapper.Map<List<Category>, IEnumerable<CategoryDto>>(categories);
+
+            var taskList = categoryDtos.Select(async c => c.ProductCount = await _categoryService.GetProductCountAsync(c.Id));
+            await Task.WhenAll(taskList);
+            return Ok(categoryDtos);
+        }
+        catch (Exception ex)
+        {
+
+            _logger.LogWarning($"Error in CategoryController.GetCategories {ex.Message}");
+            return Problem();
+        }
+        
     }
 
-    [HttpGet("Get/full/{page}/{count}/{productPage}/{productCount}")]
-    public async Task<IActionResult> GetCategoriesFull(int page = 1, int count = 10, int productPage = 1, int productCount = 10)
+    [HttpGet("Get/full/{Page}/{Count}/{ProductPage}/{ProductCount}")]
+    public async Task<IActionResult> GetCategoriesFull([FromRoute] GetCategoriesFullModel model, IValidator<GetCategoriesFullModel> validator)
     {
-        var categories = await _categoryService.GetFullAsync(page, count, productPage, productCount);
-        if (categories.Count == 0)
+        try
         {
-            return NotFound();
+            var validationResult = await validator.ValidateAsync(model);
+            if (!validationResult.IsValid)
+            {
+                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
+            }
+            var categories = await _categoryService.GetFullAsync(model.Page, model.Count, model.ProductPage, model.ProductCount);
+            if (categories.Count == 0)
+            {
+                return Ok(Array.Empty<object>());
+            }
+            var dtos = _mapper.Map<IEnumerable<CustomerCategoryDto>>(categories);
+            return Ok(dtos);
         }
+        catch (Exception ex)
+        {
 
-        var dtos = _mapper.Map<IEnumerable<CustomerCategoryDto>>(categories);
-        return Ok(dtos);
+            _logger.LogWarning($"Error in CategoryController.GetCategoriesFull {ex.Message}");
+            return Problem();
+        }
+        
     }
 
     [HttpGet("Get/Count")]
     public async Task<IActionResult> GetCategoryCount()
     {
-        var categoryCount = await _categoryService.GetEntryCountAsync();
-        return Ok(categoryCount);
+        try
+        {
+            var categoryCount = await _categoryService.GetEntryCountAsync();
+            return Ok(categoryCount);
+        }
+        catch (Exception ex)
+        {
+
+            _logger.LogWarning($"Error in CategoryController.GetCategoryCount {ex.Message}");
+            return Problem();
+        }
     }
 
-    [HttpGet("Get/ProductCount/{categoryId}")]
-    public async Task<IActionResult> GetProductCount(Guid categoryId)
-    {
-        var count = await _categoryService.GetProductCountAsync(categoryId);
-        return Ok(count);
-    }
-
-    [HttpGet("Get/PropertyCount/{categoryId}")]
-    public async Task<IActionResult> GetCategoryPropertyCount(Guid categoryId)
-    {
-        var count = await _categoryService.GetPropertyCount(categoryId);
-        return Ok(count);
-    }
-    // CREATE
-    [HttpPost("Create")]
-    public async Task<IActionResult> Create([FromBody] CreateCategoryModel model)
+    [HttpGet("Get/ProductCount/{Id}")]
+    public async Task<IActionResult> GetProductCount([FromRoute] CategoryIdModel model, IValidator<CategoryIdModel> validator)
     {
         try
         {
+            var validationResult = await validator.ValidateAsync(model);
+            if (!validationResult.IsValid)
+            {
+                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
+            }
+            var count = await _categoryService.GetProductCountAsync(model.Id);
+            return Ok(count);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning($"Error in CategoryController.GetProductCount {ex.Message}");
+            return Problem();
+        }
+    }
+
+    [HttpGet("Get/PropertyCount/{Id}")]
+    public async Task<IActionResult> GetCategoryPropertyCount([FromRoute] CategoryIdModel model, IValidator<CategoryIdModel> validator)
+    {
+        try
+        {
+            var validationResult = await validator.ValidateAsync(model);
+            if (!validationResult.IsValid)
+            {
+                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
+            }
+            var count = await _categoryService.GetPropertyCount(model.Id);
+            return Ok(count);
+        }
+        catch (Exception ex)
+        {
+
+            _logger.LogWarning($"Error in CategoryController.GetCategoryPropertyCount {ex.Message}");
+            return Problem();
+        }
+
+    }
+    // CREATE
+    [HttpPost("Create")]
+    public async Task<IActionResult> Create([FromBody] CreateCategoryModel model, IValidator<CreateCategoryModel> validator)
+    {
+        try
+        {
+            var validationResult = await validator.ValidateAsync(model);
+            if (!validationResult.IsValid)
+            {
+                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
+            }
             var category = _mapper.Map<Category>(model);
             var addedEntity = await _categoryService.AddAsync(category);
             if (addedEntity != null)
@@ -108,48 +198,56 @@ public class CategoryController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogWarning($"Error in CategoryController.Create {ex.Message}");
-            return BadRequest();
-            
+            return Problem();
+
         }
-        
+
     }
     // UPDATE
     [HttpPut("Update")]
-    public async Task<IActionResult> Update(UpdateCategoryModel entityToUpdate)
+    public async Task<IActionResult> Update(UpdateCategoryModel model, IValidator<UpdateCategoryModel> validator)
     {
         try
         {
-            var entity = await _categoryService.GetAsync(entityToUpdate.Id);
-            if (entity == null)
+            var validationResult = await validator.ValidateAsync(model);
+            if (!validationResult.IsValid)
             {
-                return NotFound();
+                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
             }
-            var category = _mapper.Map(entityToUpdate, entity);
-            var updatedEntity = await _categoryService.UpdateAsync(category);
+            var entity = await _categoryService.GetAsync(model.Id);
+            var category = _mapper.Map(model, entity);
+            var updatedEntity = await _categoryService.UpdateAsync(category!);
             return Ok(_mapper.Map<CategoryMinimalDto>(updatedEntity));
         }
         catch (Exception ex)
         {
             _logger.LogWarning($"Error in CategoryController.Update {ex.Message}");
-            return BadRequest();
+            return Problem();
         }
-        
+
     }
 
     // DELETE
     [HttpDelete("Delete/{id}")]
-    public async Task<IActionResult> Delete(Guid id)
+    public async Task<IActionResult> Delete([FromBody]CategoryIdModel model, IValidator<CategoryIdModel> validator)
     {
         try
         {
-            EntityDeleteResult deleteResult = await _categoryService.DeleteAndReorderAsync(id);
+            var validationResult = await validator.ValidateAsync(model);
+            if (!validationResult.IsValid)
+            {
+                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
+            }
+            EntityDeleteResult deleteResult = await _categoryService.DeleteAndReorderAsync(model.Id);
             return deleteResult.IsSuccessful ? Ok() : NotFound();
         }
         catch (Exception ex)
         {
             _logger.LogWarning($"Error in CategoryController.Delete {ex.Message}");
-            return BadRequest();
+            return Problem();
         }
-        
+
     }
 }

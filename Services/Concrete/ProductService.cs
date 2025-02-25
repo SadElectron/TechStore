@@ -1,42 +1,26 @@
-﻿using AutoMapper;
-using Core.Dtos;
+﻿using Core.Dtos;
 using Core.Entities.Concrete;
 using Core.RequestModels;
 using DataAccess.EntityFramework.Abstract;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Services.Abstract;
 using System.Linq.Expressions;
 using Core.Utils;
-using DataAccess.EntityFramework.Concrete;
 using Core.Results;
-using Microsoft.AspNetCore.Mvc;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Services.Concrete;
 
 public class ProductService : IProductService
 {
     private readonly IProductDal _productDal;
-    private readonly IImageDal _imageDal;
-    private readonly IDetailDal _detailDal;
-    private readonly ICategoryDal _categoryDal;
-    private readonly IMapper _mapper;
-
-    public ProductService(IProductDal productDal, IMapper mapper, IImageDal imageDal, IDetailDal detailDal, ICategoryDal categoryDal)
+    public ProductService(IProductDal productDal)
     {
         _productDal = productDal;
-        _mapper = mapper;
-        _imageDal = imageDal;
-        _detailDal = detailDal;
-        _categoryDal = categoryDal;
     }
     public async Task<Product> GetAsync(Guid id)
     {
-
         var entity = await _productDal.GetAsNoTrackingAsync(p => p.Id == id);
-        return entity ?? new Product { ProductName = "" };
-
+        return entity!;
     }
     public Task<Product?> GetAsync(Expression<Func<Product, bool>> filter)
     {
@@ -44,10 +28,6 @@ public class ProductService : IProductService
     }
     public Task<List<Product>> GetAllAsync(int page, int itemCount)
     {
-        // Validate parameters
-        if (page <= 0 || itemCount <= 0)
-            return Task.FromResult<List<Product>>(new());
-
         return _productDal.GetAllAsNoTrackingAsync(page, itemCount, p => p.RowOrder);
     }
     public Task<List<Product>> GetAllAsync(int page, int itemCount, Guid categoryId)
@@ -104,12 +84,12 @@ public class ProductService : IProductService
     }
     public async Task<EntityCreateResult<Product>> AddAsync(Product entity)
     {
-
+        var timeNowUtc = DateTimeHelper.GetUtcNow();
         entity.ProductOrder = await _productDal.GetLastProductOrderAsync() + 1;
         entity.RowOrder = await _productDal.GetLastOrderAsync() + 1;
         entity.SoldQuantity = 0;
-        entity.LastUpdate = DateTimeHelper.GetUtcNow();
-        entity.CreatedAt = DateTimeHelper.GetUtcNow();
+        entity.LastUpdate = timeNowUtc;
+        entity.CreatedAt = timeNowUtc;
         var addedEntity = await _productDal.AddAsync(entity);
         return new EntityCreateResult<Product>(true, addedEntity);
 
@@ -117,7 +97,6 @@ public class ProductService : IProductService
     public async Task<Product> UpdateAsync(Product entity)
     {
         var oldEntity = await _productDal.GetAsNoTrackingAsync(p => p.Id == entity.Id);
-        
         return await _productDal.UpdateAsync(entity);
     }
     public async Task<Product> UpdateProductOrderAsync(Guid id, double newOrder)

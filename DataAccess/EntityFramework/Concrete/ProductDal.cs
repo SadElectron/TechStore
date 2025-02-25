@@ -190,7 +190,7 @@ public class ProductDal : EfDbRepository<Product, EfDbContext>, IProductDal
             var product = await context.Products.Where(p => p.Id == productId)
                 .Select(p => new { p.Id, p.ProductOrder, p.CategoryId })
                 .SingleOrDefaultAsync();
-            if (product.ProductOrder < newOrder)
+            if (product!.ProductOrder < newOrder)
             {
                 // Shift entities up
                 await context.Products.Where(p => p.ProductOrder > product.ProductOrder && p.ProductOrder <= newOrder && p.CategoryId == product.CategoryId)
@@ -210,7 +210,7 @@ public class ProductDal : EfDbRepository<Product, EfDbContext>, IProductDal
             }
 
             await transaction.CommitAsync();
-            return await context.Products.FindAsync(product.Id);
+            return (await context.Products.FindAsync(product.Id))!;
         }
         catch
         {
@@ -225,7 +225,7 @@ public class ProductDal : EfDbRepository<Product, EfDbContext>, IProductDal
         var product = await context.Products.FindAsync(id);
         try
         {
-            var rowOrder = product.RowOrder;
+            var rowOrder = product!.RowOrder;
             var productOrder = product.ProductOrder;
             int result = await context.Products.Where(p => p.Id == product.Id).ExecuteDeleteAsync();
             if (result > 0) 

@@ -1,16 +1,9 @@
-﻿using Core.Entities.Abstract;
-using Core.Entities.Concrete;
+﻿using Core.Entities.Concrete;
 using Core.Results;
 using Core.Utils;
 using DataAccess.EntityFramework.Abstract;
-using DataAccess.EntityFramework.Concrete;
 using Services.Abstract;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Services.Concrete;
 

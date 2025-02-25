@@ -18,8 +18,8 @@ using System.Text;
 using System.Text.Json.Serialization;
 using TechStore.Api.MapperProfiles;
 using TechStore.Api.Middlewares;
-using TechStore.Api.Models;
-using TechStore.Api.Validation;
+using TechStore.Api.Models.Product;
+using TechStore.Api.Validation.Product;
 
 namespace TechStore.Api
 {
@@ -108,11 +108,7 @@ namespace TechStore.Api
             builder.Services.AddScoped<TokenProvider>();
             builder.Services.AddSingleton<IAuthorizationHandler, RoleAuthorizationHandler>();
 
-            builder.Services.AddScoped<IValidator<CreateProductModel>, CreateProductModelValidator>();
-            builder.Services.AddScoped<IValidator<UpdateProductModel>, UpdateProductModelValidator>();
-            builder.Services.AddScoped<IValidator<UpdateProductOrderModel>, UpdateProductOrderModelValidator>();
-            builder.Services.AddScoped<IValidator<DeleteProductModel>, DeleteProductValidator>();
-
+            builder.Services.AddValidatorsFromAssemblyContaining<CreateProductModelValidator>(ServiceLifetime.Scoped);
 
             builder.Services.AddScoped<IProductService, ProductService>();
             builder.Services.AddScoped<IPropertyService, PropertyService>();

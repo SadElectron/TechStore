@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TechStore.Api.Models;
+namespace TechStore.Api.Models.Category;
 
 public class CreateCategoryModel
 {

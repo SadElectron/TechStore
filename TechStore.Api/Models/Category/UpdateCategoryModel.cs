@@ -1,4 +1,4 @@
-﻿namespace TechStore.Api.Models
+﻿namespace TechStore.Api.Models.Category
 {
     public class UpdateCategoryModel
     {

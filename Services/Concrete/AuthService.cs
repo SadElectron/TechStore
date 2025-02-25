@@ -2,7 +2,6 @@
 using Core.Results;
 using Core.Utils;
 using DataAccess.EntityFramework.Abstract;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Services.Abstract;
 using Services.Authentication.Jwt;
 using System.Security.Cryptography;

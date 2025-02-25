@@ -1,9 +1,9 @@
-﻿namespace TechStore.Api.Validation;
+﻿namespace TechStore.Api.Validation.Product;
 
 using FluentValidation;
 using Microsoft.Win32;
 using Services.Abstract;
-using TechStore.Api.Models;
+using TechStore.Api.Models.Product;
 
 public class CreateProductModelValidator : AbstractValidator<CreateProductModel>
 {
