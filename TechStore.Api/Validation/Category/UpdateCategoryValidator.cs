@@ -15,7 +15,7 @@ public class UpdateCategoryValidator : AbstractValidator<UpdateCategoryModel>
             await categoryService.ExistsAsync(id)).WithMessage("Category not found.");
 
         RuleFor(x => x.RowOrder)
-            .GreaterThanOrEqualTo(0).WithMessage("RowOrder must be 0 or greater.")
+            .GreaterThan(0).WithMessage("RowOrder must be greater than 0.")
             .MustAsync(async (rowOrder, cancellationToken) =>
             {
                 var lastOrder = await categoryService.GetLastRowOrder();

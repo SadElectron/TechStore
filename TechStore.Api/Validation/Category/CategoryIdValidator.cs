@@ -13,7 +13,7 @@ namespace TechStore.Api.Validation.Category
             .NotEmpty().WithMessage("Category id is required and cannot be empty.")
             .MustAsync(async (id, cancellationToken) =>
                 await categoryService.ExistsAsync(id))
-            .WithMessage("Category not found.");
+            .WithMessage("Category id is not valid.");
         }
     }
 }

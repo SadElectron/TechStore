@@ -229,7 +229,7 @@ public class CategoryController : ControllerBase
     }
 
     // DELETE
-    [HttpDelete("Delete/{id}")]
+    [HttpDelete("Delete")]
     public async Task<IActionResult> Delete([FromBody]CategoryIdModel model, IValidator<CategoryIdModel> validator)
     {
         try
