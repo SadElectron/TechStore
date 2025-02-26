@@ -25,6 +25,7 @@ namespace Services.Abstract
         Task<double> GetLastItemOrder();
         Task<List<Property>> GetProductFilters(Guid categoryId);
         Task<EntityDeleteResult> DeleteAndReorderAsync(Guid id);
-
+        Task<bool> ExistsAsync(Expression<Func<Property, bool>> filter);
+        Task<bool> ExistsAsync(Guid id);
     }
 }

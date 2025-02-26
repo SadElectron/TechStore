@@ -2,6 +2,7 @@
 using Core.Results;
 using Core.Utils;
 using DataAccess.EntityFramework.Abstract;
+using DataAccess.EntityFramework.Concrete;
 using Services.Abstract;
 using System.Linq.Expressions;
 
@@ -16,13 +17,14 @@ public class CategoryService : ICategoryService
         _categoryDal = categoryDal;
     }
 
-    public async Task<Category> AddAsync(Category entity)
+    public async Task<EntityCreateResult<Category>> AddAsync(Category entity)
     {
         var timeNowUtc = DateTimeHelper.GetUtcNow();
         entity.RowOrder = await _categoryDal.GetLastOrderAsync() + 1;
         entity.LastUpdate = timeNowUtc;
         entity.CreatedAt = timeNowUtc;
-        return await _categoryDal.AddAsync(entity);
+        return new EntityCreateResult<Category>(true, await _categoryDal.AddAsync(entity));
+        
     }
 
     public Task<List<Category>> GetAllAsync()

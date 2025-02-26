@@ -2,7 +2,7 @@
 using Services.Abstract;
 using TechStore.Api.Models.Product;
 
-namespace TechStore.Api.Validation.Product;
+namespace TechStore.Api.Models.Product;
 
 public class DeleteProductValidator : AbstractValidator<DeleteProductModel>
 {

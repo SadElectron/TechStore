@@ -12,7 +12,7 @@ namespace Services.Abstract;
 
 public interface ICategoryService
 {
-    Task<Category> AddAsync(Category entity);
+    Task<EntityCreateResult<Category>> AddAsync(Category entity);
     Task<List<Category>> GetAllAsync();
     Task<List<Category>> GetAllAsync(int page, int itemCount);
     Task<Category?> GetAsync(Guid id);

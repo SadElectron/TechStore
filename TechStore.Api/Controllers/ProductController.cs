@@ -11,8 +11,8 @@ using Services.Abstract;
 using Services.Concrete;
 using System.ComponentModel.DataAnnotations;
 using TechStore.Api.Models.Product;
-using TechStore.Api.Validation;
-using TechStore.Api.Validation.Product;
+using TechStore.Api.Models;
+using TechStore.Api.Models.Product;
 
 
 namespace TechStore.Api.Controllers;

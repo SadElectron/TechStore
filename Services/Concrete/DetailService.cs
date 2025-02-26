@@ -20,20 +20,12 @@ public class DetailService : IDetailService
     }
     public async Task<EntityCreateResult<Detail>> AddAsync(Detail entity)
     {
-        var detailProperty = await _propertyDal.GetAsNoTrackingAsync(p => p.Id == entity.PropertyId);
-        var detailProduct = await _productDal.GetAsNoTrackingAsync(p => p.Id == entity.ProductId);
-        if (detailProperty != null && detailProduct != null)
-        {
-            entity.RowOrder = await _detailDal.GetLastOrderAsync() + 1;
-            entity.LastUpdate = DateTimeHelper.GetUtcNow();
-            entity.CreatedAt = DateTimeHelper.GetUtcNow();
-            return new EntityCreateResult<Detail>(true, await _detailDal.AddAsync(entity));
-        }
-        return new EntityCreateResult<Detail>(false, null, "Property or Product not found");
+        var timeNowUtc= DateTimeHelper.GetUtcNow();
+        entity.RowOrder = await _detailDal.GetLastOrderAsync() + 1;
+        entity.LastUpdate = timeNowUtc;
+        entity.CreatedAt = timeNowUtc;
+        return new EntityCreateResult<Detail>(true, await _detailDal.AddAsync(entity));
     }
-
-
-
     public Task<Detail?> GetAsync(Guid id)
     {
         return _detailDal.GetAsync(pv => pv.Id == id);
@@ -44,25 +36,21 @@ public class DetailService : IDetailService
         return _detailDal.GetAsNoTrackingAsync(pv => pv.Id == id);
 
     }
-
     public Task<Detail?> GetAsync(Expression<Func<Detail, bool>> filter)
     {
         return _detailDal.GetAsync(filter);
 
     }
-
     public Task<List<Detail>> GetAllAsync(int page, int itemCount)
     {
         return _detailDal.GetAllAsync(page, itemCount, d => d.RowOrder);
 
     }
-
     public async Task<List<Detail>> GetProductDetailsAsync(Guid productId)
     {
         return await _detailDal.GetAllWithPropsAsync(productId);
 
     }
-
     public Task<int> GetEntryCountAsync()
     {
         return _detailDal.GetEntryCountAsync();
@@ -72,7 +60,6 @@ public class DetailService : IDetailService
     {
         return _detailDal.GetByIdsAsync(ids);
     }
-
     public async Task<EntityUpdateResult<Detail>> UpdateAsync(Detail entity)
     {
         entity.LastUpdate = DateTimeHelper.GetUtcNow();
@@ -82,7 +69,7 @@ public class DetailService : IDetailService
     }
     public Task<List<Detail>> UpdateDetailsAsync(List<Detail> details)
     {
-        
+
         return _detailDal.UpdateDetailsAsync(details);
 
     }
@@ -98,5 +85,9 @@ public class DetailService : IDetailService
         var i = await _detailDal.DeleteAndReorderAsync(id);
         return i > 0 ? new EntityDeleteResult(true, "Entity deleted") : new EntityDeleteResult(false, "Entity not deleted");
 
+    }
+    public Task<bool> ExistsAsync(Guid id)
+    {
+        return _detailDal.ExistsAsync(id);
     }
 }

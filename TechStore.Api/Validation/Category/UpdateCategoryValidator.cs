@@ -2,7 +2,7 @@
 using Services.Abstract;
 using TechStore.Api.Models.Category;
 
-namespace TechStore.Api.Validation.Category;
+namespace TechStore.Api.Models.Category;
 
 public class UpdateCategoryValidator : AbstractValidator<UpdateCategoryModel>
 {

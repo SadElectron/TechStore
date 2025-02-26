@@ -1,4 +1,4 @@
-﻿namespace TechStore.Api.Validation.Product;
+﻿namespace TechStore.Api.Models.Product;
 
 using FluentValidation;
 using Microsoft.Win32;

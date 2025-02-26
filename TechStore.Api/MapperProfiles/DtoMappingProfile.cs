@@ -28,7 +28,7 @@ namespace TechStore.Api.MapperProfiles
                 
             CreateMap<Detail, DetailDto>()
                 .ForMember(ddto => ddto.PropName, opt => opt.MapFrom(d => d.Property!.PropName))
-                .ForMember(ddto => ddto.Order, opt => opt.MapFrom(d => d.Property!.PropOrder));
+                .ForMember(ddto => ddto.RowOrder, opt => opt.MapFrom(d => d.Property!.PropOrder));
             CreateMap<Detail, FilterValueDto>();
 
             CreateMap<DetailDto, Detail>().EqualityComparison((ddto, d) => ddto.Id == d.Id)

@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using TechStore.Api.Models.Category;
 
-namespace TechStore.Api.Validation.Category;
+namespace TechStore.Api.Models.Category;
 
 public class GetCategoriesValidator : AbstractValidator<GetCategoriesModel>
 {

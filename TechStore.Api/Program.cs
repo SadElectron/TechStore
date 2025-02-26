@@ -19,7 +19,6 @@ using System.Text.Json.Serialization;
 using TechStore.Api.MapperProfiles;
 using TechStore.Api.Middlewares;
 using TechStore.Api.Models.Product;
-using TechStore.Api.Validation.Product;
 
 namespace TechStore.Api
 {

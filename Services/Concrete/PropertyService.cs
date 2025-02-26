@@ -104,6 +104,15 @@ public class PropertyService : IPropertyService
         return _propertyDal.GetProductFilters(categoryId);
     }
 
+    public Task<bool> ExistsAsync(Expression<Func<Property, bool>> filter)
+    {
+        return _propertyDal.ExistsAsync(filter);
+    }
+    public Task<bool> ExistsAsync(Guid id)
+    {
+        return _propertyDal.ExistsAsync(id);
+    }
+
     public async Task<EntityDeleteResult> DeleteAndReorderAsync(Guid id)
     {
         var entity = await _propertyDal.GetAsync(c => c.Id == id);

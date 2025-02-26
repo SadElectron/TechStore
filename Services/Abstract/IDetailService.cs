@@ -23,5 +23,6 @@ namespace Services.Abstract
         Task<EntityDeleteResult> DeleteAsync(Guid id);
         Task<EntityDeleteResult> DeleteAndReorderAsync(Guid id);
         Task<List<Detail>> GetByIdsAsync(List<Guid> ids);
+        Task<bool> ExistsAsync(Guid id);
     }
 }

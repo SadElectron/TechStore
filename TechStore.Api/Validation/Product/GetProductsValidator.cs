@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace TechStore.Api.Validation.Product;
+namespace TechStore.Api.Models.Product;
 
 public class GetProductsValidator : AbstractValidator<(int page, int count)>
 {

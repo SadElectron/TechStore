@@ -3,10 +3,13 @@ using Core.Dtos;
 using Core.Entities.Concrete;
 using Core.Results;
 using Core.Utils;
+using FluentValidation;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Services.Abstract;
+using System.ComponentModel.DataAnnotations;
 using TechStore.Api.Models.Detail;
+using TechStore.Api.Models.Product;
 
 namespace TechStore.Api.Controllers;
 
@@ -26,88 +29,158 @@ public class DetailController : ControllerBase
         _logger = logger;
     }
 
-    // CREATE
     [HttpPost("create")]
-    public async Task<IActionResult> Create(CreateDetailModel model)
+    public async Task<IActionResult> Create(CreateDetailModel model, IValidator<CreateDetailModel> validator)
     {
-        var detail = _mapper.Map<Detail>(model);
-        EntityCreateResult<Detail> entityAddResult = await _detailService.AddAsync(detail);
-        if (entityAddResult.IsSuccessful)
+        try
         {
-            return CreatedAtRoute("GetDetail", new { id = entityAddResult.Entity!.Id }, _mapper.Map<DetailMinimalDto>(entityAddResult.Entity));
+            var validationResult = await validator.ValidateAsync(model);
+            if (!validationResult.IsValid)
+            {
+                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
+            }
+            var detail = _mapper.Map<Detail>(model);
+            EntityCreateResult<Detail> result = await _detailService.AddAsync(detail);
+            return result.IsSuccessful ?
+                CreatedAtRoute("GetDetail", new { id = result.Entity!.Id }, _mapper.Map<DetailMinimalDto>(result.Entity)) :
+                BadRequest();
         }
-        return BadRequest();
+        catch (Exception ex)
+        {
+            _logger.LogWarning($"Error in DetailController.Create {ex.Message}");
+            return Problem();
+        }
     }
 
-    // READ
-    [HttpGet("get/{id}", Name = "GetDetail")]
-    public async Task<IActionResult> GetDetail(Guid id)
+    [HttpGet("get/{Id}", Name = "GetDetail")]
+    public async Task<IActionResult> GetDetail([FromRoute] DetailIdModel model, IValidator<DetailIdModel> validator)
     {
-        var propertyValue = await _detailService.GetAsNoTrackingAsync(id);
-        if (propertyValue == null)
+        try
         {
-            return NotFound();
+
+            var validationResult = await validator.ValidateAsync(model);
+            if (!validationResult.IsValid)
+            {
+                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
+            }
+
+            var propertyValue = await _detailService.GetAsNoTrackingAsync(model.Id);
+            return Ok(_mapper.Map<DetailMinimalDto>(propertyValue));
         }
-        return Ok(propertyValue);
+        catch (Exception ex)
+        {
+            _logger.LogWarning($"Error in DetailController.GetDetail {ex.Message}");
+            return Problem();
+        }
     }
 
-    [HttpGet("get/product/details/{productId}")]
-    public async Task<IActionResult> GetProductDetails(Guid productId)
+    [HttpGet("get/product/details/{Id}")]
+    public async Task<IActionResult> GetProductDetails([FromRoute] ProductIdModel model, IValidator<ProductIdModel> validator)
     {
-        var propertyValue = await _detailService.GetProductDetailsAsync(productId);
-        if (propertyValue.Count == 0)
+        try
         {
-            return NotFound();
+
+            var validationResult = await validator.ValidateAsync(model);
+            if (!validationResult.IsValid)
+            {
+                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
+            }
+            var propertyValue = await _detailService.GetProductDetailsAsync(model.Id);
+            if (propertyValue.Count == 0)
+            {
+                return NotFound();
+            }
+            var dtos = _mapper.Map<List<DetailDto>>(propertyValue);
+            return Ok(dtos);
         }
-        var dtos = _mapper.Map<List<DetailDto>>(propertyValue);
-        return Ok(dtos);
+        catch (Exception ex)
+        {
+            _logger.LogWarning($"Error in DetailController.GetProductDetails {ex.Message}");
+            return Problem();
+        }
     }
 
-    // UPDATE
     [HttpPut("update")]
-    public async Task<IActionResult> Update(UpdateDetailModel updatedEntity)
+    public async Task<IActionResult> Update(UpdateDetailModel model, IValidator<UpdateDetailModel> validator)
     {
-        var entityToUpdate = await _detailService.GetAsync(updatedEntity.Id);
-        if (entityToUpdate == null)
+        try
         {
-            return NotFound();
+            var validationResult = await validator.ValidateAsync(model);
+            if (!validationResult.IsValid)
+            {
+                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
+            }
+            var entityToUpdate = await _detailService.GetAsync(model.Id);
+            var detail = _mapper.Map(model, entityToUpdate);
+            EntityUpdateResult<Detail> result = await _detailService.UpdateAsync(detail!);
+            if (result.IsSuccessful)
+            {
+                return Ok(_mapper.Map<DetailMinimalDto>(result.Entity));
+            }
+            return BadRequest();
         }
-        var detail = _mapper.Map(updatedEntity, entityToUpdate);
-        var updateEntityResult = await _detailService.UpdateAsync(detail);
-        if (updateEntityResult.IsSuccessful)
+        catch (Exception ex)
         {
-            return Ok(_mapper.Map<DetailMinimalDto>(updateEntityResult.Entity));
+            _logger.LogWarning($"Error in DetailController.GetProductDetails {ex.Message}");
+            return Problem();
         }
-        return BadRequest();
     }
 
     [HttpPut("update/product/details")]
-    public async Task<IActionResult> Update(List<UpdateDetailModel> updatedEntities)
+    public async Task<IActionResult> Update([FromBody]List<UpdateDetailModel> model, IValidator<List<UpdateDetailModel>> validator)
     {
-        var ids = updatedEntities.Select(ue => ue.Id).ToList();
-        var existingDetails = await _detailService.GetByIdsAsync(ids);
-        if (existingDetails.Count != updatedEntities.Count)
+        try
         {
-            return BadRequest("Some entities were not found.");
+            var validationResult = await validator.ValidateAsync(model);
+            if (!validationResult.IsValid)
+            {
+                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
+            }
+            var ids = model.Select(m => m.Id).ToList();
+            var existingDetails = await _detailService.GetByIdsAsync(ids);
+            
+            foreach (var entity in existingDetails)
+            {
+                var updateModel = model.Single(ue => ue.Id == entity.Id);
+                _mapper.Map(updateModel, entity);
+                entity.LastUpdate = DateTimeHelper.GetUtcNow();
+            }
+
+            var updatedDetails = await _detailService.UpdateDetailsAsync(existingDetails);
+
+            return Ok(_mapper.Map<List<DetailMinimalDto>>(updatedDetails));
         }
-        foreach (var entity in existingDetails)
+        catch (Exception ex)
         {
-            var updateModel = updatedEntities.Single(ue => ue.Id == entity.Id);
-            _mapper.Map(updateModel, entity);
-            entity.LastUpdate = DateTimeHelper.GetUtcNow();
+            _logger.LogWarning($"Error in DetailController.GetProductDetails {ex.Message}");
+            return Problem();
         }
-
-        var updatedDetails = await _detailService.UpdateDetailsAsync(existingDetails);
-
-        return Ok(_mapper.Map<List<DetailMinimalDto>>(updatedDetails));
     }
 
-    // DELETE
-    [HttpDelete("delete/{id}")]
-    public async Task<IActionResult> Delete(Guid id)
+    [HttpDelete("delete/{Id}")]
+    public async Task<IActionResult> Delete([FromRoute] DetailIdModel model, IValidator<DetailIdModel> validator)
     {
-        EntityDeleteResult deleteResult = await _detailService.DeleteAndReorderAsync(id);
-        return deleteResult.IsSuccessful ? Ok() : NotFound();
+        try
+        {
+            var validationResult = await validator.ValidateAsync(model);
+            if (!validationResult.IsValid)
+            {
+                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
+            }
+            EntityDeleteResult deleteResult = await _detailService.DeleteAndReorderAsync(model.Id);
+            return deleteResult.IsSuccessful ? Ok() : NotFound();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning($"Error in DetailController.Delete {ex.Message}");
+            return Problem();
+        }
     }
 }
 

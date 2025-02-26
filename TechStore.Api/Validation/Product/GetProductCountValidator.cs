@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using Services.Abstract;
 
-namespace TechStore.Api.Validation.Product;
+namespace TechStore.Api.Models.Product;
 
 public class GetProductCountValidator: AbstractValidator<Guid>
 {

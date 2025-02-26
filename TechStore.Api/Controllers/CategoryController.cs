@@ -53,7 +53,7 @@ public class CategoryController : ControllerBase
             _logger.LogWarning($"Error in CategoryController.GetCategory {ex.Message}");
             return Problem();
         }
-        
+
     }
 
     [HttpGet("Get/{Page}/{Count}")]
@@ -71,7 +71,7 @@ public class CategoryController : ControllerBase
             var categories = await _categoryService.GetAllAsync(model.Page, model.Count);
             if (categories.Count == 0)
             {
-                return Ok(Array.Empty<object>());
+                return NotFound();
             }
             var categoryDtos = _mapper.Map<List<Category>, IEnumerable<CategoryDto>>(categories);
 
@@ -85,7 +85,7 @@ public class CategoryController : ControllerBase
             _logger.LogWarning($"Error in CategoryController.GetCategories {ex.Message}");
             return Problem();
         }
-        
+
     }
 
     [HttpGet("Get/full/{Page}/{Count}/{ProductPage}/{ProductCount}")]
@@ -102,7 +102,7 @@ public class CategoryController : ControllerBase
             var categories = await _categoryService.GetFullAsync(model.Page, model.Count, model.ProductPage, model.ProductCount);
             if (categories.Count == 0)
             {
-                return Ok(Array.Empty<object>());
+                return NotFound();
             }
             var dtos = _mapper.Map<IEnumerable<CustomerCategoryDto>>(categories);
             return Ok(dtos);
@@ -113,7 +113,7 @@ public class CategoryController : ControllerBase
             _logger.LogWarning($"Error in CategoryController.GetCategoriesFull {ex.Message}");
             return Problem();
         }
-        
+
     }
 
     [HttpGet("Get/Count")]
@@ -188,12 +188,10 @@ public class CategoryController : ControllerBase
                 return BadRequest(new { message = "Validation failed.", errors = errorMessages });
             }
             var category = _mapper.Map<Category>(model);
-            var addedEntity = await _categoryService.AddAsync(category);
-            if (addedEntity != null)
-            {
-                return CreatedAtRoute("GetCategory", new { id = addedEntity.Id }, _mapper.Map<CategoryDto>(addedEntity));
-            }
-            return BadRequest();
+            EntityCreateResult<Category> result = await _categoryService.AddAsync(category);
+            return result.IsSuccessful ?
+                CreatedAtRoute("GetCategory", new { id = result.Entity!.Id }, _mapper.Map<CategoryDto>(result.Entity)) :
+                BadRequest();
         }
         catch (Exception ex)
         {
@@ -229,8 +227,8 @@ public class CategoryController : ControllerBase
     }
 
     // DELETE
-    [HttpDelete("Delete")]
-    public async Task<IActionResult> Delete([FromBody]CategoryIdModel model, IValidator<CategoryIdModel> validator)
+    [HttpDelete("Delete/{Id}")]
+    public async Task<IActionResult> Delete([FromRoute] CategoryIdModel model, IValidator<CategoryIdModel> validator)
     {
         try
         {
