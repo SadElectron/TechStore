@@ -2,7 +2,7 @@
 using Services.Abstract;
 using TechStore.Api.Models.Detail;
 
-namespace TechStore.Api.Validation.Detail;
+namespace TechStore.Api.Models.Detail;
 
 public class UpdateDetailsValidator : AbstractValidator<List<UpdateDetailModel>>
 {

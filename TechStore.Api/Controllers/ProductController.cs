@@ -3,15 +3,9 @@ using Core.Dtos;
 using Core.Entities.Concrete;
 using Core.Results;
 using FluentValidation;
-using FluentValidation.Results;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing;
 using Services.Abstract;
-using Services.Concrete;
-using System.ComponentModel.DataAnnotations;
-using TechStore.Api.Models.Product;
-using TechStore.Api.Models;
 using TechStore.Api.Models.Product;
 
 
@@ -33,7 +27,7 @@ public class ProductController : ControllerBase
         _logger = logger;
     }
     // READ
-    [HttpGet("Get/{id}")]
+    [HttpGet("{id}")]
     public async Task<IActionResult> GetProduct(Guid id)
     {
         try
@@ -54,7 +48,7 @@ public class ProductController : ControllerBase
 
     }
 
-    [HttpGet("Get/{page}/{count}")]
+    [HttpGet("{page}/{count}")]
     public async Task<IActionResult> GetProducts(int page, int count, [FromServices] IValidator<(int, int)> validator)
     {
         try
@@ -75,7 +69,7 @@ public class ProductController : ControllerBase
         }
     }
 
-    [HttpGet("Get/Count")]
+    [HttpGet("Count")]
     public async Task<IActionResult> GetEntryCount()
     {
         try
@@ -89,7 +83,7 @@ public class ProductController : ControllerBase
         }
     }
 
-    [HttpGet("Get/Count/{categoryId}")]
+    [HttpGet("Count/{categoryId}")]
     public async Task<IActionResult> GetProductCount(Guid categoryId, [FromServices] IValidator<Guid> validator)
     {
         try
@@ -109,6 +103,30 @@ public class ProductController : ControllerBase
             return BadRequest(new { message = ex.Message });
         }
 
+    }
+
+    [HttpGet("{productId}/images")]
+    public async Task<IActionResult> GetProductImages(ProductIdModel model, IValidator<ProductIdModel> validator, [FromServices]IImageService imageService)
+    {
+        try
+        {
+            var validationResult = await validator.ValidateAsync(model);
+            if (!validationResult.IsValid)
+            {
+                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
+            }
+            var images = await imageService.GetAllAsNoTrackingAsync(model.Id);
+            if (images.Count == 0) return NotFound();
+            var imageDtos = _mapper.Map<List<ImageDto>>(images);
+            return Ok(imageDtos);
+        }
+        catch (Exception ex)
+        {
+
+            _logger.LogWarning($"Error in ImageController.GetAll {ex.Message}");
+            return Problem();
+        }
     }
 
     [HttpPost("Create")]

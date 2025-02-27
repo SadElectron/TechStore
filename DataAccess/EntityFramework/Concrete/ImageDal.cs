@@ -22,18 +22,20 @@ namespace DataAccess.EntityFramework.Concrete
         {
             _logger = logger;
         }
-        public Task<double> GetLastImageOrderAsync(Expression<Func<Image, bool>> filter)
+        public async Task<double> GetLastImageOrderAsync(Guid id)
         {
             using EfDbContext context = new EfDbContext();
-            var lastImageOrder = context.Images.Where(filter).OrderByDescending(e => e.ImageOrder).Select(e => e.ImageOrder).FirstOrDefaultAsync();
-            return lastImageOrder;
+            double? maxImageOrder = await context.Images
+                .Where(i => i.ProductId == context.Images
+                    .Where(i2 => i2.Id == id).Select(i2 => i2.ProductId).SingleOrDefault())
+                .MaxAsync(e => (double?)e.ImageOrder);
+
+            // Return the maximum ImageOrder or 0 if no images exist
+            return maxImageOrder ?? 0;
         }
         public async Task<IEnumerable<Image>> AddAllAsync(ICollection<Image> images)
         {
-            if (images == null || !images.Any())
-            {
-                throw new ArgumentException("No images provided.", nameof(images));
-            }
+
             using var context = new EfDbContext();
             using var transaction = await context.Database.BeginTransactionAsync();
             try
@@ -53,6 +55,8 @@ namespace DataAccess.EntityFramework.Concrete
                     .Select(i => i.ImageOrder)
                     .FirstOrDefaultAsync();
 
+                var timeNowUtc = DateTimeHelper.GetUtcNow();
+
                 foreach (var image in images)
                 {
                     lastOrder += 1;
@@ -62,8 +66,8 @@ namespace DataAccess.EntityFramework.Concrete
                         lastImageOrder++;
                         image.ImageOrder = lastImageOrder;
                     }
-                    image.LastUpdate = DateTimeHelper.GetUtcNow();
-                    image.CreatedAt = DateTimeHelper.GetUtcNow();
+                    image.LastUpdate = timeNowUtc;
+                    image.CreatedAt = timeNowUtc;
                 }
                 await context.Images.AddRangeAsync(images);
                 await context.SaveChangesAsync();
@@ -84,9 +88,6 @@ namespace DataAccess.EntityFramework.Concrete
             return context.Images.Where(i => i.ProductId == productId).ExecuteDeleteAsync();
 
         }
-
-
-
         public async Task<Image?> UpdateImageOrderAsync(Guid imageId, double newOrder)
         {
             using var context = new EfDbContext();

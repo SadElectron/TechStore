@@ -1,11 +1,15 @@
 ﻿using AutoMapper;
 using Core.Dtos;
 using Core.Results;
+using FluentValidation;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services.Abstract;
 using Services.Concrete;
+using System.ComponentModel.DataAnnotations;
+using TechStore.Api.Models.Image;
+using TechStore.Api.Models.Product;
 
 namespace TechStore.Api.Models;
 
@@ -25,35 +29,92 @@ public class ImageController : ControllerBase
         _logger = logger;
     }
 
-    [HttpGet("get/images/{productId}")]
-    public async Task<IActionResult> GetAll(Guid productId)
+    [HttpGet("{imageId}")]
+    public async Task<IActionResult> GetImage(ImageIdModel model, IValidator<ImageIdModel> validator)
     {
-        var images = await _imageService.GetAllAsNoTrackingAsync(productId);
-        if (images.Count == 0) return NotFound();
-        var imageDtos = _mapper.Map<List<ImageDto>>(images);
-        return Ok(imageDtos);
+        try
+        {
+            var validationResult = await validator.ValidateAsync(model);
+            if (!validationResult.IsValid)
+            {
+                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
+            }
+            var image = await _imageService.GetAsNoTrackingAsync(model.Id);
+            if (image == null) return NotFound();
+            var dto = _mapper.Map<ImageDto>(image);
+            return Ok(dto);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning($"Error in ImageController.GetImageAsync {ex.Message}");
+            return Problem();
+        }
     }
-
 
     [HttpPost("create")]
-    public async Task<IActionResult> CreateImage([FromForm] Guid productId, List<IFormFile> files)
+    public async Task<IActionResult> UploadImage([FromForm] UploadImagesModel model, IValidator<UploadImagesModel> validator)
     {
-        var addedImages = await _imageService.BulkAddAsync(files, productId);
-        return CreatedAtAction("GetAll", routeValues: new { productId = productId }, null);
+        try
+        {
+            var validationResult = await validator.ValidateAsync(model);
+            if (!validationResult.IsValid)
+            {
+                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
+            }
+            var addedImages = await _imageService.BulkAddAsync(model.Files, model.ProductId);
+            return Ok(_mapper.Map<List<ImageDto>>(addedImages));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning($"Error in ImageController.GetImageAsync {ex.Message}");
+            return Problem();
+        }
     }
 
-    [HttpPut("update/order/{imageId}")]
-    public async Task<IActionResult> UpdateOrder(Guid imageId, double newOrder)
+    [HttpPut("order")]
+    public async Task<IActionResult> UpdateOrder([FromBody] UpdateOrderModel model, IValidator<UpdateOrderModel> validator)
     {
-        var result = await _imageService.UpdateOrderAsync(imageId, newOrder);
-        if (result == null) return BadRequest();
-        var dto = _mapper.Map<ImageDto>(result);
-        return Ok(dto);
+        try
+        {
+            var validationResult = await validator.ValidateAsync(model);
+            if (!validationResult.IsValid)
+            {
+                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
+            }
+            var result = await _imageService.UpdateOrderAsync(model.Id, model.NewOrder);
+            if (result == null) return BadRequest();
+            var dto = _mapper.Map<ImageDto>(result);
+            return Ok(dto);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning($"Error in ImageController.UpdateOrder {ex.Message}");
+            return Problem();
+        }
+
     }
-    [HttpDelete("Delete/{id}")]
-    public async Task<IActionResult> Delete(Guid id)
+
+    [HttpDelete("{imageId}")]
+    public async Task<IActionResult> DeleteImage(ImageIdModel model, IValidator<ImageIdModel> validator)
     {
-        EntityDeleteResult deleteResult = await _imageService.DeleteAndReorderAsync(id);
-        return deleteResult.IsSuccessful ? Ok() : NotFound();
+        try
+        {
+            var validationResult = await validator.ValidateAsync(model);
+            if (!validationResult.IsValid)
+            {
+                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
+            }
+            EntityDeleteResult deleteResult = await _imageService.DeleteAndReorderAsync(model.Id);
+            return deleteResult.IsSuccessful ? Ok() : NotFound();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning($"Error in ImageController.UpdateOrder {ex.Message}");
+            return Problem();
+        }
     }
 }

@@ -18,5 +18,8 @@ namespace Services.Abstract
         Task<EntityDeleteResult> DeleteAsync(Guid imageId);
         Task<int> DeleteImagesAsync(Guid productId);
         Task<EntityDeleteResult> DeleteAndReorderAsync(Guid id);
+        Task<Image?> GetAsNoTrackingAsync(Guid id);
+        Task<bool> ExistsAsync(Guid id);
+        Task<double> GetLastImageOrderAsync(Guid id);
     }
 }
