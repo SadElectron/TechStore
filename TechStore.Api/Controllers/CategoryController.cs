@@ -32,8 +32,8 @@ public class CategoryController : ControllerBase
 
 
     // READ
-    [HttpGet("Get/{Id}", Name = "GetCategory")]
-    public async Task<IActionResult> GetCategory([FromRoute] CategoryIdModel model, IValidator<CategoryIdModel> validator)
+    [HttpGet("{categoryId}", Name = "GetCategory")]
+    public async Task<IActionResult> GetCategory(CategoryIdModel model, IValidator<CategoryIdModel> validator)
     {
         try
         {
@@ -56,7 +56,7 @@ public class CategoryController : ControllerBase
 
     }
 
-    [HttpGet("Get/{Page}/{Count}")]
+    [HttpGet("{Page}/{Count}")]
     public async Task<IActionResult> GetCategories([FromRoute] GetCategoriesModel model, IValidator<GetCategoriesModel> validator)
     {
         try
@@ -88,7 +88,7 @@ public class CategoryController : ControllerBase
 
     }
 
-    [HttpGet("Get/full/{Page}/{Count}/{ProductPage}/{ProductCount}")]
+    [HttpGet("full/{Page}/{Count}/{ProductPage}/{ProductCount}")]
     public async Task<IActionResult> GetCategoriesFull([FromRoute] GetCategoriesFullModel model, IValidator<GetCategoriesFullModel> validator)
     {
         try
@@ -116,7 +116,7 @@ public class CategoryController : ControllerBase
 
     }
 
-    [HttpGet("Get/Count")]
+    [HttpGet("Count")]
     public async Task<IActionResult> GetCategoryCount()
     {
         try
@@ -132,8 +132,8 @@ public class CategoryController : ControllerBase
         }
     }
 
-    [HttpGet("Get/ProductCount/{Id}")]
-    public async Task<IActionResult> GetProductCount([FromRoute] CategoryIdModel model, IValidator<CategoryIdModel> validator)
+    [HttpGet("ProductCount/{categoryId}")]
+    public async Task<IActionResult> GetProductCount(CategoryIdModel model, IValidator<CategoryIdModel> validator)
     {
         try
         {
@@ -153,8 +153,8 @@ public class CategoryController : ControllerBase
         }
     }
 
-    [HttpGet("Get/PropertyCount/{Id}")]
-    public async Task<IActionResult> GetCategoryPropertyCount([FromRoute] CategoryIdModel model, IValidator<CategoryIdModel> validator)
+    [HttpGet("PropertyCount/{categoryId}")]
+    public async Task<IActionResult> GetCategoryPropertyCount(CategoryIdModel model, IValidator<CategoryIdModel> validator)
     {
         try
         {
@@ -227,8 +227,8 @@ public class CategoryController : ControllerBase
     }
 
     // DELETE
-    [HttpDelete("Delete/{Id}")]
-    public async Task<IActionResult> Delete([FromRoute] CategoryIdModel model, IValidator<CategoryIdModel> validator)
+    [HttpDelete("Delete/{categoryId}")]
+    public async Task<IActionResult> Delete(CategoryIdModel model, IValidator<CategoryIdModel> validator)
     {
         try
         {

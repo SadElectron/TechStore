@@ -53,7 +53,7 @@ public class DetailController : ControllerBase
         }
     }
 
-    [HttpGet("get/{Id}", Name = "GetDetail")]
+    [HttpGet("{Id}", Name = "GetDetail")]
     public async Task<IActionResult> GetDetail([FromRoute] DetailIdModel model, IValidator<DetailIdModel> validator)
     {
         try
@@ -76,8 +76,8 @@ public class DetailController : ControllerBase
         }
     }
 
-    [HttpGet("get/product/details/{Id}")]
-    public async Task<IActionResult> GetProductDetails([FromRoute] ProductIdModel model, IValidator<ProductIdModel> validator)
+    [HttpGet("product/details/{productId}")]
+    public async Task<IActionResult> GetProductDetails(ProductIdModel model, IValidator<ProductIdModel> validator)
     {
         try
         {
@@ -143,12 +143,12 @@ public class DetailController : ControllerBase
             }
             var ids = model.Select(m => m.Id).ToList();
             var existingDetails = await _detailService.GetByIdsAsync(ids);
-            
+            var timeNowUtc = DateTimeHelper.GetUtcNow();    
             foreach (var entity in existingDetails)
             {
                 var updateModel = model.Single(ue => ue.Id == entity.Id);
                 _mapper.Map(updateModel, entity);
-                entity.LastUpdate = DateTimeHelper.GetUtcNow();
+                entity.LastUpdate = timeNowUtc;
             }
 
             var updatedDetails = await _detailService.UpdateDetailsAsync(existingDetails);
