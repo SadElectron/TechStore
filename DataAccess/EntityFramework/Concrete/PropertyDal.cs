@@ -1,6 +1,7 @@
 ﻿using Core.DataAccess.EntityFramework.Concrete;
 using Core.Entities.Abstract;
 using Core.Entities.Concrete;
+using Core.Results;
 using DataAccess.EntityFramework.Abstract;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -20,25 +21,11 @@ public class PropertyDal : EfDbRepository<Property, EfDbContext>, IPropertyDal
     {
         _logger = logger;
     }
-    public async Task<Property> AddOrderedAsync(Property property)
-    {
-        using EfDbContext context = new EfDbContext();
 
-        Task<double> lastOrder = context.Properties.Where(p => p.CategoryId == property.CategoryId).OrderByDescending(c => c.RowOrder).Select(c => c.RowOrder).FirstOrDefaultAsync();
-
-        property.RowOrder = await lastOrder + 1;
-
-        var addedEntity = await context.Properties.AddAsync(property);
-        await context.SaveChangesAsync();
-
-        return addedEntity.Entity;
-
-    }
-    public Task<double> GetLastItemOrder()
+    public async Task<double> GetLastPropOrderAsync(Guid categoryId)
     {
         using var context = new EfDbContext();
-        return context.Properties.OrderBy(p => p.RowOrder).Select(p => p.RowOrder).LastOrDefaultAsync();
-
+        return await context.Properties.Where(p => p.CategoryId == categoryId).MaxAsync(p => (double?)p.PropOrder) ?? 0;
     }
 
     public async Task<List<Property>> GetProductFilters(Guid categoryId)
@@ -62,8 +49,35 @@ public class PropertyDal : EfDbRepository<Property, EfDbContext>, IPropertyDal
             .ToList();
         return result;
     }
+    public override async Task<EntityDeleteResult> DeleteAsync(Guid id)
+    {
+        using var context = new EfDbContext();
+        var transaction = context.Database.BeginTransaction();
+        var property = await context.Properties.FindAsync(id);
+        try
+        {
+            var rowOrder = property!.RowOrder;
+            var propOrder = property.PropOrder;
+            int result = await context.Properties.Where(p => p.Id == property.Id).ExecuteDeleteAsync();
+            if (result > 0)
+            {
+                await context.Properties.Where(p => p.RowOrder > rowOrder).ExecuteUpdateAsync(s => s.SetProperty(p => p.RowOrder, p => p.RowOrder - 1));
+                await context.Properties.Where(p => p.PropOrder > propOrder && p.CategoryId == property.CategoryId).ExecuteUpdateAsync(s => s.SetProperty(p => p.PropOrder, p => p.PropOrder - 1));
+                await transaction.CommitAsync();
+                return new EntityDeleteResult(true, "Property deleted successfully");
+            }
+            else
+            {
+                return new EntityDeleteResult(false, "Property not found");
+            }
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+            return new EntityDeleteResult(false, $"Something Went Wrong {ex.Message}");
+        }
+    }
 
-    
 }
 
 

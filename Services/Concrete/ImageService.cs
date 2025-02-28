@@ -62,18 +62,6 @@ namespace Services.Concrete
         {
             return _imageDal.UpdateImageOrderAsync(imageId, newOrder);
         }
-        public async Task<EntityDeleteResult> DeleteAsync(Guid id)
-        {
-            try
-            {
-                return await _imageDal.DeleteAsync(id);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning($"Error in ImageService.DeleteAsync {ex.Message}");
-                throw;
-            }
-        }
         public async Task<int> DeleteImagesAsync(Guid productId)
         {
 
@@ -82,12 +70,9 @@ namespace Services.Concrete
 
             return await _imageDal.DeleteImagesAsync(productId);
         }
-        public async Task<EntityDeleteResult> DeleteAndReorderAsync(Guid id)
+        public async Task<EntityDeleteResult> DeleteAsync(Guid id)
         {
-            var entity = await _imageDal.ExistsAsync(id);
-            if (!entity) return new EntityDeleteResult(false, "Entity not found");
-            var i = await _imageDal.DeleteAndReorderAsync(id);
-            return i > 0 ? new EntityDeleteResult(true, "Entity deleted") : new EntityDeleteResult(false, "Entity not deleted");
+            return await _imageDal.DeleteAsync(id);
         }
         public Task<bool> ExistsAsync(Guid id)
         {

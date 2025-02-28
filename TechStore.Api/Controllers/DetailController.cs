@@ -14,7 +14,7 @@ using TechStore.Api.Models.Product;
 namespace TechStore.Api.Controllers;
 
 [EnableCors("AllowSpecificOrigin")]
-[Route("api/v1/[controller]")]
+[Route("api/v1/details")]
 [ApiController]
 public class DetailController : ControllerBase
 {
@@ -54,7 +54,7 @@ public class DetailController : ControllerBase
     }
 
     [HttpGet("{Id}", Name = "GetDetail")]
-    public async Task<IActionResult> GetDetail([FromRoute] DetailIdModel model, IValidator<DetailIdModel> validator)
+    public async Task<IActionResult> GetDetail(DetailIdModel model, IValidator<DetailIdModel> validator)
     {
         try
         {

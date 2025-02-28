@@ -1,6 +1,7 @@
 ﻿using Core.DataAccess.EntityFramework.Concrete;
 using Core.Entities.Abstract;
 using Core.Entities.Concrete;
+using Core.Results;
 using Core.Utils;
 using DataAccess.EntityFramework.Abstract;
 using Microsoft.EntityFrameworkCore;
@@ -48,7 +49,7 @@ namespace DataAccess.EntityFramework.Concrete
                     .Select(i => i.RowOrder)
                     .FirstOrDefaultAsync();
 
-                // Fetch the last ImageOrder for the specific product
+                // Fetch the last ImageOrder for the specific image
                 double lastImageOrder = await context.Images
                     .Where(i => i.ProductId == productId)
                     .OrderByDescending(i => i.ImageOrder)
@@ -130,40 +131,34 @@ namespace DataAccess.EntityFramework.Concrete
                 throw;
             }
         }
-        public new async Task<int> DeleteAndReorderAsync(Guid id)
+        public override async Task<EntityDeleteResult> DeleteAsync(Guid id)
         {
             using var context = new EfDbContext();
-            await using var transaction = await context.Database.BeginTransactionAsync();
+            var transaction = context.Database.BeginTransaction();
+            var image = await context.Images.FindAsync(id);
             try
             {
-                var image = await context.Images
-                    .Where(e => e.Id == id)
-                    .Select(e => new { e.RowOrder, e.ImageOrder })
-                    .SingleOrDefaultAsync();
-
-                if (image == null)
+                var rowOrder = image!.RowOrder;
+                var imageOrder = image.ImageOrder;
+                int result = await context.Images.Where(i => i.Id == image.Id).ExecuteDeleteAsync();
+                if (result > 0)
                 {
-                    return 0; // Image not found, nothing to delete
+                    await context.Images.Where(i => i.RowOrder > rowOrder).ExecuteUpdateAsync(s => s.SetProperty(i => i.RowOrder, i => i.RowOrder - 1));
+                    await context.Images.Where(i => i.ImageOrder > imageOrder && i.ProductId == image.ProductId).ExecuteUpdateAsync(s => s.SetProperty(i => i.ImageOrder, i => i.ImageOrder - 1));
+                    await transaction.CommitAsync();
+                    return new EntityDeleteResult(true, "Image deleted successfully");
+                }
+                else
+                {
+                    return new EntityDeleteResult(false, "Image not found");
                 }
 
-                int deletedEntryCount = await context.Images.Where(p => p.Id == id).ExecuteDeleteAsync();
-                if (deletedEntryCount > 0)
-                {
-                    await context.Images.Where(e => e.RowOrder > image.RowOrder)
-                            .ExecuteUpdateAsync(s => s.SetProperty(e => e.RowOrder, e => e.RowOrder - 1));
-                    await context.Images.Where(e => e.ImageOrder > image.ImageOrder)
-                            .ExecuteUpdateAsync(s => s.SetProperty(e => e.ImageOrder, e => e.ImageOrder - 1));
-                }
 
-                await transaction.CommitAsync();
-
-                return deletedEntryCount;
             }
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                _logger.LogError(ex, "An error occurred while deleting and reordering images: {Message}", ex.Message);
-                throw;
+                return new EntityDeleteResult(false, $"Something Went Wrong {ex.Message}");
             }
         }
     }

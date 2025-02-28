@@ -15,9 +15,8 @@ namespace Services.Abstract
         Task<List<Image>> GetAllAsNoTrackingAsync(Guid productId);
         Task<IEnumerable<Image>> BulkAddAsync(ICollection<IFormFile> images, Guid productId);
         Task<Image?> UpdateOrderAsync(Guid imageId, double newOrder);
-        Task<EntityDeleteResult> DeleteAsync(Guid imageId);
         Task<int> DeleteImagesAsync(Guid productId);
-        Task<EntityDeleteResult> DeleteAndReorderAsync(Guid id);
+        Task<EntityDeleteResult> DeleteAsync(Guid id);
         Task<Image?> GetAsNoTrackingAsync(Guid id);
         Task<bool> ExistsAsync(Guid id);
         Task<double> GetLastImageOrderAsync(Guid id);

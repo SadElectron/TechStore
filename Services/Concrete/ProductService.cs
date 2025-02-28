@@ -74,9 +74,13 @@ public class ProductService : IProductService
     {
         return _productDal.GetAllAsNoTrackingAsync(p => EF.Functions.Like(p.ProductName, $"%{q}%"), p => p.RowOrder);
     }
-    public Task<double> GetLastProductOrderAsync()
+    public Task<double> GetLastProductOrderByProductIdAsync(Guid productId)
     {
-        return _productDal.GetLastProductOrderAsync();
+        return _productDal.GetLastProductOrderByProductIdAsync(productId);
+    }
+    public Task<double> GetLastProductOrderByCategoryIdAsync(Guid categoryId)
+    {
+        return _productDal.GetLastProductOrderByCategoryIdAsync(categoryId);
     }
     public Task<bool> ExistsAsync(Guid productId)
     {
@@ -85,7 +89,7 @@ public class ProductService : IProductService
     public async Task<EntityCreateResult<Product>> AddAsync(Product entity)
     {
         var timeNowUtc = DateTimeHelper.GetUtcNow();
-        entity.ProductOrder = await _productDal.GetLastProductOrderAsync() + 1;
+        entity.ProductOrder = await _productDal.GetLastProductOrderByCategoryIdAsync(entity.CategoryId) + 1;
         entity.RowOrder = await _productDal.GetLastOrderAsync() + 1;
         entity.SoldQuantity = 0;
         entity.LastUpdate = timeNowUtc;

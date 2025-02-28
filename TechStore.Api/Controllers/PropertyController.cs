@@ -1,96 +1,80 @@
 ﻿using AutoMapper;
 using Core.Dtos;
+using Core.Entities.Abstract;
 using Core.Entities.Concrete;
 using Core.Results;
+using FluentValidation;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Services.Abstract;
 using Services.Concrete;
+using System.ComponentModel.DataAnnotations;
+using TechStore.Api.Models.Property;
 
-namespace TechStore.Api.Models;
+namespace TechStore.Api.Controllers;
 
 [EnableCors("AllowSpecificOrigin")]
-[Route("api/v1/[controller]")]
+[Route("api/v1/properties")]
 [ApiController]
 public class PropertyController : ControllerBase
 {
     private readonly IPropertyService _propertyService;
     private readonly IMapper _mapper;
+    private readonly ILogger<PropertyController> _logger;
 
-    public PropertyController(IPropertyService productPropertyService, IMapper mapper)
+    public PropertyController(IPropertyService productPropertyService, IMapper mapper, ILogger<PropertyController> logger)
     {
         _propertyService = productPropertyService;
         _mapper = mapper;
+        _logger = logger;
     }
 
-    // CREATE
+    [HttpGet("{propertyId}", Name = "GetProperty")]
+    public async Task<IActionResult> GetProperty(PropertyIdModel model, IValidator<PropertyIdModel> validator)
+    {
+        try
+        {
+            var validationResult = await validator.ValidateAsync(model);
+            if (!validationResult.IsValid)
+            {
+                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
+            }
+
+            var entity = await _propertyService.GetAsNoTrackingAsync(model.Id);
+            var entityDto = _mapper.Map<PropertyDto>(entity);
+            return Ok(entityDto);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning($"Error in PropertyController.GetProperty {ex.Message}");
+            return Problem();
+        }
+    }
+
     [HttpPost("Create")]
-    public async Task<IActionResult> CreateProperty(Property entity)
+    public async Task<IActionResult> CreateProperty([FromBody] CreatePropertyModel model, IValidator<CreatePropertyModel> validator)
     {
-        var addedEntity = await _propertyService.AddAsync(entity);
-        return CreatedAtRoute("GetProperty", new { id = addedEntity.Id }, _mapper.Map<PropertyDto>(addedEntity));
-    }
-
-    // READ
-    [HttpGet("Get/{id}", Name = "GetProperty")]
-    public async Task<IActionResult> GetProperty(Guid id)
-    {
-        var entity = await _propertyService.GetAsync(id);
-        if (entity == null)
+        try
         {
-            return NotFound();
+            var validationResult = await validator.ValidateAsync(model);
+            if (!validationResult.IsValid)
+            {
+                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
+            }
+            var property = _mapper.Map<Property>(model);
+            EntityCreateResult<Property> result = await _propertyService.AddAsync(property);
+
+            return CreatedAtRoute("GetProperty", new { propertyId = result.Entity!.Id }, _mapper.Map<PropertyDto>(result.Entity));
         }
-
-        var entityDto = _mapper.Map<PropertyDto>(entity);
-        return Ok(entityDto);
-    }
-
-
-    [HttpGet("Get/Prop/Count/{categoryId}")]
-    public async Task<IActionResult> GetPropertyCount(Guid categoryId)
-    {
-
-        var count = await _propertyService.GetEntryCountAsync(categoryId);
-
-        return Ok(count);
-    }
-
-
-    [HttpGet("Get/properties/{categoryId}/{page}/{count}")]
-    public async Task<IActionResult> GetCategoryProperties(Guid categoryId, int page, int count)
-    {
-        var entities = await _propertyService.GetAllAsNoTrackingAsync(categoryId, page, count);
-        if (entities.Count == 0)
+        catch (Exception ex)
         {
-            return Ok(new List<PropertyDto>());
+            _logger.LogWarning($"Error in PropertyController.CreateProperty {ex.Message}");
+            return Problem();
         }
-
-        var dtoEntities = _mapper.Map<IEnumerable<PropertyDto>>(entities);
-
-        return Ok(dtoEntities);
-    }
-    [HttpGet("Get/properties/{categoryId}")]
-    public async Task<IActionResult> GetCategoryProperties(Guid categoryId)
-    {
-        var entities = await _propertyService.GetAllAsNoTrackingAsync(categoryId);
-        if (entities.Count == 0)
-        {
-            return NoContent();
-        }
-
-        var dtoEntities = _mapper.Map<IEnumerable<PropertyDto>>(entities);
-
-        return Ok(dtoEntities);
-    }
-    [HttpGet("get/lastorder")]
-    public async Task<IActionResult> GetLastItemOrder()
-    {
-        
-        var order = await _propertyService.GetLastItemOrder();
-        return Ok(order);
     }
 
-    // UPDATE
     [HttpPut("update")]
     public async Task<IActionResult> UpdateProperty(Property property)
     {
@@ -115,13 +99,24 @@ public class PropertyController : ControllerBase
         return Ok(updatedEntitiesMapped);
     }
 
-    // DELETE
-    [HttpDelete("Delete/{id}")]
-    public async Task<IActionResult> Delete(Guid id)
+    [HttpDelete("Delete/{propertyId}")]
+    public async Task<IActionResult> Delete(PropertyIdModel model, IValidator<PropertyIdModel> validator)
     {
-
-        EntityDeleteResult deleteResult = await _propertyService.DeleteAndReorderAsync(id);
-        return deleteResult.IsSuccessful ? Ok() : NotFound();
-
+        try
+        {
+            var validationResult = await validator.ValidateAsync(model);
+            if (!validationResult.IsValid)
+            {
+                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
+            }
+            EntityDeleteResult deleteResult = await _propertyService.DeleteAsync(model.Id);
+            return deleteResult.IsSuccessful ? Ok() : NotFound();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning($"Error in PropertyController.Delete {ex.Message}");
+            return Problem();
+        }
     }
 }

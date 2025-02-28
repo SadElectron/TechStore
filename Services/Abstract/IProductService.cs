@@ -26,7 +26,8 @@ namespace Services.Abstract
         Task<Product> UpdateAsync(Product entity);
         Task<EntityDeleteResult> DeleteAsync(Guid id);
         Task<bool> ExistsAsync(Guid productId);
-        Task<double> GetLastProductOrderAsync();
+        Task<double> GetLastProductOrderByCategoryIdAsync(Guid categoryId);
+        Task<double> GetLastProductOrderByProductIdAsync(Guid productId);
         Task<Product> UpdateProductOrderAsync(Guid id, double newOrder);
     }
 }

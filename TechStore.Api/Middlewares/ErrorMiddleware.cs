@@ -37,7 +37,7 @@ namespace TechStore.Api.Middlewares
             }
             catch (Exception ex)
             {
-                LogRequestDetails(context, $"An unexpected error occurred.");
+                LogRequestDetails(context, ex.Message);
                 await HandleExceptionAsync(context, ex, HttpStatusCode.InternalServerError, "An unexpected error occurred. Please try again later.");
             }
         }

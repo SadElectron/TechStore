@@ -16,7 +16,7 @@ using TechStore.Api.Models.Category;
 namespace TechStore.Api.Controllers;
 
 [EnableCors("AllowSpecificOrigin")]
-[Route("api/v1/[controller]")]
+[Route("api/v1/categories")]
 [ApiController]
 public class CategoryController : ControllerBase
 {
@@ -116,7 +116,7 @@ public class CategoryController : ControllerBase
 
     }
 
-    [HttpGet("Count")]
+    [HttpGet("count")]
     public async Task<IActionResult> GetCategoryCount()
     {
         try
@@ -132,7 +132,7 @@ public class CategoryController : ControllerBase
         }
     }
 
-    [HttpGet("ProductCount/{categoryId}")]
+    [HttpGet("{categoryId}/products/count")]
     public async Task<IActionResult> GetProductCount(CategoryIdModel model, IValidator<CategoryIdModel> validator)
     {
         try
@@ -153,7 +153,7 @@ public class CategoryController : ControllerBase
         }
     }
 
-    [HttpGet("PropertyCount/{categoryId}")]
+    [HttpGet("{categoryId}/property/count")]
     public async Task<IActionResult> GetCategoryPropertyCount(CategoryIdModel model, IValidator<CategoryIdModel> validator)
     {
         try
@@ -175,6 +175,29 @@ public class CategoryController : ControllerBase
         }
 
     }
+
+    [HttpGet("{categoryId}/properties/{page}/{count}")]
+    public async Task<IActionResult> GetCategoryProperties(GetCategoryPropertiesModel model, IValidator<GetCategoryPropertiesModel> validator, [FromServices]IPropertyService propertyService)
+    {
+        try
+        {
+            var validationResult = await validator.ValidateAsync(model);
+            if (!validationResult.IsValid)
+            {
+                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
+            }
+            var entities = await propertyService.GetAllAsNoTrackingAsync(model.CategoryId, model.Page, model.Count);
+            var dtoEntities = _mapper.Map<IEnumerable<PropertyDto>>(entities);
+            return Ok(dtoEntities);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning($"Error in CategoryController.GetCategoryProperties {ex.Message}");
+            return Problem();
+        }
+        
+    }
     // CREATE
     [HttpPost("Create")]
     public async Task<IActionResult> Create([FromBody] CreateCategoryModel model, IValidator<CreateCategoryModel> validator)
@@ -190,7 +213,7 @@ public class CategoryController : ControllerBase
             var category = _mapper.Map<Category>(model);
             EntityCreateResult<Category> result = await _categoryService.AddAsync(category);
             return result.IsSuccessful ?
-                CreatedAtRoute("GetCategory", new { id = result.Entity!.Id }, _mapper.Map<CategoryDto>(result.Entity)) :
+                CreatedAtRoute("GetCategory", new { categoryId = result.Entity!.Id }, _mapper.Map<CategoryDto>(result.Entity)) :
                 BadRequest();
         }
         catch (Exception ex)

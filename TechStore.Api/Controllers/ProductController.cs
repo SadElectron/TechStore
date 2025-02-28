@@ -12,7 +12,7 @@ using TechStore.Api.Models.Product;
 namespace TechStore.Api.Controllers;
 
 [EnableCors("AllowSpecificOrigin")]
-[Route("api/v1/[controller]")]
+[Route("api/v1/products")]
 [ApiController]
 public class ProductController : ControllerBase
 {
@@ -27,45 +27,49 @@ public class ProductController : ControllerBase
         _logger = logger;
     }
     // READ
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetProduct(Guid id)
+    [HttpGet("{productId}")]
+    public async Task<IActionResult> GetProduct(ProductIdModel model, IValidator<ProductIdModel> validator)
     {
         try
         {
-            var entity = await _productService.GetAsNoTrackingAsync(id);
-            if (entity == null)
-            {
-                return NotFound();
-            }
-            var dto = _mapper.Map<ProductDto>(entity);
-            return Ok(dto);
-        }
-        catch (Exception ex)
-        {
-
-            return BadRequest(new { message = ex.Message });
-        }
-
-    }
-
-    [HttpGet("{page}/{count}")]
-    public async Task<IActionResult> GetProducts(int page, int count, [FromServices] IValidator<(int, int)> validator)
-    {
-        try
-        {
-            var validationResult = await validator.ValidateAsync((page, count));
+            var validationResult = await validator.ValidateAsync(model);
             if (!validationResult.IsValid)
             {
                 var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
                 return BadRequest(new { message = "Validation failed.", errors = errorMessages });
             }
-            var entities = await _productService.GetAllAsync(page, count);
+
+            var entity = await _productService.GetAsNoTrackingAsync(model.Id);
+            var dto = _mapper.Map<ProductDto>(entity);
+            return Ok(dto);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning($"Error in ProductController.GetProduct {ex.Message}");
+            return Problem();
+        }
+
+    }
+
+    [HttpGet("{page}/{count}")]
+    public async Task<IActionResult> GetProducts(ProductPageModel model, [FromServices] IValidator<ProductPageModel> validator)
+    {
+        try
+        {
+            var validationResult = await validator.ValidateAsync(model);
+            if (!validationResult.IsValid)
+            {
+                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
+            }
+            var entities = await _productService.GetAllAsync(model.Page, model.Count);
             var dtos = _mapper.Map<ICollection<ProductDto>>(entities);
             return Ok(dtos);
         }
         catch (Exception ex)
         {
-            return BadRequest(new { message = ex.Message });
+            _logger.LogWarning($"Error in ProductController.GetProducts {ex.Message}");
+            return Problem();
         }
     }
 
@@ -79,30 +83,9 @@ public class ProductController : ControllerBase
         }
         catch (Exception ex)
         {
-            return BadRequest(new { message = ex.Message });
+            _logger.LogWarning($"Error in ProductController.GetEntryCount {ex.Message}");
+            return Problem();
         }
-    }
-
-    [HttpGet("Count/{categoryId}")]
-    public async Task<IActionResult> GetProductCount(Guid categoryId, [FromServices] IValidator<Guid> validator)
-    {
-        try
-        {
-            var validationResult = await validator.ValidateAsync(categoryId);
-            if (!validationResult.IsValid)
-            {
-                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
-            }
-            var productCount = await _productService.GetProductCountAsync(categoryId);
-            return Ok(productCount);
-        }
-        catch (Exception ex)
-        {
-
-            return BadRequest(new { message = ex.Message });
-        }
-
     }
 
     [HttpGet("{productId}/images")]
@@ -154,7 +137,7 @@ public class ProductController : ControllerBase
         {
 
             _logger.LogWarning($"Error in ProductController.CreateProduct {ex.Message}");
-            return BadRequest();
+            return Problem();
         }
 
     }
@@ -179,9 +162,10 @@ public class ProductController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogWarning($"Error in ProductController.UpdateProduct {ex.Message}");
-            return BadRequest();
+            return Problem();
         }
     }
+    
     [HttpPut("update/productorder")]
     public async Task<IActionResult> UpdateProductOrder([FromBody] UpdateProductOrderModel model, [FromServices] IValidator<UpdateProductOrderModel> validator)
     {
@@ -201,7 +185,7 @@ public class ProductController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogWarning($"Error in ProductController.UpdateProductOrder {ex.Message}");
-            return BadRequest();
+            return Problem();
         }
     }
 
@@ -223,7 +207,7 @@ public class ProductController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogWarning($"Error in ProductController.Delete {ex.Message}");
-            return BadRequest();
+            return Problem();
         }
     }
 }

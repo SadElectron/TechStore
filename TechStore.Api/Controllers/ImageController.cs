@@ -14,7 +14,7 @@ using TechStore.Api.Models.Product;
 namespace TechStore.Api.Models;
 
 [EnableCors("AllowSpecificOrigin")]
-[Route("api/v1/[controller]")]
+[Route("api/v1/images")]
 [ApiController]
 public class ImageController : ControllerBase
 {
@@ -108,7 +108,7 @@ public class ImageController : ControllerBase
                 var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
                 return BadRequest(new { message = "Validation failed.", errors = errorMessages });
             }
-            EntityDeleteResult deleteResult = await _imageService.DeleteAndReorderAsync(model.Id);
+            EntityDeleteResult deleteResult = await _imageService.DeleteAsync(model.Id);
             return deleteResult.IsSuccessful ? Ok() : NotFound();
         }
         catch (Exception ex)

@@ -2,6 +2,7 @@
 using Core.Results;
 using Core.Utils;
 using DataAccess.EntityFramework.Abstract;
+using DataAccess.EntityFramework.Concrete;
 using Services.Abstract;
 using System.Linq.Expressions;
 
@@ -10,57 +11,47 @@ namespace Services.Concrete;
 public class PropertyService : IPropertyService
 {
     private readonly IPropertyDal _propertyDal;
-
     public PropertyService(IPropertyDal PropertyDal)
     {
         _propertyDal = PropertyDal;
     }
-
-    public Task<Property> AddAsync(Property entity)
+    public async Task<EntityCreateResult<Property>> AddAsync(Property entity)
     {
-        entity.LastUpdate = DateTime.UtcNow;
-        return _propertyDal.AddOrderedAsync(entity);
+        var timeNowUtc = DateTimeHelper.GetUtcNow();
+        entity.RowOrder = await _propertyDal.GetLastOrderAsync() + 1;
+        entity.PropOrder = await _propertyDal.GetLastPropOrderAsync(entity.CategoryId) + 1;
+        entity.LastUpdate = timeNowUtc;
+        entity.CreatedAt = timeNowUtc;
+        return new EntityCreateResult<Property>(true, await _propertyDal.AddAsync(entity));
     }
-
-    public Task<int> DeleteAsync(Guid id)
-    {
-        return _propertyDal.DeleteAndReorderAsync(id);
-    }
-
     public Task<Property?> GetAsync(Guid id)
     {
         return _propertyDal.GetAsync(p => p.Id == id);
     }
-
     public Task<Property?> GetAsync(Expression<Func<Property, bool>> filter)
     {
         return _propertyDal.GetAsync(filter);
     }
-
+    public Task<Property?> GetAsNoTrackingAsync(Guid id)
+    {
+        return _propertyDal.GetAsNoTrackingAsync(p => p.Id == id);
+    }
     public Task<List<Property>> GetAllAsync(Guid categoryId, int page, int itemCount)
     {
-        return RepoUtils.IsPageAndCountCorrect(page, itemCount) ?
-            _propertyDal.GetAllAsync(p => p.CategoryId == categoryId, page, itemCount, p => p.RowOrder) :
-            Task.FromResult(new List<Property>());
-
+        return _propertyDal.GetAllAsync(p => p.CategoryId == categoryId, page, itemCount, p => p.RowOrder);
     }
     public Task<List<Property>> GetAllAsNoTrackingAsync(Guid categoryId, int page, int itemCount)
     {
-        return RepoUtils.IsPageAndCountCorrect(page, itemCount) ?
-            _propertyDal.GetAllAsNoTrackingAsync(p => p.CategoryId == categoryId, page, itemCount, p => p.RowOrder) :
-            Task.FromResult(new List<Property>());
-
+        return _propertyDal.GetAllAsNoTrackingAsync(p => p.CategoryId == categoryId, page, itemCount, p => p.RowOrder);
     }
     public Task<List<Property>> GetAllAsNoTrackingAsync(Guid categoryId)
     {
         return _propertyDal.GetAllAsNoTrackingAsync(p => p.CategoryId == categoryId, p => p.RowOrder);
     }
-
     public Task<int> GetEntryCountAsync()
     {
         return _propertyDal.GetEntryCountAsync();
     }
-
     public async Task<Property?> UpdateAsync(Property entityToUpdate)
     {
 
@@ -90,20 +81,14 @@ public class PropertyService : IPropertyService
         }
         return _propertyDal.UpdateAllAsync(properties);
     }
-
     public Task<int> GetEntryCountAsync(Guid categoryId)
     {
         return _propertyDal.GetEntryCountAsync(p => p.CategoryId == categoryId);
-    }
-    public Task<double> GetLastItemOrder()
-    {
-        return _propertyDal.GetLastItemOrder();
     }
     public Task<List<Property>> GetProductFilters(Guid categoryId)
     {
         return _propertyDal.GetProductFilters(categoryId);
     }
-
     public Task<bool> ExistsAsync(Expression<Func<Property, bool>> filter)
     {
         return _propertyDal.ExistsAsync(filter);
@@ -112,13 +97,8 @@ public class PropertyService : IPropertyService
     {
         return _propertyDal.ExistsAsync(id);
     }
-
-    public async Task<EntityDeleteResult> DeleteAndReorderAsync(Guid id)
+    public Task<EntityDeleteResult> DeleteAsync(Guid id)
     {
-        var entity = await _propertyDal.GetAsync(c => c.Id == id);
-        if (entity == null) return new EntityDeleteResult(false, "Entity not found");
-        var i = await _propertyDal.DeleteAndReorderAsync(id);
-        return i > 0 ? new EntityDeleteResult(true, "Entity deleted") : new EntityDeleteResult(false, "Entity not deleted");
-
+        return _propertyDal.DeleteAsync(id);
     }
 }

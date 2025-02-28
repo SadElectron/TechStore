@@ -6,19 +6,22 @@ namespace TechStore.Api.Models.Product;
 
 public class UpdateProductOrderModelValidator : AbstractValidator<UpdateProductOrderModel>
 {
-    private readonly IProductService _productService;
+
     public UpdateProductOrderModelValidator(IProductService productService)
     {
 
-        _productService = productService;
+
         RuleFor(p => p.Id)
+            .Cascade(CascadeMode.Stop)
             .NotEmpty().WithMessage("Product id is required and cannot be empty.")
-            .MustAsync(async (id, cancellationToken) =>
-                await _productService.ExistsAsync(id))
-            .WithMessage("Product not found.");
-        RuleFor(p => p.ProductOrder)
-            .GreaterThan(0).WithMessage("Product order must be greater than zero.")
-            .MustAsync(async (productOrder, cancellationToken) =>
-                productOrder <= await _productService.GetLastProductOrderAsync()).WithMessage("Product order must be lower or equal to last product order.");
+            .MustAsync(async (id, cancellationToken) => await productService.ExistsAsync(id)).WithMessage("Product not found.")
+            .DependentRules(() =>
+                {
+                    RuleFor(p => p.ProductOrder)
+                        .Cascade(CascadeMode.Stop)
+                        .GreaterThan(0).WithMessage("Product order must be greater than zero.")
+                        .MustAsync(async (model, productOrder, cancellationToken) => productOrder <= await productService.GetLastProductOrderByCategoryIdAsync(model.Id))
+                        .WithMessage("Product order must be lower or equal to last product order.");
+                });
     }
 }

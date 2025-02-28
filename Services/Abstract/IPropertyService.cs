@@ -12,7 +12,7 @@ namespace Services.Abstract
 {
     public interface IPropertyService
     {
-        Task<Property> AddAsync(Property entity);
+        Task<EntityCreateResult<Property>> AddAsync(Property entity);
         Task<List<Property>> GetAllAsync(Guid categoryId, int page, int itemCount);
         Task<Property?> GetAsync(Guid id);
         Task<Property?> GetAsync(Expression<Func<Property, bool>> filter);
@@ -22,10 +22,10 @@ namespace Services.Abstract
         Task UpdateAllAsync(List<Property> properties);
         Task<List<Property>> GetAllAsNoTrackingAsync(Guid categoryId, int page, int itemCount);
         Task<List<Property>> GetAllAsNoTrackingAsync(Guid categoryId);
-        Task<double> GetLastItemOrder();
         Task<List<Property>> GetProductFilters(Guid categoryId);
-        Task<EntityDeleteResult> DeleteAndReorderAsync(Guid id);
+        Task<EntityDeleteResult> DeleteAsync(Guid id);
         Task<bool> ExistsAsync(Expression<Func<Property, bool>> filter);
         Task<bool> ExistsAsync(Guid id);
+        Task<Property?> GetAsNoTrackingAsync(Guid id);
     }
 }
