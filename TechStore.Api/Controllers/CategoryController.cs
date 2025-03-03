@@ -236,7 +236,7 @@ public class CategoryController : ControllerBase
                 var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
                 return BadRequest(new { message = "Validation failed.", errors = errorMessages });
             }
-            var entity = await _categoryService.GetAsync(model.Id);
+            var entity = await _categoryService.GetAsNoTrackingAsync(model.Id);
             var category = _mapper.Map(model, entity);
             var updatedEntity = await _categoryService.UpdateAsync(category!);
             return Ok(_mapper.Map<CategoryMinimalDto>(updatedEntity));

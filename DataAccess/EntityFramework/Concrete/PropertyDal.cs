@@ -1,16 +1,10 @@
 ﻿using Core.DataAccess.EntityFramework.Concrete;
-using Core.Entities.Abstract;
 using Core.Entities.Concrete;
 using Core.Results;
+using Core.Utils;
 using DataAccess.EntityFramework.Abstract;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DataAccess.EntityFramework.Concrete;
 
@@ -27,7 +21,6 @@ public class PropertyDal : EfDbRepository<Property, EfDbContext>, IPropertyDal
         using var context = new EfDbContext();
         return await context.Properties.Where(p => p.CategoryId == categoryId).MaxAsync(p => (double?)p.PropOrder) ?? 0;
     }
-
     public async Task<List<Property>> GetProductFilters(Guid categoryId)
     {
         using var context = new EfDbContext();
@@ -48,6 +41,59 @@ public class PropertyDal : EfDbRepository<Property, EfDbContext>, IPropertyDal
             })
             .ToList();
         return result;
+    }
+    public async Task<double> GetLastPropOrderByPropertyIdAsync(Guid propertyId)
+    {
+        using EfDbContext context = new EfDbContext();
+
+        var categoryId = await context.Properties
+            .Where(p => p.Id == propertyId)
+            .Select(p => p.CategoryId)
+            .SingleOrDefaultAsync();
+        double? maxProductOrder = await context.Properties
+            .Where(p => p.CategoryId == categoryId)
+            .MaxAsync(p => (double?)p.PropOrder);
+
+        return maxProductOrder ?? 0;
+    }
+    public async Task<Property> UpdatePropOrderAsync(Guid propertyId, double newOrder)
+    {
+        using var context = new EfDbContext();
+        using var transaction = await context.Database.BeginTransactionAsync();
+        var timeNow = DateTimeHelper.GetUtcNow();
+        try
+        {
+            var property = await context.Properties.Where(p => p.Id == propertyId)
+                .Select(p => new { p.Id, p.PropOrder, p.CategoryId })
+                .SingleOrDefaultAsync();
+            if (property!.PropOrder < newOrder)
+            {
+                // Shift entities up
+                await context.Properties.Where(p => p.PropOrder > property.PropOrder && p.PropOrder <= newOrder && p.CategoryId == property.CategoryId)
+                    .ExecuteUpdateAsync(s => s.SetProperty(p => p.PropOrder, p => p.PropOrder - 1));
+                await context.Properties.Where(p => p.Id == propertyId).ExecuteUpdateAsync(s => s
+                    .SetProperty(p => p.PropOrder, Math.Floor(newOrder))
+                    .SetProperty(p => p.LastUpdate, timeNow));
+            }
+            else if (property.PropOrder > newOrder)
+            {
+                // Shift entities down
+                await context.Properties.Where(p => p.PropOrder < property.PropOrder && p.PropOrder >= newOrder && p.CategoryId == property.CategoryId)
+                    .ExecuteUpdateAsync(s => s.SetProperty(p => p.PropOrder, p => p.PropOrder + 1));
+                await context.Properties.Where(p => p.Id == propertyId).ExecuteUpdateAsync(s => s
+                    .SetProperty(p => p.PropOrder, Math.Ceiling(newOrder))
+                    .SetProperty(p => p.LastUpdate, timeNow));
+            }
+
+            await transaction.CommitAsync();
+            return (await context.Properties.FindAsync(property.Id))!;
+        }
+        catch(Exception ex)
+        {
+            await transaction.RollbackAsync();
+            _logger.LogError($"Error in PropertyDal.UpdatePropOrderAsync {ex.Message}");
+            throw;
+        }
     }
     public override async Task<EntityDeleteResult> DeleteAsync(Guid id)
     {

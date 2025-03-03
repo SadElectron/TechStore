@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using Services.Abstract;
 using TechStore.Api.Models.Property;
+using TechStore.Api.Validation.Utils;
 
 namespace TechStore.Api.Validation.Property;
 
@@ -21,15 +22,7 @@ public class CreatePropertyValidator : AbstractValidator<CreatePropertyModel>
                     .MinimumLength(2).WithMessage("Property name must be at least 2 characters long.")
                     .MaximumLength(50).WithMessage("Property name cannot be longer than 50 characters.")
                     .Matches(@"^[a-zA-Z0-9]+(?:\s[a-zA-Z0-9]+)*$").WithMessage("Property name can only contain alphanumeric characters and spaces.")
-                    .Must(x => !ContainsSuspiciousCharacters(x)).WithMessage("Property name contains invalid characters such as '--', single quotes, or semicolons.");
+                    .Must(x => !ValidationUtils.ContainsSuspiciousCharacters(x)).WithMessage("Property name contains invalid characters such as '--', single quotes, or semicolons.");
             });
-
-        
-
-    }
-    private bool ContainsSuspiciousCharacters(string input)
-    {
-        string[] forbiddenPatterns = { "--", ";", "'", "<script>" };
-        return forbiddenPatterns.Any(input.Contains);
     }
 }

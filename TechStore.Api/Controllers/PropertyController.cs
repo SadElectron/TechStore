@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Services.Abstract;
 using Services.Concrete;
-using System.ComponentModel.DataAnnotations;
 using TechStore.Api.Models.Property;
 
 namespace TechStore.Api.Controllers;
@@ -76,30 +75,53 @@ public class PropertyController : ControllerBase
     }
 
     [HttpPut("update")]
-    public async Task<IActionResult> UpdateProperty(Property property)
+    public async Task<IActionResult> UpdateProperty(UpdatePropertyModel model, IValidator<UpdatePropertyModel> validator)
     {
-        var addedEntity = await _propertyService.UpdateAsync(property);
-
-        if (addedEntity == null)
+        try
         {
-            return NoContent();
+            var validationResult = await validator.ValidateAsync(model);
+            if (!validationResult.IsValid)
+            {
+                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
+            }
+            var entity = await _propertyService.GetAsNoTrackingAsync(model.Id);
+            var property = _mapper.Map(model, entity);
+            var addedEntity = await _propertyService.UpdateAsync(property!);
+            var dto = _mapper.Map<PropertyDto>(addedEntity);
+            return Ok(dto);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning($"Error in PropertyController.UpdateProperty {ex.Message}");
+            return Problem();
+        }
+    }
+
+    [HttpPut("{propertyId}/proporder")]
+    public async Task<IActionResult> UpdateOrder(UpdatePropOrderModel model, IValidator<UpdatePropOrderModel> validator)
+    {
+        try
+        {
+            var validationResult = await validator.ValidateAsync(model);
+            if (!validationResult.IsValid)
+            {
+                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
+            }
+            var result = await _propertyService.UpdatePropOrderAsync(model.Id, model.PropOrder);
+            var dto = _mapper.Map<PropertyDto>(result);
+            return Ok(dto);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning($"Error in PropertyController.UpdateOrder {ex.Message}");
+            return Problem();
         }
 
-        return Ok(addedEntity);
     }
 
-    [HttpPut("Update/All")]
-    public async Task<IActionResult> UpdateProperties([FromForm] List<Property> properties)
-    {
-        await _propertyService.UpdateAllAsync(properties);
-
-        var count = await _propertyService.GetEntryCountAsync(properties[0].CategoryId);
-        var updatedEntities = await _propertyService.GetAllAsync(properties[0].CategoryId, 1, count);
-        var updatedEntitiesMapped = _mapper.Map<ICollection<PropertyDto>>(updatedEntities);
-        return Ok(updatedEntitiesMapped);
-    }
-
-    [HttpDelete("Delete/{propertyId}")]
+    [HttpDelete("{propertyId}/Delete")]
     public async Task<IActionResult> Delete(PropertyIdModel model, IValidator<PropertyIdModel> validator)
     {
         try

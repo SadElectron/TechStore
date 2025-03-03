@@ -16,10 +16,9 @@ namespace Services.Abstract
         Task<List<Property>> GetAllAsync(Guid categoryId, int page, int itemCount);
         Task<Property?> GetAsync(Guid id);
         Task<Property?> GetAsync(Expression<Func<Property, bool>> filter);
-        Task<Property?> UpdateAsync(Property entity);
+        Task<Property> UpdateAsync(Property entity);
         Task<int> GetEntryCountAsync();
         Task<int> GetEntryCountAsync(Guid categoryId);
-        Task UpdateAllAsync(List<Property> properties);
         Task<List<Property>> GetAllAsNoTrackingAsync(Guid categoryId, int page, int itemCount);
         Task<List<Property>> GetAllAsNoTrackingAsync(Guid categoryId);
         Task<List<Property>> GetProductFilters(Guid categoryId);
@@ -27,5 +26,7 @@ namespace Services.Abstract
         Task<bool> ExistsAsync(Expression<Func<Property, bool>> filter);
         Task<bool> ExistsAsync(Guid id);
         Task<Property?> GetAsNoTrackingAsync(Guid id);
+        Task<double> GetLastPropOrderByPropertyIdAsync(Guid id);
+        Task<Property> UpdatePropOrderAsync(Guid id, double newPropOrder);
     }
 }

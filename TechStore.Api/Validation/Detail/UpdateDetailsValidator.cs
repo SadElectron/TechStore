@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using Services.Abstract;
 using TechStore.Api.Models.Detail;
+using TechStore.Api.Validation.Utils;
 
 namespace TechStore.Api.Models.Detail;
 
@@ -19,9 +20,13 @@ public class UpdateDetailsValidator : AbstractValidator<List<UpdateDetailModel>>
                     .WithMessage(x => $"Detail id {x.Id} is not valid.");
 
                 detail.RuleFor(x => x.PropValue)
+                    .Cascade(CascadeMode.Stop)
                     .NotEmpty().WithMessage("PropValue is required.")
-                    .MinimumLength(3).WithMessage(x => $"PropValue {x.PropValue} must be at least 3 characters long.")
-                    .MaximumLength(100).WithMessage(x => $"PropValue {x.PropValue} must not exceed 100 characters.");
+                    .Equal(x => x.PropValue.Trim()).WithMessage("PropValue cannot have leading or trailing spaces.")
+                    .MinimumLength(3).WithMessage("PropValue must be at least 3 characters long.")
+                    .MaximumLength(50).WithMessage("PropValue cannot be longer than 50 characters.")
+                    .Matches(@"^[a-zA-Z0-9\-.\/]+(?:\s[a-zA-Z0-9\-.\/]+)*$").WithMessage("PropValue can only contain alphanumeric characters, spaces, hyphens, periods, and forward slashes.")
+                    .Must(x => !ValidationUtils.ContainsSuspiciousCharacters(x)).WithMessage("PropValue contains invalid characters such as '--', single quotes, or semicolons.");
             });
     }
 }

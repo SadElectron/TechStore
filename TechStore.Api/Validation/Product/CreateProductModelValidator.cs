@@ -4,6 +4,7 @@ using FluentValidation;
 using Microsoft.Win32;
 using Services.Abstract;
 using TechStore.Api.Models.Product;
+using TechStore.Api.Validation.Utils;
 
 public class CreateProductModelValidator : AbstractValidator<CreateProductModel>
 {
@@ -20,8 +21,13 @@ public class CreateProductModelValidator : AbstractValidator<CreateProductModel>
             .WithMessage("Category not found.");
 
         RuleFor(x => x.ProductName)
-            .NotEmpty().WithMessage("ProductName is required.")
-            .MinimumLength(2).WithMessage("ProductName must be at least 2 characters long.");
+            .Cascade(CascadeMode.Stop)
+            .NotEmpty().WithMessage("Product name is required.")
+            .Equal(x => x.ProductName.Trim()).WithMessage("Product name cannot have leading or trailing spaces.")
+            .MinimumLength(3).WithMessage("Product name must be at least 3 characters long.")
+            .MaximumLength(50).WithMessage("Product name cannot be longer than 50 characters.")
+            .Matches(@"^[a-zA-Z0-9]+(?:[\s\-/.][a-zA-Z0-9]+)*$").WithMessage("Product name can only contain alphanumeric characters and spaces.")
+            .Must(x => !ValidationUtils.ContainsSuspiciousCharacters(x)).WithMessage("Product name contains invalid characters such as '--', single quotes, or semicolons.");
 
         RuleFor(x => x.Stock)
             .GreaterThanOrEqualTo(1).WithMessage("Stock must be at least 1.");

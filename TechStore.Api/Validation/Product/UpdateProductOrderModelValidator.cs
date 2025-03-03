@@ -10,7 +10,6 @@ public class UpdateProductOrderModelValidator : AbstractValidator<UpdateProductO
     public UpdateProductOrderModelValidator(IProductService productService)
     {
 
-
         RuleFor(p => p.Id)
             .Cascade(CascadeMode.Stop)
             .NotEmpty().WithMessage("Product id is required and cannot be empty.")
@@ -20,7 +19,7 @@ public class UpdateProductOrderModelValidator : AbstractValidator<UpdateProductO
                     RuleFor(p => p.ProductOrder)
                         .Cascade(CascadeMode.Stop)
                         .GreaterThan(0).WithMessage("Product order must be greater than zero.")
-                        .MustAsync(async (model, productOrder, cancellationToken) => productOrder <= await productService.GetLastProductOrderByCategoryIdAsync(model.Id))
+                        .MustAsync(async (model, productOrder, cancellationToken) => productOrder <= await productService.GetLastProductOrderByProductIdAsync(model.Id))
                         .WithMessage("Product order must be lower or equal to last product order.");
                 });
     }

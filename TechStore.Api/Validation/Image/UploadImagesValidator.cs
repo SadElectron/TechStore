@@ -19,14 +19,18 @@ public class UploadImagesValidator : AbstractValidator<UploadImagesModel>
         RuleFor(x => x.Files)
             .Cascade(CascadeMode.Stop)
             .Must(files => files != null && files.Any()).WithMessage("No files provided.")
-            .Must(files => files.Count <= 5).WithMessage("A maximum of 5 files can be uploaded at once.");
+            .Must(files => files.Count <= 5).WithMessage("A maximum of 5 files can be uploaded at once.")
+            .DependentRules(() =>
+            {
+                 RuleForEach(x => x.Files)
+                    .Cascade(CascadeMode.Stop)
+                    .Must(file => file != null && file.Length > 0).WithMessage("Each file must be provided and non-empty.")
+                    .Must(file => file.Length <= MaxFileSize).WithMessage($"Each file must not exceed {MaxFileSize / (1024 * 1024)} MB.")
+                    .Must(file => file.ContentType.StartsWith("image/")).WithMessage("Each file must be an image.")
+                    .Must(file => AllowedFileTypes.Contains(Path.GetExtension(file.FileName).ToLower())).WithMessage("Each file must be a valid image format (.jpg, .jpeg, .png, .webp).");
+            });
 
-        RuleForEach(x => x.Files)
-            .Cascade(CascadeMode.Stop)
-            .Must(file => file != null && file.Length > 0).WithMessage("Each file must be provided and non-empty.")
-            .Must(file => file.Length <= MaxFileSize).WithMessage($"Each file must not exceed {MaxFileSize / (1024 * 1024)} MB.")
-            .Must(file => file.ContentType.StartsWith("image/")).WithMessage("Each file must be an image.")
-            .Must(file => AllowedFileTypes.Contains(Path.GetExtension(file.FileName).ToLower())).WithMessage("Each file must be a valid image format (.jpg, .jpeg, .png, .webp).");
+
 
     }
 }

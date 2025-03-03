@@ -194,7 +194,6 @@ public class ProductDal : EfDbRepository<Product, EfDbContext>, IProductDal
         using EfDbContext context = new EfDbContext();
         return await context.Products.Where(p => p.CategoryId == categoryId).MaxAsync(p => (double?)p.ProductOrder) ?? 0;
     }
-
     public async Task<Product> UpdateProductOrderAsync(Guid productId, double newOrder)
     {
         using var context = new EfDbContext();

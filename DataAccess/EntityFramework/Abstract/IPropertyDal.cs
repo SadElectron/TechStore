@@ -11,7 +11,9 @@ namespace DataAccess.EntityFramework.Abstract
 {
     public interface IPropertyDal : IEfDbRepository<Property>
     {
+        Task<double> GetLastPropOrderByPropertyIdAsync(Guid propertyId);
         Task<double> GetLastPropOrderAsync(Guid categoryId);
         Task<List<Property>> GetProductFilters(Guid categoryId);
+        Task<Property> UpdatePropOrderAsync(Guid id, double newPropOrder);
     }
 }

@@ -100,12 +100,11 @@ public class ProductService : IProductService
     }
     public async Task<Product> UpdateAsync(Product entity)
     {
-        var oldEntity = await _productDal.GetAsNoTrackingAsync(p => p.Id == entity.Id);
         return await _productDal.UpdateAsync(entity);
     }
-    public async Task<Product> UpdateProductOrderAsync(Guid id, double newOrder)
+    public Task<Product> UpdateProductOrderAsync(Guid id, double newOrder)
     {
-        return await _productDal.UpdateProductOrderAsync(id, newOrder);
+        return _productDal.UpdateProductOrderAsync(id, newOrder);
     }
     public Task<EntityDeleteResult> DeleteAsync(Guid id)
     {

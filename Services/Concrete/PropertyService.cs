@@ -52,34 +52,9 @@ public class PropertyService : IPropertyService
     {
         return _propertyDal.GetEntryCountAsync();
     }
-    public async Task<Property?> UpdateAsync(Property entityToUpdate)
+    public Task<Property> UpdateAsync(Property entity)
     {
-
-        var entity = await _propertyDal.GetAsNoTrackingAsync(p => p.Id == entityToUpdate.Id);
-
-
-        if (entity == null)
-        {
-            //log id mismatch
-            return null;
-        }
-        entityToUpdate.CategoryId = entity.CategoryId;
-        var dbResult = await _propertyDal.UpdateAsync(entityToUpdate);
-        if (dbResult == null)
-        {
-            //Log db fail
-        }
-        return dbResult;
-
-
-    }
-    public Task UpdateAllAsync(List<Property> properties)
-    {
-        foreach (var property in properties)
-        {
-            property.LastUpdate = DateTime.UtcNow;
-        }
-        return _propertyDal.UpdateAllAsync(properties);
+       return _propertyDal.UpdateAsync(entity);
     }
     public Task<int> GetEntryCountAsync(Guid categoryId)
     {
@@ -88,6 +63,10 @@ public class PropertyService : IPropertyService
     public Task<List<Property>> GetProductFilters(Guid categoryId)
     {
         return _propertyDal.GetProductFilters(categoryId);
+    }
+    public Task<double> GetLastPropOrderByPropertyIdAsync(Guid id)
+    {
+        return _propertyDal.GetLastPropOrderByPropertyIdAsync(id);
     }
     public Task<bool> ExistsAsync(Expression<Func<Property, bool>> filter)
     {
@@ -100,5 +79,9 @@ public class PropertyService : IPropertyService
     public Task<EntityDeleteResult> DeleteAsync(Guid id)
     {
         return _propertyDal.DeleteAsync(id);
+    }
+    public Task<Property> UpdatePropOrderAsync(Guid id, double newPropOrder)
+    {
+        return _propertyDal.UpdatePropOrderAsync(id, newPropOrder);
     }
 }

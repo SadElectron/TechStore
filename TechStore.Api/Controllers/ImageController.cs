@@ -85,7 +85,6 @@ public class ImageController : ControllerBase
                 return BadRequest(new { message = "Validation failed.", errors = errorMessages });
             }
             var result = await _imageService.UpdateOrderAsync(model.Id, model.NewOrder);
-            if (result == null) return BadRequest();
             var dto = _mapper.Map<ImageDto>(result);
             return Ok(dto);
         }

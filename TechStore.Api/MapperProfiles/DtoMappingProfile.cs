@@ -28,7 +28,8 @@ namespace TechStore.Api.MapperProfiles
             CreateMap<Property, PropertyDto>();
             CreateMap<Property, CustomerProductFiltersDto>().ForMember( d=> d.Values, opt => opt.MapFrom( src => src.Details));
             CreateMap<CreatePropertyModel, Property>();
-                
+            CreateMap<UpdatePropertyModel, Property>();
+
             CreateMap<Detail, DetailDto>()
                 .ForMember(ddto => ddto.PropName, opt => opt.MapFrom(d => d.Property!.PropName))
                 .ForMember(ddto => ddto.RowOrder, opt => opt.MapFrom(d => d.Property!.PropOrder));
