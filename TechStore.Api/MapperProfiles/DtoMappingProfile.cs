@@ -1,8 +1,7 @@
 ﻿using AutoMapper;
-using AutoMapper.Collection;
 using AutoMapper.EquivalencyExpression;
-using Core.Dtos;
 using Core.Entities.Concrete;
+using TechStore.Api.Dtos;
 using TechStore.Api.Models.Category;
 using TechStore.Api.Models.Detail;
 using TechStore.Api.Models.Product;
@@ -20,7 +19,7 @@ namespace TechStore.Api.MapperProfiles
             CreateMap<Category, CustomerCategoryDto>();
             CreateMap<CreateCategoryModel, Category>();
             CreateMap<UpdateCategoryModel, Category>().ForMember(c => c.CreatedAt, opt => opt.Ignore());
-            CreateMap<Product, CustomerProductDto>();
+            
             CreateMap<Detail, CustomerDetailDto>().ForMember(cddto => cddto.PropName, opt => opt.MapFrom(d => d.Property!.PropName));
             CreateMap<Image, CustomerImageDto>();
             CreateMap<Image, ImageDto>();
@@ -43,11 +42,23 @@ namespace TechStore.Api.MapperProfiles
             CreateMap<Detail, DetailMinimalDto>();
 
             CreateMap<Product, ProductDto>();
+            CreateMap<Product, CustomerProductDto>()
+            .ForMember(dest => dest.Details, opt => opt.MapFrom(src => src.Details
+                .OrderBy(d => d.Property!.PropOrder) 
+                .Select(d => new CustomerDetailDto
+                {
+                    PropName = d.Property!.PropName,
+                    PropValue = d.PropValue
+                }).ToList()))
+            .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images
+                .OrderBy(i => i.ImageOrder) 
+                .Select(i => new CustomerImageDto
+                {
+                    File = i.File
+                }).ToList()));
             CreateMap<ProductDto, Product>().ForMember(p => p.Category, opt => opt.Ignore());
             CreateMap<CreateProductModel, Product>();
             CreateMap<UpdateProductModel, Product>();
-            
-
         }
     }
 }

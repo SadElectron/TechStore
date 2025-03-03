@@ -1,16 +1,11 @@
 ﻿using AutoMapper;
-using Core.Dtos;
 using Core.Entities.Concrete;
 using Core.Results;
 using FluentValidation;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services.Abstract;
-using Services.Concrete;
-using System.ComponentModel.DataAnnotations;
-using System.Reflection.Metadata.Ecma335;
+using TechStore.Api.Dtos;
 using TechStore.Api.Models.Category;
 
 namespace TechStore.Api.Controllers;
@@ -250,7 +245,7 @@ public class CategoryController : ControllerBase
     }
 
     // DELETE
-    [HttpDelete("Delete/{categoryId}")]
+    [HttpDelete("{categoryId}")]
     public async Task<IActionResult> Delete(CategoryIdModel model, IValidator<CategoryIdModel> validator)
     {
         try

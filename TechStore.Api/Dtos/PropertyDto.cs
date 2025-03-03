@@ -1,6 +1,6 @@
 ﻿using Core.Entities.Concrete;
 
-namespace Core.Dtos;
+namespace TechStore.Api.Dtos;
 
 public class PropertyDto
 {

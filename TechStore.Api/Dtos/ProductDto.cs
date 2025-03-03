@@ -1,5 +1,5 @@
 ﻿
-namespace Core.Dtos;
+namespace TechStore.Api.Dtos;
 
 public class ProductDto
 {

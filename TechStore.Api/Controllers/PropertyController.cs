@@ -1,13 +1,11 @@
 ﻿using AutoMapper;
-using Core.Dtos;
-using Core.Entities.Abstract;
 using Core.Entities.Concrete;
 using Core.Results;
 using FluentValidation;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Services.Abstract;
-using Services.Concrete;
+using TechStore.Api.Dtos;
 using TechStore.Api.Models.Property;
 
 namespace TechStore.Api.Controllers;
@@ -121,7 +119,7 @@ public class PropertyController : ControllerBase
 
     }
 
-    [HttpDelete("{propertyId}/Delete")]
+    [HttpDelete("{propertyId}")]
     public async Task<IActionResult> Delete(PropertyIdModel model, IValidator<PropertyIdModel> validator)
     {
         try

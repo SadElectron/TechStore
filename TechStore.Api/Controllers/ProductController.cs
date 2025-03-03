@@ -1,11 +1,11 @@
 using AutoMapper;
-using Core.Dtos;
 using Core.Entities.Concrete;
 using Core.Results;
 using FluentValidation;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Services.Abstract;
+using TechStore.Api.Dtos;
 using TechStore.Api.Models.Product;
 
 
@@ -189,8 +189,8 @@ public class ProductController : ControllerBase
         }
     }
 
-    [HttpDelete("Delete")]
-    public async Task<IActionResult> Delete([FromBody] DeleteProductModel model, [FromServices] IValidator<DeleteProductModel> validator)
+    [HttpDelete("{productId}")]
+    public async Task<IActionResult> Delete(DeleteProductModel model, [FromServices] IValidator<DeleteProductModel> validator)
     {
 
         try

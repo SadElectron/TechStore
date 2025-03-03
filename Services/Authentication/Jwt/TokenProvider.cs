@@ -21,7 +21,7 @@ namespace Services.Authentication.Jwt
         public string Create(User user)
         {
             var secretKey = _configuration["Jwt:Secret"];
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey!));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
             var tokenDescriptor = new SecurityTokenDescriptor
             {

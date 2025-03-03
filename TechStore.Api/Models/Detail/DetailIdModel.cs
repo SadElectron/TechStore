@@ -4,6 +4,6 @@ namespace TechStore.Api.Models.Detail;
 
 public class DetailIdModel
 {
-    [FromRoute]
+    [FromRoute(Name = "detailId")]
     public Guid Id { get; set; }
 }

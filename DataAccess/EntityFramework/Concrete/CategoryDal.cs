@@ -1,17 +1,8 @@
 ﻿using Core.DataAccess.EntityFramework.Concrete;
-using Core.Dtos;
-using Core.Entities.Abstract;
 using Core.Entities.Concrete;
-using Core.Utils;
 using DataAccess.EntityFramework.Abstract;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DataAccess.EntityFramework.Concrete;
 

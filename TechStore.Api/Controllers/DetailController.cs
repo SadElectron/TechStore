@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Core.Dtos;
 using Core.Entities.Concrete;
 using Core.Results;
 using Core.Utils;
@@ -7,7 +6,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Services.Abstract;
-using System.ComponentModel.DataAnnotations;
+using TechStore.Api.Dtos;
 using TechStore.Api.Models.Detail;
 using TechStore.Api.Models.Product;
 
@@ -162,8 +161,8 @@ public class DetailController : ControllerBase
         }
     }
 
-    [HttpDelete("delete/{Id}")]
-    public async Task<IActionResult> Delete([FromRoute] DetailIdModel model, IValidator<DetailIdModel> validator)
+    [HttpDelete("{detailId}")]
+    public async Task<IActionResult> Delete(DetailIdModel model, IValidator<DetailIdModel> validator)
     {
         try
         {

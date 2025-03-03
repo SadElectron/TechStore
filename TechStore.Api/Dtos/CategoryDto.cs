@@ -4,12 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Core.Dtos;
+namespace TechStore.Api.Dtos;
 
-public class CategoryMinimalDto
+public class CategoryDto
 {
     public Guid Id { get; set; }
-    public double RowOrder { get; set; }
-    public required string CategoryName { get; set; }
+    public int RowOrder { get; set; }
+    public string CategoryName { get; set; } = string.Empty;
+    public int ProductCount { get; set; }
     public DateTime LastUpdate { get; set; }
 }

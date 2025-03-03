@@ -1,15 +1,11 @@
 ﻿using AutoMapper;
-using Core.Dtos;
 using Core.Results;
 using FluentValidation;
 using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services.Abstract;
-using Services.Concrete;
-using System.ComponentModel.DataAnnotations;
+using TechStore.Api.Dtos;
 using TechStore.Api.Models.Image;
-using TechStore.Api.Models.Product;
 
 namespace TechStore.Api.Models;
 

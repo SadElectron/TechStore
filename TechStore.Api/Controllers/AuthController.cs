@@ -1,14 +1,9 @@
-﻿using Core.Dtos;
-using Core.Entities.Concrete;
+﻿using Core.Entities.Concrete;
 using Core.Results;
-using Core.Utils;
-using DataAccess.Migrations;
 using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Services.Abstract;
-using Services.Authentication.Jwt;
+using TechStore.Api.Dtos;
 
 namespace TechStore.Api.Models;
 

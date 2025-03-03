@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-namespace Core.Dtos;
+namespace TechStore.Api.Dtos;
 
 public class ImagesDto
 {

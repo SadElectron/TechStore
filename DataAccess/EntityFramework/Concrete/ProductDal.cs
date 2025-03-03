@@ -1,5 +1,4 @@
 ﻿using Core.DataAccess.EntityFramework.Concrete;
-using Core.Dtos;
 using Core.Entities.Concrete;
 using Core.RequestModels;
 using Core.Results;
@@ -19,24 +18,15 @@ public class ProductDal : EfDbRepository<Product, EfDbContext>, IProductDal
     {
         _logger = logger;
     }
-    public Task<CustomerProductDto?> GetFullForCustomer(Guid productId)
+    public async Task<Product?> GetFullForCustomer(Guid productId)
     {
         using EfDbContext context = new EfDbContext();
-        var product = context.Products.Where(p => p.Id == productId).Select(p => new CustomerProductDto
-        {
-            Id = p.Id,
-            ProductName = p.ProductName,
-            Stock = p.Stock,
-            Details = p.Details.OrderBy(d => d.RowOrder).Select(d => new CustomerDetailDto
-            {
-                PropName = d.Property!.PropName,
-                PropValue = d.PropValue
-
-            }).ToList(),
-            Images = p.Images.OrderBy(i => i.RowOrder).Select(i => new CustomerImageDto { File = i.File }).ToList(),
-            Price = p.Price
-
-        }).AsNoTracking().SingleOrDefaultAsync();
+        var product = await context.Products
+            .Include(p => p.Details)
+            .ThenInclude(d => d.Property) // Include related Property for Details
+            .Include(p => p.Images)
+            .AsNoTracking()
+            .SingleOrDefaultAsync(p => p.Id == productId);
         return product;
 
     }

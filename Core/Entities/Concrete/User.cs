@@ -15,7 +15,7 @@ namespace Core.Entities.Concrete
         public string Role { get; set; } = string.Empty;
         public bool Verified { get; set; } = true;
 
-        public List<UserData> UserDataList { get; set; }
+        public List<UserData> UserDataList { get; set; } = new List<UserData>();
 
     }
 }

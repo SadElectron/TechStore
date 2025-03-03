@@ -4,6 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Core.Dtos;
+namespace TechStore.Api.Dtos;
 
 public record UserDto(string Email, string UserName, string Password);

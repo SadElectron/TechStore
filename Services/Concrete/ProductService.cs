@@ -1,5 +1,4 @@
-﻿using Core.Dtos;
-using Core.Entities.Concrete;
+﻿using Core.Entities.Concrete;
 using Core.RequestModels;
 using DataAccess.EntityFramework.Abstract;
 using Microsoft.EntityFrameworkCore;
@@ -46,7 +45,7 @@ public class ProductService : IProductService
     {
         return _productDal.GetAsNoTrackingAsync(p => p.Id == id);
     }
-    public Task<CustomerProductDto?> GetFullForCustomer(Guid productId)
+    public Task<Product?> GetFullForCustomer(Guid productId)
     {
         return _productDal.GetFullForCustomer(productId);
     }

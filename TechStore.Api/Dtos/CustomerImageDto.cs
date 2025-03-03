@@ -5,10 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Core.Dtos
+namespace TechStore.Api.Dtos;
+
+public class CustomerImageDto
 {
-    public class CustomerImageDto
-    {
-        public required byte[] File { get; set; }
-    }
+    public required byte[] File { get; set; }
 }
