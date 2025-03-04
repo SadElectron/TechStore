@@ -76,18 +76,18 @@ public class DetailController : ControllerBase
     }
 
     [HttpGet("product/details/{productId}")]
-    public async Task<IActionResult> GetProductDetails(ProductIdModel model, IValidator<ProductIdModel> validator)
+    public async Task<IActionResult> GetProductDetails(Guid productId, ProductIdValidator validator)
     {
         try
         {
 
-            var validationResult = await validator.ValidateAsync(model);
+            var validationResult = await validator.ValidateAsync(productId);
             if (!validationResult.IsValid)
             {
                 var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
                 return BadRequest(new { message = "Validation failed.", errors = errorMessages });
             }
-            var propertyValue = await _detailService.GetProductDetailsAsync(model.Id);
+            var propertyValue = await _detailService.GetProductDetailsAsync(productId);
             if (propertyValue.Count == 0)
             {
                 return NotFound();

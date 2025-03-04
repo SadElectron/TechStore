@@ -28,17 +28,17 @@ public class CategoryController : ControllerBase
 
     // READ
     [HttpGet("{categoryId}", Name = "GetCategory")]
-    public async Task<IActionResult> GetCategory(CategoryIdModel model, IValidator<CategoryIdModel> validator)
+    public async Task<IActionResult> GetCategory(Guid categoryId, CategoryIdValidator validator)
     {
         try
         {
-            var validationResult = await validator.ValidateAsync(model);
+            var validationResult = await validator.ValidateAsync(categoryId);
             if (!validationResult.IsValid)
             {
                 var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
                 return BadRequest(new { message = "Validation failed.", errors = errorMessages });
             }
-            var category = await _categoryService.GetAsNoTrackingAsync(model.Id);
+            var category = await _categoryService.GetAsNoTrackingAsync(categoryId);
             var categoryMinimalDto = _mapper.Map<CategoryMinimalDto>(category);
             return Ok(categoryMinimalDto);
         }
@@ -128,17 +128,17 @@ public class CategoryController : ControllerBase
     }
 
     [HttpGet("{categoryId}/products/count")]
-    public async Task<IActionResult> GetProductCount(CategoryIdModel model, IValidator<CategoryIdModel> validator)
+    public async Task<IActionResult> GetProductCount(Guid categoryId, CategoryIdValidator validator)
     {
         try
         {
-            var validationResult = await validator.ValidateAsync(model);
+            var validationResult = await validator.ValidateAsync(categoryId);
             if (!validationResult.IsValid)
             {
                 var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
                 return BadRequest(new { message = "Validation failed.", errors = errorMessages });
             }
-            var count = await _categoryService.GetProductCountAsync(model.Id);
+            var count = await _categoryService.GetProductCountAsync(categoryId);
             return Ok(count);
         }
         catch (Exception ex)
@@ -149,17 +149,17 @@ public class CategoryController : ControllerBase
     }
 
     [HttpGet("{categoryId}/property/count")]
-    public async Task<IActionResult> GetCategoryPropertyCount(CategoryIdModel model, IValidator<CategoryIdModel> validator)
+    public async Task<IActionResult> GetCategoryPropertyCount(Guid categoryId, CategoryIdValidator validator)
     {
         try
         {
-            var validationResult = await validator.ValidateAsync(model);
+            var validationResult = await validator.ValidateAsync(categoryId);
             if (!validationResult.IsValid)
             {
                 var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
                 return BadRequest(new { message = "Validation failed.", errors = errorMessages });
             }
-            var count = await _categoryService.GetPropertyCount(model.Id);
+            var count = await _categoryService.GetPropertyCount(categoryId);
             return Ok(count);
         }
         catch (Exception ex)
@@ -246,17 +246,17 @@ public class CategoryController : ControllerBase
 
     // DELETE
     [HttpDelete("{categoryId}")]
-    public async Task<IActionResult> Delete(CategoryIdModel model, IValidator<CategoryIdModel> validator)
+    public async Task<IActionResult> Delete(Guid categoryId, CategoryIdValidator validator)
     {
         try
         {
-            var validationResult = await validator.ValidateAsync(model);
+            var validationResult = await validator.ValidateAsync(categoryId);
             if (!validationResult.IsValid)
             {
                 var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
                 return BadRequest(new { message = "Validation failed.", errors = errorMessages });
             }
-            EntityDeleteResult deleteResult = await _categoryService.DeleteAndReorderAsync(model.Id);
+            EntityDeleteResult deleteResult = await _categoryService.DeleteAndReorderAsync(categoryId);
             return deleteResult.IsSuccessful ? Ok() : NotFound();
         }
         catch (Exception ex)

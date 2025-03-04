@@ -1,11 +1,17 @@
 ﻿using AutoMapper;
+using Core.Entities.Concrete;
 using Core.RequestModels;
 using FluentValidation;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Services.Abstract;
+using System.ComponentModel.DataAnnotations;
 using TechStore.Api.Dtos;
+using TechStore.Api.Models.Category;
+using TechStore.Api.Models.Customer;
 using TechStore.Api.Models.Product;
+using TechStore.Api.Models.Validation;
+using TechStore.Api.Validation.Utils;
 
 namespace TechStore.Api.Models;
 
@@ -27,19 +33,19 @@ public class CustomerController : ControllerBase
         _imageService = imageService;
     }
 
-
     [HttpGet("product/{productId}")]
-    public async Task<IActionResult> GetProduct(ProductIdModel model, IValidator<ProductIdModel> validator)
+    public async Task<IActionResult> GetProduct(Guid productId, ProductIdValidator validator)
     {
         try
         {
-            var validationResult = await validator.ValidateAsync(model);
+            var validationResult = await validator.ValidateAsync(productId);
             if (!validationResult.IsValid)
             {
                 var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
                 return BadRequest(new { message = "Validation failed.", errors = errorMessages });
             }
-            var product = await _productService.GetFullForCustomer(model.Id);
+
+            var product = await _productService.GetFullForCustomer(productId);
             var dto = _mapper.Map<CustomerProductDto>(product);
             return Ok(dto);
         }
@@ -52,31 +58,62 @@ public class CustomerController : ControllerBase
     }
 
     [HttpGet("product/count/{categoryId}")]
-    public async Task<IActionResult> GetProductCount(Guid categoryId = default)
+    public async Task<IActionResult> GetProductCount(Guid categoryId, CategoryIdValidator validator)
     {
-        int count = await _productService.GetProductCountAsync(categoryId);
+        try
+        {
+            var validationResult = await validator.ValidateAsync(categoryId);
+            if (!validationResult.IsValid)
+            {
+                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
+            }
+            return Ok(await _productService.GetProductCountAsync(categoryId));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning($"Error in CustomerController.GetProductCount: {ex.Message}");
+            return Problem();
+        }
 
-        return Ok(count);
     }
+
     [HttpPost("product/filtered/count/{categoryId}")]
-    public async Task<IActionResult> GetProductFilteredCount([FromBody] List<ProductFilterModel> filters, Guid categoryId = default)
+    public async Task<IActionResult> GetProductFilteredCount(ProductFilteredCountModel model, IValidator<ProductFilteredCountModel> validator)
     {
-        int count = await _productService.GetFilteredCountAsync(filters, categoryId);
+        var validationResult = await validator.ValidateAsync(model);
+        if (!validationResult.IsValid)
+        {
+            var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+            return BadRequest(new { message = "Validation failed.", errors = errorMessages });
+        }
+        int count = await _productService.GetFilteredCountAsync(model.Filters, model.CategoryId);
 
         return Ok(count);
     }
 
     [HttpGet("products/{categoryId}/{page}/{itemCount}")]
-    public async Task<IActionResult> GetProducts(Guid categoryId, int page = 1, int itemCount = 10)
+    public async Task<IActionResult> GetProducts(GetProductsModel model, IValidator<GetProductsModel> validator)
     {
-        var products = await _productService.GetAllWithImagesAsync(page, itemCount, categoryId);
-        if (products.Count == 0)
+        try
         {
-            return NoContent();
+            var validationResult = await validator.ValidateAsync(model);
+            if (!validationResult.IsValid)
+            {
+                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
+            }
+            var products = await _productService.GetAllWithImagesAsync(model.Page, model.ItemCount, model.CategoryId);
+            var customerProductDtos = _mapper.Map<ICollection<CustomerProductDto>>(products);
+            return Ok(customerProductDtos);
         }
-        var customerProductDtos = _mapper.Map<ICollection<CustomerProductDto>>(products);
-        return Ok(customerProductDtos);
+        catch (Exception ex)
+        {
+            _logger.LogWarning($"Error in CustomerController.GetProducts: {ex.Message}");
+            return Problem();
+        }
     }
+
     [HttpGet("products")]
     public async Task<IActionResult> Search([FromQuery] string q)
     {
@@ -93,6 +130,7 @@ public class CustomerController : ControllerBase
         var filters = _mapper.Map<ICollection<CustomerProductFiltersDto>>(productFilters);
         return Ok(filters);
     }
+
     [HttpPost("products/filtered/{categoryId}/{page}/{itemCount}")]
     public async Task<IActionResult> GetProductsFiltered([FromBody] List<ProductFilterModel> filters, Guid categoryId = default, int page = 1, int itemCount = 10)
     {

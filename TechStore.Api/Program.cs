@@ -19,6 +19,9 @@ using System.Text.Json.Serialization;
 using TechStore.Api.MapperProfiles;
 using TechStore.Api.Middlewares;
 using TechStore.Api.Models.Product;
+using TechStore.Api.Validation.Utils;
+using Microsoft.AspNetCore.Mvc;
+using TechStore.Api.Models.Abstract;
 
 namespace TechStore.Api
 {
@@ -123,8 +126,7 @@ namespace TechStore.Api
             builder.Services.AddScoped<IImageDal, ImageDal>();
             builder.Services.AddScoped<IAuthDal, AuthDal>();
             builder.Services.AddScoped<IRefreshTokenDal, RefreshTokenDal>();
-
-
+            builder.Services.AddScoped(typeof(GenericValidator<,>));
 
             var app = builder.Build();
             // Configure the HTTP request pipeline.

@@ -28,18 +28,18 @@ public class ProductController : ControllerBase
     }
     // READ
     [HttpGet("{productId}")]
-    public async Task<IActionResult> GetProduct(ProductIdModel model, IValidator<ProductIdModel> validator)
+    public async Task<IActionResult> GetProduct(Guid productId, ProductIdValidator validator)
     {
         try
         {
-            var validationResult = await validator.ValidateAsync(model);
+            var validationResult = await validator.ValidateAsync(productId);
             if (!validationResult.IsValid)
             {
                 var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
                 return BadRequest(new { message = "Validation failed.", errors = errorMessages });
             }
 
-            var entity = await _productService.GetAsNoTrackingAsync(model.Id);
+            var entity = await _productService.GetAsNoTrackingAsync(productId);
             var dto = _mapper.Map<ProductDto>(entity);
             return Ok(dto);
         }
@@ -89,17 +89,17 @@ public class ProductController : ControllerBase
     }
 
     [HttpGet("{productId}/images")]
-    public async Task<IActionResult> GetProductImages(ProductIdModel model, IValidator<ProductIdModel> validator, [FromServices]IImageService imageService)
+    public async Task<IActionResult> GetProductImages(Guid productId, ProductIdValidator validator, [FromServices]IImageService imageService)
     {
         try
         {
-            var validationResult = await validator.ValidateAsync(model);
+            var validationResult = await validator.ValidateAsync(productId);
             if (!validationResult.IsValid)
             {
                 var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
                 return BadRequest(new { message = "Validation failed.", errors = errorMessages });
             }
-            var images = await imageService.GetAllAsNoTrackingAsync(model.Id);
+            var images = await imageService.GetAllAsNoTrackingAsync(productId);
             if (images.Count == 0) return NotFound();
             var imageDtos = _mapper.Map<List<ImageDto>>(images);
             return Ok(imageDtos);
@@ -190,18 +190,18 @@ public class ProductController : ControllerBase
     }
 
     [HttpDelete("{productId}")]
-    public async Task<IActionResult> Delete(DeleteProductModel model, [FromServices] IValidator<DeleteProductModel> validator)
+    public async Task<IActionResult> Delete(Guid productId, ProductIdValidator validator)
     {
 
         try
         {
-            var validationResult = await validator.ValidateAsync(model);
+            var validationResult = await validator.ValidateAsync(productId);
             if (!validationResult.IsValid)
             {
                 var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
                 return BadRequest(new { message = "Validation failed.", errors = errorMessages });
             }
-            EntityDeleteResult deleteResult = await _productService.DeleteAsync(model.Id);
+            EntityDeleteResult deleteResult = await _productService.DeleteAsync(productId);
             return deleteResult.IsSuccessful ? Ok() : NotFound();
         }
         catch (Exception ex)

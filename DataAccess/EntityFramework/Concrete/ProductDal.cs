@@ -152,16 +152,16 @@ public class ProductDal : EfDbRepository<Product, EfDbContext>, IProductDal
     public Task<int> GetFilteredCountAsync(List<ProductFilterModel> filters, Guid categoryId)
     {
         using var context = new EfDbContext();
-        var query = context.Products.Where(p => p.CategoryId == categoryId).AsQueryable();
+        var products = context.Products.Where(p => p.CategoryId == categoryId).AsQueryable();
 
         foreach (var filter in filters)
         {
             string filterKey = filter.FilterKey;
             List<string> filterValues = filter.FilterValues;
-            query = query.Where(p => p.Details.Any(d => d.Property!.PropName == filterKey && filterValues.Contains(d.PropValue)));
+            products = products.Where(p => p.Details.Any(d => d.Property!.PropName == filterKey && filterValues.Contains(d.PropValue)));
         }
 
-        var productCount = query.CountAsync();
+        var productCount = products.CountAsync();
 
         return productCount;
     }
