@@ -36,6 +36,10 @@ public class CategoryService : ICategoryService
     {
         return _categoryDal.GetAllAsNoTrackingAsync(page, itemCount, c => c.RowOrder);
     }
+    public Task<List<Category>> GetAllAsNoTrackingAsync(int page, int itemCount)
+    {
+        return _categoryDal.GetAllAsNoTrackingAsync( page, itemCount, c => c.RowOrder);
+    }
 
     public Task<Category?> GetAsync(Guid id)
     {
@@ -95,4 +99,6 @@ public class CategoryService : ICategoryService
 
         return await _categoryDal.ExistsAsync(filter);
     }
+
+   
 }

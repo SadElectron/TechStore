@@ -15,6 +15,7 @@ public interface ICategoryService
     Task<EntityCreateResult<Category>> AddAsync(Category entity);
     Task<List<Category>> GetAllAsync();
     Task<List<Category>> GetAllAsync(int page, int itemCount);
+    Task<List<Category>> GetAllAsNoTrackingAsync(int page, int itemCount);
     Task<Category?> GetAsync(Guid id);
     Task<Category?> GetAsync(Expression<Func<Category, bool>> filter);
     Task<int> GetEntryCountAsync();

@@ -1,14 +1,13 @@
 ﻿using FluentValidation;
-using Services.Abstract;
 using System.ComponentModel.DataAnnotations;
 using TechStore.Api.Models.Category;
 using TechStore.Api.Models.Customer;
 
 namespace TechStore.Api.Validation.Customer;
 
-public class ProductFilteredCountValidator : AbstractValidator<ProductFilteredCountModel>
+public class GetProductsFilteredValidator : AbstractValidator<GetProductsFilteredModel>
 {
-    public ProductFilteredCountValidator(ICategoryService categoryService, IValidator<CategoryIdModel> validator)
+    public GetProductsFilteredValidator(IValidator<CategoryIdModel> validator)
     {
         RuleFor(x => x.CategoryId)
             .Cascade(CascadeMode.Stop)
@@ -20,6 +19,14 @@ public class ProductFilteredCountValidator : AbstractValidator<ProductFilteredCo
                     context.AddFailure(result.Errors.First());
                 }
             });
+
+        RuleFor(x => x.Page)
+            .GreaterThan(0).WithMessage("Page number must be greater than 0.");
+
+        RuleFor(x => x.ItemCount)
+            .GreaterThan(0).WithMessage("Count must be greater than 0.")
+            .LessThanOrEqualTo(50).WithMessage("Count must not exceed 50.");
+
         RuleForEach(x => x.Filters).SetValidator(new ProductFilterValidator());
     }
 }

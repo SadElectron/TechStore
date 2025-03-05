@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Services.Abstract;
 using TechStore.Api.Dtos;
+using TechStore.Api.Filters.Validation;
 using TechStore.Api.Models.Product;
 
 
@@ -28,18 +29,12 @@ public class ProductController : ControllerBase
     }
     // READ
     [HttpGet("{productId}")]
-    public async Task<IActionResult> GetProduct(Guid productId, ProductIdValidator validator)
+    [TypeFilter(typeof(ValidateByModelFilter<ProductIdModel>))]
+    public async Task<IActionResult> GetProduct(ProductIdModel model, ProductIdValidator validator)
     {
         try
         {
-            var validationResult = await validator.ValidateAsync(productId);
-            if (!validationResult.IsValid)
-            {
-                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
-            }
-
-            var entity = await _productService.GetAsNoTrackingAsync(productId);
+            var entity = await _productService.GetAsNoTrackingAsync(model.Id);
             var dto = _mapper.Map<ProductDto>(entity);
             return Ok(dto);
         }
@@ -48,7 +43,6 @@ public class ProductController : ControllerBase
             _logger.LogWarning($"Error in ProductController.GetProduct {ex.Message}");
             return Problem();
         }
-
     }
 
     [HttpGet("{page}/{count}")]
@@ -89,24 +83,18 @@ public class ProductController : ControllerBase
     }
 
     [HttpGet("{productId}/images")]
-    public async Task<IActionResult> GetProductImages(Guid productId, ProductIdValidator validator, [FromServices]IImageService imageService)
+    [TypeFilter(typeof(ValidateByModelFilter<ProductIdModel>))]
+    public async Task<IActionResult> GetProductImages(ProductIdModel model, [FromServices] IImageService imageService)
     {
         try
         {
-            var validationResult = await validator.ValidateAsync(productId);
-            if (!validationResult.IsValid)
-            {
-                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
-            }
-            var images = await imageService.GetAllAsNoTrackingAsync(productId);
+            var images = await imageService.GetAllAsNoTrackingAsync(model.Id);
             if (images.Count == 0) return NotFound();
             var imageDtos = _mapper.Map<List<ImageDto>>(images);
             return Ok(imageDtos);
         }
         catch (Exception ex)
         {
-
             _logger.LogWarning($"Error in ImageController.GetAll {ex.Message}");
             return Problem();
         }
@@ -165,7 +153,7 @@ public class ProductController : ControllerBase
             return Problem();
         }
     }
-    
+
     [HttpPut("update/productorder")]
     public async Task<IActionResult> UpdateProductOrder([FromBody] UpdateProductOrderModel model, [FromServices] IValidator<UpdateProductOrderModel> validator)
     {
@@ -190,18 +178,12 @@ public class ProductController : ControllerBase
     }
 
     [HttpDelete("{productId}")]
-    public async Task<IActionResult> Delete(Guid productId, ProductIdValidator validator)
+    [TypeFilter(typeof(ValidateByModelFilter<ProductIdModel>))]
+    public async Task<IActionResult> Delete(ProductIdModel model)
     {
-
         try
         {
-            var validationResult = await validator.ValidateAsync(productId);
-            if (!validationResult.IsValid)
-            {
-                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
-            }
-            EntityDeleteResult deleteResult = await _productService.DeleteAsync(productId);
+            EntityDeleteResult deleteResult = await _productService.DeleteAsync(model.Id);
             return deleteResult.IsSuccessful ? Ok() : NotFound();
         }
         catch (Exception ex)

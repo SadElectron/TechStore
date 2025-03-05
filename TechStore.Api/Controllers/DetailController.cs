@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Services.Abstract;
 using TechStore.Api.Dtos;
+using TechStore.Api.Filters.Validation;
 using TechStore.Api.Models.Detail;
 using TechStore.Api.Models.Product;
 
@@ -76,18 +77,12 @@ public class DetailController : ControllerBase
     }
 
     [HttpGet("product/details/{productId}")]
-    public async Task<IActionResult> GetProductDetails(Guid productId, ProductIdValidator validator)
+    [TypeFilter(typeof(ValidateByModelFilter<ProductIdModel>))]
+    public async Task<IActionResult> GetProductDetails(ProductIdModel model)
     {
         try
         {
-
-            var validationResult = await validator.ValidateAsync(productId);
-            if (!validationResult.IsValid)
-            {
-                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
-            }
-            var propertyValue = await _detailService.GetProductDetailsAsync(productId);
+            var propertyValue = await _detailService.GetProductDetailsAsync(model.Id);
             if (propertyValue.Count == 0)
             {
                 return NotFound();
