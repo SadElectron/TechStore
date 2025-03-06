@@ -4,9 +4,9 @@ using TechStore.Api.Models.Image;
 
 namespace TechStore.Api.Validation.Image;
 
-public class UpdateOrderValidator : AbstractValidator<UpdateOrderModel>
+public class UpdateImageOrderValidator : AbstractValidator<UpdateImageOrderModel>
 {
-    public UpdateOrderValidator(IImageService imageService)
+    public UpdateImageOrderValidator(IImageService imageService)
     {
         RuleFor(x => x.Id)
             .Cascade(CascadeMode.Stop)

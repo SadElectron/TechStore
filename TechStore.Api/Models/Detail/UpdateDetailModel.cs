@@ -1,6 +1,8 @@
-﻿namespace TechStore.Api.Models.Detail;
+﻿using TechStore.Api.Models.Abstract;
 
-public class UpdateDetailModel
+namespace TechStore.Api.Models.Detail;
+
+public class UpdateDetailModel : IValidationModel
 {
     public Guid Id { get; set; }
     public required string PropValue { get; set; }

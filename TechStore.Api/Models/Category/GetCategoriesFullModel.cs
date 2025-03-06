@@ -1,6 +1,8 @@
-﻿namespace TechStore.Api.Models.Category;
+﻿using TechStore.Api.Models.Abstract;
 
-public class GetCategoriesFullModel
+namespace TechStore.Api.Models.Category;
+
+public class GetCategoriesFullModel : IValidationModel
 {
     public int Page { get; set; }
     public int Count { get; set; }

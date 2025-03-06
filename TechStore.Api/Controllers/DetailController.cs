@@ -30,16 +30,11 @@ public class DetailController : ControllerBase
     }
 
     [HttpPost("create")]
-    public async Task<IActionResult> Create(CreateDetailModel model, IValidator<CreateDetailModel> validator)
+    [TypeFilter(typeof(ValidateByModelFilter<CreateDetailModel>))]
+    public async Task<IActionResult> Create(CreateDetailModel model)
     {
         try
         {
-            var validationResult = await validator.ValidateAsync(model);
-            if (!validationResult.IsValid)
-            {
-                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
-            }
             var detail = _mapper.Map<Detail>(model);
             EntityCreateResult<Detail> result = await _detailService.AddAsync(detail);
             return result.IsSuccessful ?
@@ -54,18 +49,11 @@ public class DetailController : ControllerBase
     }
 
     [HttpGet("{Id}", Name = "GetDetail")]
-    public async Task<IActionResult> GetDetail(DetailIdModel model, IValidator<DetailIdModel> validator)
+    [TypeFilter(typeof(ValidateByModelFilter<DetailIdModel>))]
+    public async Task<IActionResult> GetDetail(DetailIdModel model)
     {
         try
         {
-
-            var validationResult = await validator.ValidateAsync(model);
-            if (!validationResult.IsValid)
-            {
-                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
-            }
-
             var propertyValue = await _detailService.GetAsNoTrackingAsync(model.Id);
             return Ok(_mapper.Map<DetailMinimalDto>(propertyValue));
         }
@@ -76,38 +64,12 @@ public class DetailController : ControllerBase
         }
     }
 
-    [HttpGet("product/details/{productId}")]
-    [TypeFilter(typeof(ValidateByModelFilter<ProductIdModel>))]
-    public async Task<IActionResult> GetProductDetails(ProductIdModel model)
-    {
-        try
-        {
-            var propertyValue = await _detailService.GetProductDetailsAsync(model.Id);
-            if (propertyValue.Count == 0)
-            {
-                return NotFound();
-            }
-            var dtos = _mapper.Map<List<DetailDto>>(propertyValue);
-            return Ok(dtos);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning($"Error in DetailController.GetProductDetails {ex.Message}");
-            return Problem();
-        }
-    }
-
     [HttpPut("update")]
-    public async Task<IActionResult> Update(UpdateDetailModel model, IValidator<UpdateDetailModel> validator)
+    [TypeFilter(typeof(ValidateByModelFilter<UpdateDetailModel>))]
+    public async Task<IActionResult> Update(UpdateDetailModel model)
     {
         try
         {
-            var validationResult = await validator.ValidateAsync(model);
-            if (!validationResult.IsValid)
-            {
-                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
-            }
             var entityToUpdate = await _detailService.GetAsync(model.Id);
             var detail = _mapper.Map(model, entityToUpdate);
             EntityUpdateResult<Detail> result = await _detailService.UpdateAsync(detail!);
@@ -125,16 +87,11 @@ public class DetailController : ControllerBase
     }
 
     [HttpPut("update/product/details")]
-    public async Task<IActionResult> Update([FromBody]List<UpdateDetailModel> model, IValidator<List<UpdateDetailModel>> validator)
+    [TypeFilter(typeof(ValidateByModelFilter<List<UpdateDetailModel>>))]
+    public async Task<IActionResult> Update([FromBody]List<UpdateDetailModel> model)
     {
         try
         {
-            var validationResult = await validator.ValidateAsync(model);
-            if (!validationResult.IsValid)
-            {
-                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
-            }
             var ids = model.Select(m => m.Id).ToList();
             var existingDetails = await _detailService.GetByIdsAsync(ids);
             var timeNowUtc = DateTimeHelper.GetUtcNow();    
@@ -157,16 +114,11 @@ public class DetailController : ControllerBase
     }
 
     [HttpDelete("{detailId}")]
-    public async Task<IActionResult> Delete(DetailIdModel model, IValidator<DetailIdModel> validator)
+    [TypeFilter(typeof(ValidateByModelFilter<DetailIdModel>))]
+    public async Task<IActionResult> Delete(DetailIdModel model)
     {
         try
         {
-            var validationResult = await validator.ValidateAsync(model);
-            if (!validationResult.IsValid)
-            {
-                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
-            }
             EntityDeleteResult deleteResult = await _detailService.DeleteAndReorderAsync(model.Id);
             return deleteResult.IsSuccessful ? Ok() : NotFound();
         }

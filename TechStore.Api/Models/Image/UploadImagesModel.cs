@@ -1,6 +1,8 @@
-﻿namespace TechStore.Api.Models.Image;
+﻿using TechStore.Api.Models.Abstract;
 
-public class UploadImagesModel
+namespace TechStore.Api.Models.Image;
+
+public class UploadImagesModel : IValidationModel
 {
     public Guid ProductId { get; set; }
     public required List<IFormFile> Files { get; set; } 

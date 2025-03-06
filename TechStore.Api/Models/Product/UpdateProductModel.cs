@@ -1,6 +1,8 @@
-﻿namespace TechStore.Api.Models.Product;
+﻿using TechStore.Api.Models.Abstract;
 
-public class UpdateProductModel
+namespace TechStore.Api.Models.Product;
+
+public class UpdateProductModel : IValidationModel
 {
     public Guid Id { get; set; }
     public required string ProductName { get; set; }

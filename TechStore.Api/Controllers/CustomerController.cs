@@ -1,19 +1,12 @@
 ﻿using AutoMapper;
-using Core.Entities.Concrete;
-using Core.RequestModels;
-using FluentValidation;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Services.Abstract;
-using System.ComponentModel.DataAnnotations;
 using TechStore.Api.Dtos;
 using TechStore.Api.Filters.Validation;
 using TechStore.Api.Models.Category;
 using TechStore.Api.Models.Customer;
 using TechStore.Api.Models.Product;
-using TechStore.Api.Models.Validation;
-using TechStore.Api.Validation.Customer;
-using TechStore.Api.Validation.Utils;
 
 namespace TechStore.Api.Models;
 

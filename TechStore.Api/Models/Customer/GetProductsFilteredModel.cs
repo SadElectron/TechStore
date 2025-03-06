@@ -1,10 +1,11 @@
 ﻿using Core.RequestModels;
 using Microsoft.AspNetCore.Mvc;
 using System.Xml.Linq;
+using TechStore.Api.Models.Abstract;
 
 namespace TechStore.Api.Models.Customer;
 
-public class GetProductsFilteredModel
+public class GetProductsFilteredModel : IValidationModel
 {
     [FromRoute(Name = "categoryId")]
     public Guid CategoryId { get; set; }

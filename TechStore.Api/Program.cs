@@ -22,6 +22,8 @@ using TechStore.Api.Models.Product;
 using TechStore.Api.Validation.Utils;
 using Microsoft.AspNetCore.Mvc;
 using TechStore.Api.Models.Abstract;
+using static System.Net.Mime.MediaTypeNames;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace TechStore.Api
 {
@@ -97,10 +99,29 @@ namespace TechStore.Api
             builder.Services.AddControllers(options =>
             {
                 options.ModelValidatorProviders.Clear();
+            }).ConfigureApiBehaviorOptions(options =>
+            {
+                options.InvalidModelStateResponseFactory = actionContext =>
+                {
+                    var errorMessages = actionContext.ModelState
+                        .Where(e => e.Value.Errors.Count > 0)
+                        .SelectMany(e => e.Value.Errors)
+                        .Select(e => e.ErrorMessage)
+                        .ToList();
+
+                    var errorResponse = new
+                    {
+                        message = "Validation failed.",
+                        errors = errorMessages
+                    };
+
+                    return new BadRequestObjectResult(errorResponse);
+                };
             });
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
             builder.Services.AddAutoMapper(cfg =>
             {
                 cfg.AddCollectionMappers();

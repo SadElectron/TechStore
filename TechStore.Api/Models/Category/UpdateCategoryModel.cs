@@ -1,9 +1,10 @@
-﻿namespace TechStore.Api.Models.Category
+﻿using TechStore.Api.Models.Abstract;
+
+namespace TechStore.Api.Models.Category
 {
-    public class UpdateCategoryModel
+    public class UpdateCategoryModel : IValidationModel
     {
         public Guid Id { get; set; }
-        public double RowOrder { get; set; }
         public string CategoryName { get; set; } = string.Empty;
     }
 }

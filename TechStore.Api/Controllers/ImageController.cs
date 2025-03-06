@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Services.Abstract;
 using TechStore.Api.Dtos;
+using TechStore.Api.Filters.Validation;
 using TechStore.Api.Models.Image;
 
 namespace TechStore.Api.Models;
@@ -26,16 +27,11 @@ public class ImageController : ControllerBase
     }
 
     [HttpGet("{imageId}")]
-    public async Task<IActionResult> GetImage(ImageIdModel model, IValidator<ImageIdModel> validator)
+    [TypeFilter(typeof(ValidateByModelFilter<ImageIdModel>))]
+    public async Task<IActionResult> GetImage(ImageIdModel model)
     {
         try
         {
-            var validationResult = await validator.ValidateAsync(model);
-            if (!validationResult.IsValid)
-            {
-                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
-            }
             var image = await _imageService.GetAsNoTrackingAsync(model.Id);
             if (image == null) return NotFound();
             var dto = _mapper.Map<ImageDto>(image);
@@ -49,16 +45,11 @@ public class ImageController : ControllerBase
     }
 
     [HttpPost("create")]
-    public async Task<IActionResult> UploadImage([FromForm] UploadImagesModel model, IValidator<UploadImagesModel> validator)
+    [TypeFilter(typeof(ValidateByModelFilter<UploadImagesModel>))]
+    public async Task<IActionResult> UploadImage([FromForm] UploadImagesModel model)
     {
         try
         {
-            var validationResult = await validator.ValidateAsync(model);
-            if (!validationResult.IsValid)
-            {
-                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
-            }
             var addedImages = await _imageService.BulkAddAsync(model.Files, model.ProductId);
             return Ok(_mapper.Map<List<ImageDto>>(addedImages));
         }
@@ -70,16 +61,11 @@ public class ImageController : ControllerBase
     }
 
     [HttpPut("order")]
-    public async Task<IActionResult> UpdateOrder([FromBody] UpdateOrderModel model, IValidator<UpdateOrderModel> validator)
+    [TypeFilter(typeof(ValidateByModelFilter<UpdateImageOrderModel>))]
+    public async Task<IActionResult> UpdateOrder([FromBody] UpdateImageOrderModel model)
     {
         try
         {
-            var validationResult = await validator.ValidateAsync(model);
-            if (!validationResult.IsValid)
-            {
-                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
-            }
             var result = await _imageService.UpdateOrderAsync(model.Id, model.NewOrder);
             var dto = _mapper.Map<ImageDto>(result);
             return Ok(dto);
@@ -93,16 +79,11 @@ public class ImageController : ControllerBase
     }
 
     [HttpDelete("{imageId}")]
-    public async Task<IActionResult> DeleteImage(ImageIdModel model, IValidator<ImageIdModel> validator)
+    [TypeFilter(typeof(ValidateByModelFilter<ImageIdModel>))]
+    public async Task<IActionResult> DeleteImage(ImageIdModel model)
     {
         try
         {
-            var validationResult = await validator.ValidateAsync(model);
-            if (!validationResult.IsValid)
-            {
-                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
-            }
             EntityDeleteResult deleteResult = await _imageService.DeleteAsync(model.Id);
             return deleteResult.IsSuccessful ? Ok() : NotFound();
         }

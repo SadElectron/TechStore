@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using TechStore.Api.Models.Abstract;
 
 namespace TechStore.Api.Models.Product;
 
-public class ProductPageModel
+public class ProductPageModel : IValidationModel
 {
     [FromRoute(Name = "page")]
     public int Page { get; set; }

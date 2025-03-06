@@ -1,12 +1,9 @@
 ﻿using Core.RequestModels;
 using Microsoft.AspNetCore.Mvc;
+using TechStore.Api.Models.Abstract;
 
 namespace TechStore.Api.Models.Customer;
-//[FromBody] FilterAndSortModel filterAndSort,
-//Guid categoryId = default,
-//int page = 1,
-//int itemCount = 10
-public class GetProductsFilteredAndSortedModel
+public class GetProductsFilteredAndSortedModel : IValidationModel
 {
     [FromRoute(Name = "categoryId")]
     public Guid CategoryId { get; set; }

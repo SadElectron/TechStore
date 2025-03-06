@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Services.Abstract;
 using TechStore.Api.Dtos;
+using TechStore.Api.Filters.Validation;
 using TechStore.Api.Models.Property;
 
 namespace TechStore.Api.Controllers;
@@ -27,17 +28,11 @@ public class PropertyController : ControllerBase
     }
 
     [HttpGet("{propertyId}", Name = "GetProperty")]
-    public async Task<IActionResult> GetProperty(PropertyIdModel model, IValidator<PropertyIdModel> validator)
+    [TypeFilter(typeof(ValidateByModelFilter<PropertyIdModel>))]
+    public async Task<IActionResult> GetProperty(PropertyIdModel model)
     {
         try
         {
-            var validationResult = await validator.ValidateAsync(model);
-            if (!validationResult.IsValid)
-            {
-                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
-            }
-
             var entity = await _propertyService.GetAsNoTrackingAsync(model.Id);
             var entityDto = _mapper.Map<PropertyDto>(entity);
             return Ok(entityDto);
@@ -50,16 +45,11 @@ public class PropertyController : ControllerBase
     }
 
     [HttpPost("Create")]
-    public async Task<IActionResult> CreateProperty([FromBody] CreatePropertyModel model, IValidator<CreatePropertyModel> validator)
+    [TypeFilter(typeof(ValidateByModelFilter<CreatePropertyModel>))]
+    public async Task<IActionResult> CreateProperty([FromBody] CreatePropertyModel model)
     {
         try
         {
-            var validationResult = await validator.ValidateAsync(model);
-            if (!validationResult.IsValid)
-            {
-                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
-            }
             var property = _mapper.Map<Property>(model);
             EntityCreateResult<Property> result = await _propertyService.AddAsync(property);
 
@@ -73,16 +63,11 @@ public class PropertyController : ControllerBase
     }
 
     [HttpPut("update")]
-    public async Task<IActionResult> UpdateProperty(UpdatePropertyModel model, IValidator<UpdatePropertyModel> validator)
+    [TypeFilter(typeof(ValidateByModelFilter<UpdatePropertyModel>))]
+    public async Task<IActionResult> UpdateProperty(UpdatePropertyModel model)
     {
         try
         {
-            var validationResult = await validator.ValidateAsync(model);
-            if (!validationResult.IsValid)
-            {
-                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
-            }
             var entity = await _propertyService.GetAsNoTrackingAsync(model.Id);
             var property = _mapper.Map(model, entity);
             var addedEntity = await _propertyService.UpdateAsync(property!);
@@ -97,16 +82,11 @@ public class PropertyController : ControllerBase
     }
 
     [HttpPut("{propertyId}/proporder")]
-    public async Task<IActionResult> UpdateOrder(UpdatePropOrderModel model, IValidator<UpdatePropOrderModel> validator)
+    [TypeFilter(typeof(ValidateByModelFilter<UpdatePropOrderModel>))]
+    public async Task<IActionResult> UpdateOrder(UpdatePropOrderModel model)
     {
         try
         {
-            var validationResult = await validator.ValidateAsync(model);
-            if (!validationResult.IsValid)
-            {
-                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
-            }
             var result = await _propertyService.UpdatePropOrderAsync(model.Id, model.PropOrder);
             var dto = _mapper.Map<PropertyDto>(result);
             return Ok(dto);
@@ -120,16 +100,11 @@ public class PropertyController : ControllerBase
     }
 
     [HttpDelete("{propertyId}")]
-    public async Task<IActionResult> Delete(PropertyIdModel model, IValidator<PropertyIdModel> validator)
+    [TypeFilter(typeof(ValidateByModelFilter<PropertyIdModel>))]
+    public async Task<IActionResult> Delete(PropertyIdModel model)
     {
         try
         {
-            var validationResult = await validator.ValidateAsync(model);
-            if (!validationResult.IsValid)
-            {
-                var errorMessages = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-                return BadRequest(new { message = "Validation failed.", errors = errorMessages });
-            }
             EntityDeleteResult deleteResult = await _propertyService.DeleteAsync(model.Id);
             return deleteResult.IsSuccessful ? Ok() : NotFound();
         }

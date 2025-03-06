@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using TechStore.Api.Models.Abstract;
 
 namespace TechStore.Api.Models.Category;
-public class GetCategoryPropertiesModel
+public class GetCategoryPropertiesModel : IValidationModel
 {
     [FromRoute(Name = "categoryId")]
     public Guid CategoryId { get; set; }
