@@ -1,9 +1,7 @@
 using AutoMapper.EquivalencyExpression;
 using DataAccess.EntityFramework.Abstract;
 using DataAccess.EntityFramework.Concrete;
-using FluentValidation.AspNetCore;
 using FluentValidation;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
@@ -13,17 +11,14 @@ using Services.Authentication.Jwt;
 using Services.Authorization;
 using Services.Authorization.Requirements;
 using Services.Concrete;
-using System.Reflection;
 using System.Text;
-using System.Text.Json.Serialization;
 using TechStore.Api.MapperProfiles;
 using TechStore.Api.Middlewares;
 using TechStore.Api.Models.Product;
-using TechStore.Api.Validation.Utils;
 using Microsoft.AspNetCore.Mvc;
-using TechStore.Api.Models.Abstract;
-using static System.Net.Mime.MediaTypeNames;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using Core.Entities.Concrete;
+using DataAccess.EntityFramework;
+using Microsoft.AspNetCore.Identity;
 
 namespace TechStore.Api
 {
@@ -77,7 +72,6 @@ namespace TechStore.Api
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
-
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateAudience = true,
@@ -94,7 +88,7 @@ namespace TechStore.Api
             {
                 options.AddPolicy("Admin", p => p.Requirements.Add(new RoleRequirement("Admin")));
             });
-
+            builder.Services.AddIdentity<CustomIdentityUser, CustomIdentityUser>().AddEntityFrameworkStores<UserDbContext>().AddDefaultTokenProviders();
 
             builder.Services.AddControllers(options =>
             {
@@ -147,7 +141,8 @@ namespace TechStore.Api
             builder.Services.AddScoped<IImageDal, ImageDal>();
             builder.Services.AddScoped<IAuthDal, AuthDal>();
             builder.Services.AddScoped<IRefreshTokenDal, RefreshTokenDal>();
-            builder.Services.AddScoped(typeof(GenericValidator<,>));
+
+            
 
             var app = builder.Build();
             // Configure the HTTP request pipeline.

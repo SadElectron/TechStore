@@ -2,6 +2,7 @@ using AutoMapper;
 using Core.Entities.Concrete;
 using Core.Results;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Services.Abstract;
@@ -15,6 +16,7 @@ namespace TechStore.Api.Controllers;
 
 [EnableCors("AllowSpecificOrigin")]
 [Route("api/v1/products")]
+[Authorize("Admin")]
 [ApiController]
 public class ProductController : ControllerBase
 {

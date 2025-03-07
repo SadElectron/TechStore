@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Core.Results;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Services.Abstract;
@@ -12,6 +13,7 @@ namespace TechStore.Api.Models;
 
 [EnableCors("AllowSpecificOrigin")]
 [Route("api/v1/images")]
+[Authorize("Admin")]
 [ApiController]
 public class ImageController : ControllerBase
 {

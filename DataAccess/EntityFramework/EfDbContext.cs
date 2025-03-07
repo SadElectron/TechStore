@@ -35,10 +35,8 @@ public class EfDbContext : DbContext
             LogLevel.Debug, DbContextLoggerOptions.SingleLine);
 
         optionsBuilder.EnableSensitiveDataLogging();
-        optionsBuilder.UseSqlite($"Data Source=../DataAccess/Application.db;Cache=Shared", options =>
-        {
-
-        });
+        var dbPath = Path.Combine(AppContext.BaseDirectory, "DataAccess", "Application.db");
+        optionsBuilder.UseSqlite($"Data Source={dbPath};Cache=Shared");
 
     }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
