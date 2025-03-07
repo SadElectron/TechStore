@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Services.Abstract;
-using Services.Authentication.Jwt;
 using Services.Authorization;
 using Services.Authorization.Requirements;
 using Services.Concrete;
@@ -19,6 +18,7 @@ using Microsoft.AspNetCore.Mvc;
 using Core.Entities.Concrete;
 using DataAccess.EntityFramework;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace TechStore.Api
 {
@@ -88,7 +88,11 @@ namespace TechStore.Api
             {
                 options.AddPolicy("Admin", p => p.Requirements.Add(new RoleRequirement("Admin")));
             });
-            builder.Services.AddIdentity<CustomIdentityUser, CustomIdentityUser>().AddEntityFrameworkStores<UserDbContext>().AddDefaultTokenProviders();
+
+            builder.Services.AddDbContext<UserDbContext>(options =>
+                options.UseSqlite($"Data Source=../DataAccess/User.db;Cache=Shared;Cache=Shared"));
+            builder.Services.AddIdentity<CustomIdentityUser, CustomIdentityRole>(o => { })
+                .AddEntityFrameworkStores<UserDbContext>().AddDefaultTokenProviders();
 
             builder.Services.AddControllers(options =>
             {
@@ -98,8 +102,8 @@ namespace TechStore.Api
                 options.InvalidModelStateResponseFactory = actionContext =>
                 {
                     var errorMessages = actionContext.ModelState
-                        .Where(e => e.Value.Errors.Count > 0)
-                        .SelectMany(e => e.Value.Errors)
+                        .Where(e => e.Value!.Errors.Count > 0)
+                        .SelectMany(e => e.Value!.Errors)
                         .Select(e => e.ErrorMessage)
                         .ToList();
 
@@ -122,7 +126,6 @@ namespace TechStore.Api
                 cfg.AddProfile<DtoMappingProfile>();
             });
 
-            builder.Services.AddScoped<TokenProvider>();
             builder.Services.AddSingleton<IAuthorizationHandler, RoleAuthorizationHandler>();
 
             builder.Services.AddValidatorsFromAssemblyContaining<CreateProductModelValidator>(ServiceLifetime.Scoped);
@@ -133,16 +136,16 @@ namespace TechStore.Api
             builder.Services.AddScoped<IDetailService, DetailService>();
             builder.Services.AddScoped<IImageService, ImageService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<ITokenService, TokenService>();
 
             builder.Services.AddScoped<IProductDal, ProductDal>();
             builder.Services.AddScoped<IPropertyDal, PropertyDal>();
             builder.Services.AddScoped<ICategoryDal, CategoryDal>();
             builder.Services.AddScoped<IDetailDal, DetailDal>();
             builder.Services.AddScoped<IImageDal, ImageDal>();
-            builder.Services.AddScoped<IAuthDal, AuthDal>();
-            builder.Services.AddScoped<IRefreshTokenDal, RefreshTokenDal>();
 
-            
+
+
 
             var app = builder.Build();
             // Configure the HTTP request pipeline.

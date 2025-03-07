@@ -1,9 +1,13 @@
 ﻿using Core.Entities.Concrete;
 using Core.Results;
+using Core.Utils;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Services.Abstract;
+using System.Security.Claims;
 using TechStore.Api.Dtos;
 using TechStore.Api.Models.Auth;
 
@@ -14,78 +18,92 @@ namespace TechStore.Api.Models;
 [ApiController]
 public class AuthController : ControllerBase
 {
-    public record UserReq(string email, string password);
-    public record RefreshTokenReq(string RefreshToken);
-    public record LogoutReq(string RefreshToken);
-
-
-    private readonly SignInManager<CustomIdentityUser> _signInManager;
-    private readonly UserManager<CustomIdentityUser> _userManager;
-    private readonly ITokenService _tokenService;
+    IAuthService _authService;
     private readonly ILogger<AuthController> _logger;
 
     public AuthController(
         ILogger<AuthController> logger,
-        ITokenService tokenService,
-        UserManager<CustomIdentityUser> userManager,
-        SignInManager<CustomIdentityUser> signInManager)
+        IAuthService authService)
     {
         _logger = logger;
-        _tokenService = tokenService;
-        _userManager = userManager;
-        _signInManager = signInManager;
+        _authService = authService;
     }
 
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginModel model)
     {
-        var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, false, false);
-        if (result.Succeeded)
+        try
         {
-            //var refreshToken = await _authService.AddRefreshTokenAsync(result.Id);
-            //return Ok(new { message = "Logged in successfully", result.Token, refreshToken });
-            var user = await _userManager.FindByNameAsync(model.Email);
-            var token = _tokenService.Create(user);
-            return Ok(new { Token = token });
+            LoginResult result = await _authService.Login(model.Email, model.Password);
+            if (result.IsSuccessful)
+            {
+                return Ok(new { result.Token, result.RefreshToken, result.ExpiresIn });
+            }
+            return BadRequest(new { message = "Login failed", errors = result.Errors });
         }
-        return NotFound();
+        catch (Exception ex)
+        {
+            _logger.LogWarning($"Error in AuthController.Login {ex.Message}");
+            return Problem();
+        }
     }
 
     [HttpPost("logout")]
-    public async Task<IActionResult> Logout([FromBody] LogoutReq logoutReq)
+    public async Task<IActionResult> Logout()
     {
-        await _authService.DeleteTokenAsync(logoutReq.RefreshToken);
-        return Ok(new { message = "Logged out successfully" });
+        // Get the current user ID from the JWT token claims
+        var userId = User.FindFirstValue(ClaimTypes.Name);
+        if (string.IsNullOrEmpty(userId))
+        {
+            return BadRequest(new { Message = "Unable to identify user" });
+        }
+        LogoutResult result =  await _authService.Logout(userId);
+        if (result.IsSuccessful)
+        {
+            return Ok(new { message = "Logged out successfully" });
+        }
+        return BadRequest(new { message = "Logout failed" });
+
     }
 
     [HttpPost("refresh")]
-    public async Task<IActionResult> Refresh([FromBody] RefreshTokenReq refreshTokenReq)
+    public async Task<IActionResult> Refresh([FromBody] TokenRefreshModel model)
     {
-        var validationResult = await _authService.ValidateToken(refreshTokenReq.RefreshToken);
-        if (validationResult)
+        _logger.LogInformation($"User {User}");
+        try
         {
-            var token = await _authService.CreateTokenAsync(refreshTokenReq.RefreshToken);
-            return Ok(new { token });
+            LoginResult result = await _authService.Refresh(model.Token, model.RefreshToken);
+            if (result.IsSuccessful)
+            {
+                return Ok(new { result.Token, result.RefreshToken, result.ExpiresIn });
+            }
+            return BadRequest(new { message = "Token refresh failed", errors = result.Errors });
         }
-        else
+        catch (Exception ex)
         {
-            return NotFound();
-        }
 
+            _logger.LogWarning($"Error in AuthController.Refresh {ex.Message}");
+            return Problem();
+        }
     }
 
     [HttpPost("Register")]
-    public async Task<IActionResult> Register([FromBody] UserDto userReq)
+    public async Task<IActionResult> Register([FromBody] RegisterModel model)
     {
-        var user = new User
+        try
         {
-            Email = userReq.Email,
-            UserName = userReq.UserName,
-            Password = userReq.Password
-        };
-        RegisterUserResult registerUserResult = await _authService.Register(user, "Customer");
-        return registerUserResult.success ?
-             Ok() : BadRequest(new { Error = registerUserResult.failReason });
+            var user = new CustomIdentityUser { UserName = model.Email, Email = model.Email, };
+            RegisterUserResult result = await _authService.Register(user, model.Password);
+            if (result.IsSuccessful)
+            {
+                return Ok(new { result.Token, result.RefreshToken, result.ExpiresIn });
+            }
+            return BadRequest(new { message = "User registration failed", errors = result.Errors });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning($"Error in AuthController.Register {ex.Message}");
+            return Problem();
+        }
     }
-
 }

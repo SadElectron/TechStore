@@ -15,7 +15,7 @@ public class UserDbContext : IdentityDbContext<CustomIdentityUser>
 {
     public UserDbContext(DbContextOptions<UserDbContext> options) : base(options)
     {
-
+        
     }
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -34,7 +34,6 @@ public class UserDbContext : IdentityDbContext<CustomIdentityUser>
        }, LogLevel.Debug, DbContextLoggerOptions.SingleLine);
 
         optionsBuilder.EnableSensitiveDataLogging();
-        var dbPath = Path.Combine(AppContext.BaseDirectory, "DataAccess", "User.db");
-        optionsBuilder.UseSqlite($"Data Source={dbPath};Cache=Shared");
+        
     }
 }

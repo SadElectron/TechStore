@@ -11,10 +11,8 @@ namespace Services.Abstract;
 
 public interface IAuthService
 {
-    Task<RegisterUserResult> Register(User user, string role);
+    Task<RegisterUserResult> Register(CustomIdentityUser user, string role);
     Task<LoginResult> Login(string email, string passwd);
-    Task<bool> ValidateToken(string token);
-    Task<string> AddRefreshTokenAsync(Guid userId);
-    Task DeleteTokenAsync(string token);
-    Task<string> CreateTokenAsync(string refreshToken);
+    Task<LoginResult> Refresh(string token, string refreshToken);
+    Task<LogoutResult> Logout(string userId);
 }

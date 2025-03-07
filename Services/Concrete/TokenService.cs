@@ -1,5 +1,6 @@
 ﻿using Core.Entities.Concrete;
 using DataAccess.EntityFramework.Abstract;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.JsonWebTokens;
@@ -7,8 +8,10 @@ using Microsoft.IdentityModel.Tokens;
 using Services.Abstract;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -16,30 +19,39 @@ namespace Services.Concrete;
 
 public class TokenService : ITokenService
 {
+    private readonly byte[] _salt;
+
     private readonly IConfiguration _configuration;
-    private readonly IRefreshTokenDal _refreshTokenDal;
-    private readonly UserManager<CustomIdentityUser> _userManager;
-    public TokenService(IConfiguration configuration, UserManager<CustomIdentityUser> userManager, IRefreshTokenDal refreshTokenDal)
+    public TokenService(IConfiguration configuration)
     {
         _configuration = configuration;
-        _userManager = userManager;
-        _refreshTokenDal = refreshTokenDal;
+        string saltString = configuration["TokenSettings:Salt"]!;
+        // Convert the configuration string to a byte array
+        _salt = Convert.FromBase64String(saltString);
     }
-    public string Create(CustomIdentityUser user)
+
+    public string Create(CustomIdentityUser user, IList<string> roles)
     {
-        var secretKey = _configuration["Jwt:Secret"];
-        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey!));
+        var claims = new List<Claim>
+        {
+            new Claim(JwtRegisteredClaimNames.Sub, user.Id),
+            new Claim(JwtRegisteredClaimNames.Email, user.Email!),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new Claim(ClaimTypes.Name, user.UserName!)
+        };
+        // Add roles as claims
+        foreach (var role in roles)
+        {
+            claims.Add(new Claim(ClaimTypes.Role, role));
+        }
+        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Secret"]!));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+        var expires = DateTime.Now.AddMinutes(Convert.ToDouble(_configuration["Jwt:ExpirationInMinutes"]));
+
         var tokenDescriptor = new SecurityTokenDescriptor
         {
-            Subject = new ClaimsIdentity(
-            [
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-                    new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                    new Claim("Verified", user.Verified.ToString()),
-                    new Claim("Role", "Customer"),
-                ]),
-            Expires = DateTime.UtcNow.AddMinutes(5),
+            Subject = new ClaimsIdentity(claims),
+            Expires = expires,
             SigningCredentials = credentials,
             Issuer = _configuration["Jwt:Issuer"],
             Audience = _configuration["Jwt:Audience"]
@@ -50,12 +62,34 @@ public class TokenService : ITokenService
 
         return token;
     }
-    public async Task<string> RefreshAsync(string refreshToken)
+
+    public string CreateRefreshToken()
     {
-        var rt = await _refreshTokenDal.GetWithUserAsync(refreshToken);
+        var refreshToken = Guid.NewGuid().ToString();
+        return refreshToken;
+    }
 
-        var newToken = Create(rt!.User);
+    public string HashToken(string token)
+    {
+        string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+            password: token,
+            salt: _salt,
+            prf: KeyDerivationPrf.HMACSHA256,
+            iterationCount: 10000,
+            numBytesRequested: 256 / 8));
 
-        return token;
+        return hashed;
+    }
+
+    public bool VerifyToken(string token, string hashedToken)
+    {
+        string computedHash = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+            password: token,
+            salt: _salt,
+            prf: KeyDerivationPrf.HMACSHA256,
+            iterationCount: 10000,
+            numBytesRequested: 256 / 8));
+
+        return computedHash == hashedToken;
     }
 }

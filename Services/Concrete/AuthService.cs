@@ -2,134 +2,127 @@
 using Core.Results;
 using Core.Utils;
 using DataAccess.EntityFramework.Abstract;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Services.Abstract;
-using Services.Authentication.Jwt;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Services.Concrete
+namespace Services.Concrete;
+
+public partial class AuthService : IAuthService
 {
-    public partial class AuthService : IAuthService
+    private readonly ITokenService _tokenService;
+    private readonly IConfiguration _configuration;
+    private readonly UserManager<CustomIdentityUser> _userManager;
+    private readonly SignInManager<CustomIdentityUser> _signInManager;
+    public AuthService(ITokenService tokenService, UserManager<CustomIdentityUser> userManager, SignInManager<CustomIdentityUser> signInManager, IConfiguration configuration)
     {
-        private readonly IAuthDal _authDal;
-        private readonly IRefreshTokenDal _refreshTokenDal;
-        private readonly TokenProvider _tokenProvider;
-        public AuthService(IAuthDal authDal, TokenProvider tokenProvider, IRefreshTokenDal refreshTokenDal)
-        {
-            _authDal = authDal;
-            _tokenProvider = tokenProvider;
-            _refreshTokenDal = refreshTokenDal;
-        }
+        _tokenService = tokenService;
+        _userManager = userManager;
+        _signInManager = signInManager;
+        _configuration = configuration;
+    }
+    public async Task<RegisterUserResult> Register(CustomIdentityUser user, string password)
+    {
+        var timeNow = DateTimeHelper.GetUtcNow();
+        user.Created = timeNow;
+        var result = await _userManager.CreateAsync(user, password);
 
-        public async Task<LoginResult> Login(string email, string passwd)
+        if (result.Succeeded)
         {
-            var passwordHash = SHA256.HashData(Encoding.UTF8.GetBytes(passwd));
-            var passwordHashString = Convert.ToHexStringLower(passwordHash);
+            await _userManager.AddToRoleAsync(user, "User");
 
-            var userDb = await _authDal.GetAsNoTrackingAsync(u => u.Email == email && u.Password == passwordHashString);
-            if (userDb == null || userDb.RowOrder == 0)
+            var userRoles = await _userManager.GetRolesAsync(user);
+
+            var token = _tokenService.Create(user, userRoles);
+
+            // Generate refresh token
+            var refreshToken = _tokenService.CreateRefreshToken();
+
+            // Store refresh token (hashed) in the database
+            user.RefreshToken = _tokenService.HashToken(refreshToken);
+            user.RefreshTokenExpiryTime = timeNow.AddHours(Convert.ToDouble(_configuration["TokenSettings:RefreshTokenExpirationInMinutes"]));
+            await _userManager.UpdateAsync(user);
+
+            return new RegisterUserResult
             {
-                return new LoginResult(default, "", "", false);
-            }
-            if (userDb.Email == email && userDb.Password == passwordHashString)
-            {
-                return new LoginResult(userDb.Id, userDb.Email, _tokenProvider.Create(userDb), true);
-
-            }
-
-            return new LoginResult(default, "", "", false);
+                Token = token,
+                RefreshToken = refreshToken,
+                ExpiresIn = timeNow.AddHours(2),
+                IsSuccessful = true
+            };
         }
 
-        public async Task<string> CreateTokenAsync(string refreshToken)
+        return new RegisterUserResult
         {
+            IsSuccessful = false,
+            Errors = result.Errors.Select(e => e.Description).ToList()
+        };
 
-            var refreshTokenEntity = await _refreshTokenDal.GetWithUserAsync(refreshToken);
-            var token = _tokenProvider.Create(refreshTokenEntity!.User!);
-            return token;
-
-        }
-
-        public async Task<bool> ValidateToken(string token)
+    }
+    public async Task<LoginResult> Login(string email, string passwd)
+    {
+        var timeNow = DateTimeHelper.GetUtcNow();
+        var result = await _signInManager.PasswordSignInAsync(email, email, false, false);
+        if (result.Succeeded)
         {
-            var refreshToken = await _refreshTokenDal.GetAsNoTrackingAsync(r => r.Token == token);
-            if (refreshToken != null) return true;
-            return false;
-        }
+            //var refreshToken = await _authService.AddRefreshTokenAsync(result.Id);
+            //return Ok(new { message = "Logged in successfully", result.Token, refreshToken });
+            var user = await _userManager.FindByEmailAsync(email);
+            var roles = await _userManager.GetRolesAsync(user!);
+            var token = _tokenService.Create(user!, roles);
+            var refreshToken = _tokenService.CreateRefreshToken();
 
-        public async Task<string> AddRefreshTokenAsync(Guid userId)
+            // Store refresh token (hashed) in the database
+            user!.RefreshToken = _tokenService.HashToken(refreshToken);
+            user.RefreshTokenExpiryTime = timeNow.AddMinutes(Convert.ToDouble(_configuration["TokenSettings:RefreshTokenExpirationInMinutes"]));
+            await _userManager.UpdateAsync(user);
+            return new LoginResult { Token = token, RefreshToken = refreshToken, ExpiresIn = user.RefreshTokenExpiryTime, IsSuccessful = true };
+        }
+        return new LoginResult { Errors = new() { "Invalid email or password" }, IsSuccessful = false };
+    }
+
+    public async Task<LoginResult> Refresh(string token, string refreshToken)
+    {
+        var timeNow = DateTimeHelper.GetUtcNow();
+        var user = await _userManager.Users.SingleOrDefaultAsync(u => u.RefreshToken == _tokenService.HashToken(refreshToken));
+        if (user == null || user.RefreshTokenExpiryTime < DateTime.UtcNow)
         {
-            byte[] randomBytes = new byte[32];
-            using var rng = RandomNumberGenerator.Create();
-            rng.GetBytes(randomBytes);
-            string refreshToken = Convert.ToBase64String(randomBytes);
-            var user = await _authDal.GetAsNoTrackingAsync(u => u.Id == userId);
-            var addResult = await _refreshTokenDal.AddAsync(new()
-            {
-                Token = refreshToken,
-                UserId = userId,
-                LastUpdate = DateTimeHelper.GetUtcNow(),
-                CreatedAt = DateTimeHelper.GetUtcNow(),
-                RowOrder = await _refreshTokenDal.GetLastOrderAsync() + 1
-            });
-            if (addResult == null) return "";
-            return refreshToken;
+            return new LoginResult { Errors = ["Invalid or expired refresh token"], IsSuccessful = false };
         }
+        // Get user roles
+        var userRoles = await _userManager.GetRolesAsync(user);
 
-        public async Task DeleteTokenAsync(string token)
+        // Generate new JWT token
+        var newJwtToken = _tokenService.Create(user, userRoles);
+
+        // Generate new refresh token
+        var newRefreshToken = _tokenService.CreateRefreshToken();
+        user.RefreshToken = _tokenService.HashToken(newRefreshToken);
+        user.RefreshTokenExpiryTime = timeNow.AddHours(2);
+        await _userManager.UpdateAsync(user);
+        return new LoginResult { Token = newJwtToken, RefreshToken = newRefreshToken, ExpiresIn = user.RefreshTokenExpiryTime, IsSuccessful = true };
+    }
+    public async Task<LogoutResult> Logout(string userId)
+    {
+        // Find the user
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null)
         {
-            var refreshToken = await _refreshTokenDal.GetAsNoTrackingAsync(r => r.Token == token);
-            await _refreshTokenDal.DeleteAsync(refreshToken!.Id);
+            return new LogoutResult { Message = "User not found", IsSuccessful = false };
         }
 
-        public async Task<RegisterUserResult> Register(User user, string role)
-        {
-            bool emailCheck = EmailRegex().IsMatch(user.Email);
-            bool userNameCheck = UserNameRegex().IsMatch(user.UserName);
-            bool passwordCheck = PasswordRegex().IsMatch(user.Password);
-            var passwd8 = SHA256.HashData(Encoding.UTF8.GetBytes(user.Password));
-            var passwd = Convert.ToHexStringLower(passwd8);
+        // Invalidate the refresh token
+        user.RefreshToken = "INVALIDATED_" + Guid.NewGuid().ToString();
+        user.RefreshTokenExpiryTime = DateTime.UtcNow.AddMinutes(-1); // Set to past time
+        await _userManager.UpdateAsync(user);
 
-            if (emailCheck && userNameCheck && passwordCheck)
-            {
-                var lastOrder = await _authDal.GetLastOrderAsync();
-                user.RowOrder = lastOrder + 1;
-                user.LastUpdate = DateTimeHelper.GetUtcNow();
-                user.CreatedAt = DateTimeHelper.GetUtcNow();
-                user.Role = role;
-                user.Password = passwd;
-                User addUserResult = await _authDal.AddAsync(user);
-                if (addUserResult == null)
-                {
-                    return new RegisterUserResult(user, false, "An error occurred while adding the user");
-                }
-                return new RegisterUserResult(addUserResult, true);
-            }
-            else
-            {
-                if (!emailCheck)
-                {
-                    return new RegisterUserResult(user, false, "An email can only contain letters, numbers, and certain symbols like @-._");
-                }
-                if (!userNameCheck)
-                {
-                    return new RegisterUserResult(user, false, "A username can only contain letters, numbers, and certain symbols like .-_");
-                }
-                if (!passwordCheck)
-                {
-                    return new RegisterUserResult(user, false, "Password can only contain letters, numbers, and certain symbols like -_");
-                }
-                return new RegisterUserResult(user, false, "");
-            }
-        }
+        // Log the logout event (optional)
+        // await _logger.LogInformationAsync($"User {user.Email} logged out at {DateTime.UtcNow}");
 
-        [GeneratedRegex(@"^[a-zA-Z0-9\s-_]+$")]
-        private static partial Regex PasswordRegex();
-
-        [GeneratedRegex(@"^[a-zA-Z0-9\s-_.]+$")]
-        private static partial Regex UserNameRegex();
-
-        [GeneratedRegex(@"^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$")]
-        private static partial Regex EmailRegex();
+        return new LogoutResult { Message = "Logged out successfully", IsSuccessful = true };
     }
 }
