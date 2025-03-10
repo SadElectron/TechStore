@@ -9,6 +9,7 @@ using Services.Abstract;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace Services.Concrete;
 
@@ -17,23 +18,24 @@ public partial class AuthService : IAuthService
     private readonly ITokenService _tokenService;
     private readonly IConfiguration _configuration;
     private readonly UserManager<CustomIdentityUser> _userManager;
-    private readonly SignInManager<CustomIdentityUser> _signInManager;
-    public AuthService(ITokenService tokenService, UserManager<CustomIdentityUser> userManager, SignInManager<CustomIdentityUser> signInManager, IConfiguration configuration)
+    private readonly RoleManager<CustomIdentityRole> _roleManager;
+    public AuthService(ITokenService tokenService, UserManager<CustomIdentityUser> userManager, IConfiguration configuration, RoleManager<CustomIdentityRole> roleManager)
     {
         _tokenService = tokenService;
         _userManager = userManager;
-        _signInManager = signInManager;
         _configuration = configuration;
+        _roleManager = roleManager;
     }
     public async Task<RegisterUserResult> Register(CustomIdentityUser user, string password)
     {
+        await CheckRoles();
         var timeNow = DateTimeHelper.GetUtcNow();
         user.Created = timeNow;
         var result = await _userManager.CreateAsync(user, password);
 
         if (result.Succeeded)
         {
-            await _userManager.AddToRoleAsync(user, "User");
+            await _userManager.AddToRoleAsync(user, "Customer");
 
             var userRoles = await _userManager.GetRolesAsync(user);
 
@@ -44,7 +46,7 @@ public partial class AuthService : IAuthService
 
             // Store refresh token (hashed) in the database
             user.RefreshToken = _tokenService.HashToken(refreshToken);
-            user.RefreshTokenExpiryTime = timeNow.AddHours(Convert.ToDouble(_configuration["TokenSettings:RefreshTokenExpirationInMinutes"]));
+            user.RefreshTokenExpiryTime = timeNow.AddMinutes(Convert.ToDouble(_configuration["TokenSettings:RefreshTokenExpirationInMinutes"]));
             await _userManager.UpdateAsync(user);
 
             return new RegisterUserResult
@@ -66,25 +68,23 @@ public partial class AuthService : IAuthService
     public async Task<LoginResult> Login(string email, string passwd)
     {
         var timeNow = DateTimeHelper.GetUtcNow();
-        var result = await _signInManager.PasswordSignInAsync(email, email, false, false);
-        if (result.Succeeded)
+        var user = await _userManager.FindByEmailAsync(email);
+        var result = await _userManager.CheckPasswordAsync(user, passwd);
+        if (result)
         {
-            //var refreshToken = await _authService.AddRefreshTokenAsync(result.Id);
-            //return Ok(new { message = "Logged in successfully", result.Token, refreshToken });
-            var user = await _userManager.FindByEmailAsync(email);
+            
             var roles = await _userManager.GetRolesAsync(user!);
             var token = _tokenService.Create(user!, roles);
             var refreshToken = _tokenService.CreateRefreshToken();
 
-            // Store refresh token (hashed) in the database
             user!.RefreshToken = _tokenService.HashToken(refreshToken);
             user.RefreshTokenExpiryTime = timeNow.AddMinutes(Convert.ToDouble(_configuration["TokenSettings:RefreshTokenExpirationInMinutes"]));
+
             await _userManager.UpdateAsync(user);
             return new LoginResult { Token = token, RefreshToken = refreshToken, ExpiresIn = user.RefreshTokenExpiryTime, IsSuccessful = true };
         }
         return new LoginResult { Errors = new() { "Invalid email or password" }, IsSuccessful = false };
     }
-
     public async Task<LoginResult> Refresh(string token, string refreshToken)
     {
         var timeNow = DateTimeHelper.GetUtcNow();
@@ -102,7 +102,7 @@ public partial class AuthService : IAuthService
         // Generate new refresh token
         var newRefreshToken = _tokenService.CreateRefreshToken();
         user.RefreshToken = _tokenService.HashToken(newRefreshToken);
-        user.RefreshTokenExpiryTime = timeNow.AddHours(2);
+        user.RefreshTokenExpiryTime = timeNow.AddMinutes(Convert.ToDouble(_configuration["TokenSettings:RefreshTokenExpirationInMinutes"]));
         await _userManager.UpdateAsync(user);
         return new LoginResult { Token = newJwtToken, RefreshToken = newRefreshToken, ExpiresIn = user.RefreshTokenExpiryTime, IsSuccessful = true };
     }
@@ -124,5 +124,15 @@ public partial class AuthService : IAuthService
         // await _logger.LogInformationAsync($"User {user.Email} logged out at {DateTime.UtcNow}");
 
         return new LogoutResult { Message = "Logged out successfully", IsSuccessful = true };
+    }
+    private async Task CheckRoles()
+    {
+        foreach (var role in new[] { "Admin", "Customer", "Manager" })
+        {
+            if (!await _roleManager.RoleExistsAsync(role))
+            {
+                await _roleManager.CreateAsync(new CustomIdentityRole { Name = role });
+            }
+        }
     }
 }

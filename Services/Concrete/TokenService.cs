@@ -25,9 +25,7 @@ public class TokenService : ITokenService
     public TokenService(IConfiguration configuration)
     {
         _configuration = configuration;
-        string saltString = configuration["TokenSettings:Salt"]!;
-        // Convert the configuration string to a byte array
-        _salt = Convert.FromBase64String(saltString);
+        _salt = Convert.FromBase64String(configuration["TokenSettings:Salt"]!);
     }
 
     public string Create(CustomIdentityUser user, IList<string> roles)
@@ -37,13 +35,14 @@ public class TokenService : ITokenService
             new Claim(JwtRegisteredClaimNames.Sub, user.Id),
             new Claim(JwtRegisteredClaimNames.Email, user.Email!),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim(ClaimTypes.Name, user.UserName!)
+            new Claim(JwtRegisteredClaimNames.Name, user.UserName!)
         };
         // Add roles as claims
         foreach (var role in roles)
         {
-            claims.Add(new Claim(ClaimTypes.Role, role));
+            claims.Add(new Claim("role", role));
         }
+
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Secret"]!));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
         var expires = DateTime.Now.AddMinutes(Convert.ToDouble(_configuration["Jwt:ExpirationInMinutes"]));

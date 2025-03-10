@@ -1,15 +1,19 @@
 ﻿using Core.Entities.Concrete;
 using Core.Results;
 using Core.Utils;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Services.Abstract;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using TechStore.Api.Dtos;
+using TechStore.Api.Filters.Validation;
 using TechStore.Api.Models.Auth;
+using TechStore.Api.Validation.Auth;
 
 namespace TechStore.Api.Models;
 
@@ -30,6 +34,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
+    [TypeFilter(typeof(ValidateByModelFilter<LoginModel>))]
     public async Task<IActionResult> Login([FromBody] LoginModel model)
     {
         try
@@ -48,11 +53,12 @@ public class AuthController : ControllerBase
         }
     }
 
-    [HttpPost("logout")]
+    [HttpGet("logout")]
+    [Authorize]
     public async Task<IActionResult> Logout()
     {
         // Get the current user ID from the JWT token claims
-        var userId = User.FindFirstValue(ClaimTypes.Name);
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrEmpty(userId))
         {
             return BadRequest(new { Message = "Unable to identify user" });

@@ -20,154 +20,182 @@ using DataAccess.EntityFramework;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace TechStore.Api
+namespace TechStore.Api;
+
+public class Program
 {
-    public class Program
+    public static void Main(string[] args)
     {
-        public static void Main(string[] args)
+        var builder = WebApplication.CreateBuilder(args);
+
+        // Add services to the container.
+
+
+
+        builder.Services.AddCors(options =>
         {
-            var builder = WebApplication.CreateBuilder(args);
-
-            // Add services to the container.
-
-
-
-            builder.Services.AddCors(options =>
+            options.AddPolicy("AllowSpecificOrigin",
+                builder => builder.WithOrigins("http://localhost:4200", "http://localhost:3000", "http://localhost:5173")
+                .AllowCredentials()
+                .AllowAnyHeader()
+                .AllowAnyMethod());
+        });
+        builder.Services.AddSwaggerGen(o =>
+        {
+            o.SwaggerDoc("v1", new OpenApiInfo { Title = "TechStore.API", Version = "v1" });
+            o.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {
-                options.AddPolicy("AllowSpecificOrigin",
-                    builder => builder.WithOrigins("http://localhost:4200", "http://localhost:3000", "http://localhost:5173")
-                    .AllowCredentials()
-                    .AllowAnyHeader()
-                    .AllowAnyMethod());
+                Name = "JWT Authentication",
+                Description = "JWT Token",
+                In = ParameterLocation.Header,
+                Type = SecuritySchemeType.Http,
+                BearerFormat = "JWT",
+                Scheme = JwtBearerDefaults.AuthenticationScheme
+
             });
-            builder.Services.AddSwaggerGen(o =>
+            o.AddSecurityRequirement(new OpenApiSecurityRequirement
             {
-                o.SwaggerDoc("v1", new OpenApiInfo { Title = "TechStore.API", Version = "v1" });
-                o.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
-                    Name = "JWT Authentication",
-                    Description = "JWT Token",
-                    In = ParameterLocation.Header,
-                    Type = SecuritySchemeType.Http,
-                    BearerFormat = "JWT",
-                    Scheme = JwtBearerDefaults.AuthenticationScheme
-
-                });
-                o.AddSecurityRequirement(new OpenApiSecurityRequirement
-                {
+                    new OpenApiSecurityScheme
                     {
-                        new OpenApiSecurityScheme
+                        Reference = new OpenApiReference
                         {
-                            Reference = new OpenApiReference
-                            {
-                                Type=ReferenceType.SecurityScheme,
-                                Id=JwtBearerDefaults.AuthenticationScheme
-                            }
-                        },
-                        new string[]{}
-                    }
-                });
+                            Type=ReferenceType.SecurityScheme,
+                            Id=JwtBearerDefaults.AuthenticationScheme
+                        }
+                    },
+                    new string[]{}
+                }
             });
+        });
 
-            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(options =>
+        builder.Services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        }).AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateAudience = true,
-                        ValidateIssuer = true,
-                        ValidateIssuerSigningKey = true,
-                        ValidateLifetime = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"]!)),
-                        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-                        ValidAudience = builder.Configuration["Jwt:Audience"],
-                        ClockSkew = TimeSpan.Zero,
-                    };
-                });
-            builder.Services.AddAuthorization(options =>
-            {
-                options.AddPolicy("Admin", p => p.Requirements.Add(new RoleRequirement("Admin")));
-            });
+                    RoleClaimType = "role",
+                    ValidateAudience = true,
+                    ValidateIssuer = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidateLifetime = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"]!)),
+                    ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                    ValidAudience = builder.Configuration["Jwt:Audience"],
 
-            builder.Services.AddDbContext<UserDbContext>(options =>
-                options.UseSqlite($"Data Source=../DataAccess/User.db;Cache=Shared;Cache=Shared"));
-            builder.Services.AddIdentity<CustomIdentityUser, CustomIdentityRole>(o => { })
-                .AddEntityFrameworkStores<UserDbContext>().AddDefaultTokenProviders();
-
-            builder.Services.AddControllers(options =>
-            {
-                options.ModelValidatorProviders.Clear();
-            }).ConfigureApiBehaviorOptions(options =>
-            {
-                options.InvalidModelStateResponseFactory = actionContext =>
-                {
-                    var errorMessages = actionContext.ModelState
-                        .Where(e => e.Value!.Errors.Count > 0)
-                        .SelectMany(e => e.Value!.Errors)
-                        .Select(e => e.ErrorMessage)
-                        .ToList();
-
-                    var errorResponse = new
-                    {
-                        message = "Validation failed.",
-                        errors = errorMessages
-                    };
-
-                    return new BadRequestObjectResult(errorResponse);
                 };
+                options.Events = new JwtBearerEvents
+                {
+                    OnAuthenticationFailed = context =>
+                    {
+                        Console.WriteLine($"Authentication failed: {context.Exception.Message}");
+                        return Task.CompletedTask;
+                    },
+                    OnTokenValidated = context =>
+                    {
+                        Console.WriteLine("Token validated successfully.");
+                        return Task.CompletedTask;
+                    }
+                };
+
             });
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+        builder.Services.AddAuthorization(options =>
+        {
+            options.AddPolicy("Admin", p => p.Requirements.Add(new RoleRequirement("Admin")));
+        });
 
-            builder.Services.AddAutoMapper(cfg =>
+        builder.Services.AddDbContext<UserDbContext>(options => options.UseSqlite($"Data Source=../DataAccess/User.db;Cache=Shared;"));
+        builder.Services.AddIdentityCore<CustomIdentityUser>(o =>
+        {
+            o.Password.RequireDigit = false;
+            o.Password.RequireLowercase = false;
+            o.Password.RequireUppercase = false;
+            o.Password.RequireNonAlphanumeric = false;
+            o.Password.RequiredLength = 4;
+            o.Password.RequiredUniqueChars = 0;
+            o.SignIn.RequireConfirmedEmail = false;
+            o.SignIn.RequireConfirmedPhoneNumber = false;
+            o.SignIn.RequireConfirmedAccount = false;
+
+        })
+        .AddRoles<CustomIdentityRole>()
+        .AddEntityFrameworkStores<UserDbContext>()
+        .AddDefaultTokenProviders();
+
+        
+        builder.Services.AddControllers(options =>
+        {
+            options.ModelValidatorProviders.Clear();
+        }).ConfigureApiBehaviorOptions(options =>
+        {
+            options.InvalidModelStateResponseFactory = actionContext =>
             {
-                cfg.AddCollectionMappers();
-                cfg.AddProfile<DtoMappingProfile>();
-            });
+                var errorMessages = actionContext.ModelState
+                    .Where(e => e.Value!.Errors.Count > 0)
+                    .SelectMany(e => e.Value!.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
 
-            builder.Services.AddSingleton<IAuthorizationHandler, RoleAuthorizationHandler>();
+                var errorResponse = new
+                {
+                    message = "Validation failed.",
+                    errors = errorMessages
+                };
 
-            builder.Services.AddValidatorsFromAssemblyContaining<CreateProductModelValidator>(ServiceLifetime.Scoped);
+                return new BadRequestObjectResult(errorResponse);
+            };
+        });
+        // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGen();
 
-            builder.Services.AddScoped<IProductService, ProductService>();
-            builder.Services.AddScoped<IPropertyService, PropertyService>();
-            builder.Services.AddScoped<ICategoryService, CategoryService>();
-            builder.Services.AddScoped<IDetailService, DetailService>();
-            builder.Services.AddScoped<IImageService, ImageService>();
-            builder.Services.AddScoped<IAuthService, AuthService>();
-            builder.Services.AddScoped<ITokenService, TokenService>();
+        builder.Services.AddAutoMapper(cfg =>
+        {
+            cfg.AddCollectionMappers();
+            cfg.AddProfile<DtoMappingProfile>();
+        });
 
-            builder.Services.AddScoped<IProductDal, ProductDal>();
-            builder.Services.AddScoped<IPropertyDal, PropertyDal>();
-            builder.Services.AddScoped<ICategoryDal, CategoryDal>();
-            builder.Services.AddScoped<IDetailDal, DetailDal>();
-            builder.Services.AddScoped<IImageDal, ImageDal>();
+        builder.Services.AddSingleton<IAuthorizationHandler, RoleAuthorizationHandler>();
 
+        builder.Services.AddValidatorsFromAssemblyContaining<CreateProductModelValidator>(ServiceLifetime.Scoped);
 
+        builder.Services.AddScoped<IProductService, ProductService>();
+        builder.Services.AddScoped<IPropertyService, PropertyService>();
+        builder.Services.AddScoped<ICategoryService, CategoryService>();
+        builder.Services.AddScoped<IDetailService, DetailService>();
+        builder.Services.AddScoped<IImageService, ImageService>();
+        builder.Services.AddScoped<IAuthService, AuthService>();
+        builder.Services.AddScoped<ITokenService, TokenService>();
 
+        builder.Services.AddScoped<IProductDal, ProductDal>();
+        builder.Services.AddScoped<IPropertyDal, PropertyDal>();
+        builder.Services.AddScoped<ICategoryDal, CategoryDal>();
+        builder.Services.AddScoped<IDetailDal, DetailDal>();
+        builder.Services.AddScoped<IImageDal, ImageDal>();
 
-            var app = builder.Build();
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
-
-            app.UseCors();
-            app.UseHttpsRedirection();
-            if (!app.Environment.IsDevelopment())
-            {
-                app.UseExceptionHandler("/error");
-            }
-            app.UseAuthentication();
-            app.UseAuthorization();
-
-
-            app.MapControllers();
-            app.UseErrorMiddleware();
-            app.Run();
+        var app = builder.Build();
+        // Configure the HTTP request pipeline.
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseSwagger();
+            app.UseSwaggerUI();
         }
+
+        if (!app.Environment.IsDevelopment())
+        {
+            app.UseExceptionHandler("/error");
+        }
+        app.UseHttpsRedirection();
+        app.UseCors();
+        app.UseAuthentication();
+        app.UseAuthorization();
+
+        app.UseErrorMiddleware();
+        app.MapControllers();
+
+        app.Run();
     }
 }

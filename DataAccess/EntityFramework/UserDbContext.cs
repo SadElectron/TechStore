@@ -1,4 +1,5 @@
 ﻿using Core.Entities.Concrete;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -11,11 +12,11 @@ using System.Threading.Tasks;
 
 namespace DataAccess.EntityFramework;
 
-public class UserDbContext : IdentityDbContext<CustomIdentityUser>
+public class UserDbContext : IdentityDbContext<CustomIdentityUser, CustomIdentityRole, string>
 {
     public UserDbContext(DbContextOptions<UserDbContext> options) : base(options)
     {
-        
+
     }
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -34,6 +35,6 @@ public class UserDbContext : IdentityDbContext<CustomIdentityUser>
        }, LogLevel.Debug, DbContextLoggerOptions.SingleLine);
 
         optionsBuilder.EnableSensitiveDataLogging();
-        
+
     }
 }

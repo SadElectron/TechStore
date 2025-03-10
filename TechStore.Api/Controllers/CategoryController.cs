@@ -12,9 +12,9 @@ using TechStore.Api.Models.Category;
 
 namespace TechStore.Api.Controllers;
 
+[Authorize]
 [EnableCors("AllowSpecificOrigin")]
 [Route("api/v1/categories")]
-[Authorize("Admin")]
 [ApiController]
 public class CategoryController : ControllerBase
 {
