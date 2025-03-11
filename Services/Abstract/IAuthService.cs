@@ -14,5 +14,5 @@ public interface IAuthService
     Task<RegisterUserResult> Register(CustomIdentityUser user, string role);
     Task<LoginResult> Login(string email, string passwd);
     Task<LoginResult> Refresh(string token, string refreshToken);
-    Task<LogoutResult> Logout(string userId);
+    Task<LogoutResult> Logout(string userId, string jti);
 }

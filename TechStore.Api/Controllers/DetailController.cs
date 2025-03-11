@@ -13,10 +13,9 @@ using TechStore.Api.Models.Detail;
 using TechStore.Api.Models.Product;
 
 namespace TechStore.Api.Controllers;
-
+[Authorize("Admin")]
 [EnableCors("AllowSpecificOrigin")]
 [Route("api/v1/details")]
-[Authorize("Admin")]
 [ApiController]
 public class DetailController : ControllerBase
 {
@@ -50,7 +49,7 @@ public class DetailController : ControllerBase
         }
     }
 
-    [HttpGet("{Id}", Name = "GetDetail")]
+    [HttpGet("{detailId}", Name = "GetDetail")]
     [TypeFilter(typeof(ValidateByModelFilter<DetailIdModel>))]
     public async Task<IActionResult> GetDetail(DetailIdModel model)
     {

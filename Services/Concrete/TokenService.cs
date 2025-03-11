@@ -37,7 +37,7 @@ public class TokenService : ITokenService
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new Claim(JwtRegisteredClaimNames.Name, user.UserName!)
         };
-        // Add roles as claims
+
         foreach (var role in roles)
         {
             claims.Add(new Claim("role", role));

@@ -6,7 +6,7 @@ namespace TechStore.Api.Models.Customer;
 
 public class ProductFilteredCountModel : IValidationModel
 {
-    [FromRoute]
+    [FromRoute(Name = "categoryId")]
     public Guid CategoryId { get; set; }
 
     [FromBody]

@@ -11,10 +11,9 @@ using TechStore.Api.Filters.Validation;
 using TechStore.Api.Models.Property;
 
 namespace TechStore.Api.Controllers;
-
+[Authorize("Admin")]
 [EnableCors("AllowSpecificOrigin")]
 [Route("api/v1/properties")]
-[Authorize("Admin")]
 [ApiController]
 public class PropertyController : ControllerBase
 {

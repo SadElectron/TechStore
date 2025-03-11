@@ -8,9 +8,3 @@ public record LoginResult
     public bool IsSuccessful { get; set; }
     public List<string> Errors { get; set; } = new();
 }
-
-
-
-
-
-

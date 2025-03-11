@@ -1,15 +1,10 @@
 ﻿using Core.Entities.Concrete;
 using Core.Results;
 using Core.Utils;
-using DataAccess.EntityFramework.Abstract;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Services.Abstract;
-using System.Security.Cryptography;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Services.Concrete;
 
@@ -17,14 +12,22 @@ public partial class AuthService : IAuthService
 {
     private readonly ITokenService _tokenService;
     private readonly IConfiguration _configuration;
+    private readonly ITokenBlacklistService _tokenBlacklistService;
     private readonly UserManager<CustomIdentityUser> _userManager;
     private readonly RoleManager<CustomIdentityRole> _roleManager;
-    public AuthService(ITokenService tokenService, UserManager<CustomIdentityUser> userManager, IConfiguration configuration, RoleManager<CustomIdentityRole> roleManager)
+
+    public AuthService(
+        ITokenService tokenService,
+        UserManager<CustomIdentityUser> userManager,
+        IConfiguration configuration,
+        RoleManager<CustomIdentityRole> roleManager,
+        ITokenBlacklistService tokenBlacklistService)
     {
         _tokenService = tokenService;
         _userManager = userManager;
         _configuration = configuration;
         _roleManager = roleManager;
+        _tokenBlacklistService = tokenBlacklistService;
     }
     public async Task<RegisterUserResult> Register(CustomIdentityUser user, string password)
     {
@@ -106,21 +109,21 @@ public partial class AuthService : IAuthService
         await _userManager.UpdateAsync(user);
         return new LoginResult { Token = newJwtToken, RefreshToken = newRefreshToken, ExpiresIn = user.RefreshTokenExpiryTime, IsSuccessful = true };
     }
-    public async Task<LogoutResult> Logout(string userId)
+    public async Task<LogoutResult> Logout(string userId, string jti)
     {
-        // Find the user
+        var timeNow = DateTimeHelper.GetUtcNow();
         var user = await _userManager.FindByIdAsync(userId);
         if (user == null)
         {
             return new LogoutResult { Message = "User not found", IsSuccessful = false };
         }
 
-        // Invalidate the refresh token
-        user.RefreshToken = "INVALIDATED_" + Guid.NewGuid().ToString();
-        user.RefreshTokenExpiryTime = DateTime.UtcNow.AddMinutes(-1); // Set to past time
+        user.RefreshToken = "INVALIDATED_" + timeNow.ToString();
+        user.RefreshTokenExpiryTime = DateTime.UtcNow.AddMinutes(-5); 
         await _userManager.UpdateAsync(user);
 
-        // Log the logout event (optional)
+        if (!await _tokenBlacklistService.IsTokenBlacklistedAsync(jti)) await _tokenBlacklistService.AddTokenToBlacklistAsync(jti, timeNow);
+
         // await _logger.LogInformationAsync($"User {user.Email} logged out at {DateTime.UtcNow}");
 
         return new LogoutResult { Message = "Logged out successfully", IsSuccessful = true };

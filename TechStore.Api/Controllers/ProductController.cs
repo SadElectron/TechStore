@@ -13,10 +13,9 @@ using TechStore.Api.Models.Product;
 
 
 namespace TechStore.Api.Controllers;
-
+[Authorize("Admin")]
 [EnableCors("AllowSpecificOrigin")]
 [Route("api/v1/products")]
-[Authorize("Admin")]
 [ApiController]
 public class ProductController : ControllerBase
 {

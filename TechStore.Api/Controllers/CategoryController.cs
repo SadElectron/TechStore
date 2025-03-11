@@ -12,7 +12,7 @@ using TechStore.Api.Models.Category;
 
 namespace TechStore.Api.Controllers;
 
-[Authorize]
+[Authorize("Admin")]
 [EnableCors("AllowSpecificOrigin")]
 [Route("api/v1/categories")]
 [ApiController]
@@ -55,7 +55,7 @@ public class CategoryController : ControllerBase
     {
         try
         {
-         
+
             var categories = await _categoryService.GetAllAsync(model.Page, model.Count);
             if (categories.Count == 0)
             {
@@ -82,7 +82,7 @@ public class CategoryController : ControllerBase
     {
         try
         {
-           
+
             var categories = await _categoryService.GetFullAsync(model.Page, model.Count, model.ProductPage, model.ProductCount);
             if (categories.Count == 0)
             {
@@ -152,7 +152,7 @@ public class CategoryController : ControllerBase
 
     [HttpGet("{categoryId}/properties/{page}/{count}")]
     [TypeFilter(typeof(ValidateByModelFilter<GetCategoryPropertiesModel>))]
-    public async Task<IActionResult> GetCategoryProperties(GetCategoryPropertiesModel model, [FromServices]IPropertyService propertyService)
+    public async Task<IActionResult> GetCategoryProperties(GetCategoryPropertiesModel model, [FromServices] IPropertyService propertyService)
     {
         try
         {
@@ -165,7 +165,7 @@ public class CategoryController : ControllerBase
             _logger.LogWarning($"Error in CategoryController.GetCategoryProperties {ex.Message}");
             return Problem();
         }
-        
+
     }
     // CREATE
     [HttpPost("Create")]

@@ -10,10 +10,9 @@ using TechStore.Api.Filters.Validation;
 using TechStore.Api.Models.Image;
 
 namespace TechStore.Api.Models;
-
+[Authorize("Admin")]
 [EnableCors("AllowSpecificOrigin")]
 [Route("api/v1/images")]
-[Authorize("Admin")]
 [ApiController]
 public class ImageController : ControllerBase
 {

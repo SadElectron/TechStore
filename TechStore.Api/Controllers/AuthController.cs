@@ -22,15 +22,18 @@ namespace TechStore.Api.Models;
 [ApiController]
 public class AuthController : ControllerBase
 {
-    IAuthService _authService;
+    private readonly IAuthService _authService;
+    private readonly ITokenBlacklistService _tokenBlacklistService;
     private readonly ILogger<AuthController> _logger;
 
     public AuthController(
         ILogger<AuthController> logger,
-        IAuthService authService)
+        IAuthService authService,
+        ITokenBlacklistService tokenBlacklistService)
     {
         _logger = logger;
         _authService = authService;
+        _tokenBlacklistService = tokenBlacklistService;
     }
 
     [HttpPost("login")]
@@ -53,17 +56,23 @@ public class AuthController : ControllerBase
         }
     }
 
-    [HttpGet("logout")]
     [Authorize]
+    [HttpGet("logout")]
     public async Task<IActionResult> Logout()
     {
-        // Get the current user ID from the JWT token claims
+        var jti = User.FindFirstValue(JwtRegisteredClaimNames.Jti);
+        if (string.IsNullOrEmpty(jti))
+            return BadRequest(new { message = "Invalid token format" });
+
+
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrEmpty(userId))
         {
             return BadRequest(new { Message = "Unable to identify user" });
         }
-        LogoutResult result =  await _authService.Logout(userId);
+
+        LogoutResult result =  await _authService.Logout(userId, jti);
+        
         if (result.IsSuccessful)
         {
             return Ok(new { message = "Logged out successfully" });
@@ -72,6 +81,7 @@ public class AuthController : ControllerBase
 
     }
 
+    [Authorize]
     [HttpPost("refresh")]
     public async Task<IActionResult> Refresh([FromBody] TokenRefreshModel model)
     {
@@ -94,6 +104,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("Register")]
+    [TypeFilter(typeof(ValidateByModelFilter<RegisterModel>))]
     public async Task<IActionResult> Register([FromBody] RegisterModel model)
     {
         try

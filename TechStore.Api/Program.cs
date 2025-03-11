@@ -19,6 +19,8 @@ using Core.Entities.Concrete;
 using DataAccess.EntityFramework;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace TechStore.Api;
 
@@ -50,7 +52,7 @@ public class Program
                 In = ParameterLocation.Header,
                 Type = SecuritySchemeType.Http,
                 BearerFormat = "JWT",
-                Scheme = JwtBearerDefaults.AuthenticationScheme
+                Scheme = "bearer"
 
             });
             o.AddSecurityRequirement(new OpenApiSecurityRequirement
@@ -85,20 +87,22 @@ public class Program
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"]!)),
                     ValidIssuer = builder.Configuration["Jwt:Issuer"],
                     ValidAudience = builder.Configuration["Jwt:Audience"],
+                    ClockSkew = TimeSpan.Zero
 
                 };
                 options.Events = new JwtBearerEvents
                 {
-                    OnAuthenticationFailed = context =>
+                    OnTokenValidated = async context =>
                     {
-                        Console.WriteLine($"Authentication failed: {context.Exception.Message}");
-                        return Task.CompletedTask;
+                        var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
+                        var revokedTokens = context.HttpContext.RequestServices.GetRequiredService<ITokenBlacklistService>();
+                        var jti = context.Principal?.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Jti)?.Value;
+                        if (!string.IsNullOrEmpty(jti) && await revokedTokens.IsTokenBlacklistedAsync(jti))
+                        {
+                            context.Fail("Token has been revoked.");
+                        }
                     },
-                    OnTokenValidated = context =>
-                    {
-                        Console.WriteLine("Token validated successfully.");
-                        return Task.CompletedTask;
-                    }
+                    
                 };
 
             });
@@ -122,8 +126,7 @@ public class Program
 
         })
         .AddRoles<CustomIdentityRole>()
-        .AddEntityFrameworkStores<UserDbContext>()
-        .AddDefaultTokenProviders();
+        .AddEntityFrameworkStores<UserDbContext>();
 
         
         builder.Services.AddControllers(options =>
@@ -167,14 +170,18 @@ public class Program
         builder.Services.AddScoped<ICategoryService, CategoryService>();
         builder.Services.AddScoped<IDetailService, DetailService>();
         builder.Services.AddScoped<IImageService, ImageService>();
+
         builder.Services.AddScoped<IAuthService, AuthService>();
         builder.Services.AddScoped<ITokenService, TokenService>();
+        builder.Services.AddSingleton<ITokenBlacklistService, TokenBlacklistService>();
 
         builder.Services.AddScoped<IProductDal, ProductDal>();
         builder.Services.AddScoped<IPropertyDal, PropertyDal>();
         builder.Services.AddScoped<ICategoryDal, CategoryDal>();
         builder.Services.AddScoped<IDetailDal, DetailDal>();
         builder.Services.AddScoped<IImageDal, ImageDal>();
+
+        builder.Services.AddHostedService<BlacklistRemovalService>();
 
         var app = builder.Build();
         // Configure the HTTP request pipeline.
