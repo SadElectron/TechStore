@@ -11,7 +11,6 @@ TechStore is a RESTful API for managing an electronics store inventory. This pro
 - **Framework**: ASP.NET Core
 - **Database**: Sqlite
 - **Authentication**: JWT
-- **API Documentation**: Swagger
 
 ## Project Structure
 
@@ -23,10 +22,6 @@ TechStore/
 ├── Data/
 └── Program.cs
 ```
-
-## API Documentation
-
-The API documentation is available through Swagger UI when the application is running. Access it at `https://localhost:.../swagger`.
 
 ## Contributing
 
