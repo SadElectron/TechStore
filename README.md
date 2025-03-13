@@ -16,11 +16,10 @@ TechStore is a RESTful API for managing an electronics store inventory. This pro
 
 ```
 TechStore/
-├── Controllers/
-├── Models/
+├── Core/
 ├── Services/
-├── Data/
-└── Program.cs
+├── DataAccess/
+└── API
 ```
 
 ## Contributing
