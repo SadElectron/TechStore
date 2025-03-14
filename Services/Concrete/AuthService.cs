@@ -32,31 +32,23 @@ public partial class AuthService : IAuthService
     public async Task<RegisterUserResult> Register(CustomIdentityUser user, string password)
     {
         await CheckRoles();
-        var timeNow = DateTimeHelper.GetUtcNow();
-        user.Created = timeNow;
+        user.Created = DateTimeHelper.GetUtcNow();
         var result = await _userManager.CreateAsync(user, password);
-
         if (result.Succeeded)
         {
             await _userManager.AddToRoleAsync(user, "Customer");
 
             var userRoles = await _userManager.GetRolesAsync(user);
-
             var token = _tokenService.Create(user, userRoles);
+            var refreshToken = _tokenService.CreateRefreshToken(user);
 
-            // Generate refresh token
-            var refreshToken = _tokenService.CreateRefreshToken();
-
-            // Store refresh token (hashed) in the database
-            user.RefreshToken = _tokenService.HashToken(refreshToken);
-            user.RefreshTokenExpiryTime = timeNow.AddMinutes(Convert.ToDouble(_configuration["TokenSettings:RefreshTokenExpirationInMinutes"]));
+            user.RefreshToken = refreshToken;
             await _userManager.UpdateAsync(user);
 
             return new RegisterUserResult
             {
                 Token = token,
                 RefreshToken = refreshToken,
-                ExpiresIn = timeNow.AddHours(2),
                 IsSuccessful = true
             };
         }
@@ -72,42 +64,35 @@ public partial class AuthService : IAuthService
     {
         var timeNow = DateTimeHelper.GetUtcNow();
         var user = await _userManager.FindByEmailAsync(email);
-        var result = await _userManager.CheckPasswordAsync(user, passwd);
+        var result = await _userManager.CheckPasswordAsync(user!, passwd);
         if (result)
         {
-            
             var roles = await _userManager.GetRolesAsync(user!);
             var token = _tokenService.Create(user!, roles);
-            var refreshToken = _tokenService.CreateRefreshToken();
+            var refreshToken = _tokenService.CreateRefreshToken(user!);
 
-            user!.RefreshToken = _tokenService.HashToken(refreshToken);
-            user.RefreshTokenExpiryTime = timeNow.AddMinutes(Convert.ToDouble(_configuration["TokenSettings:RefreshTokenExpirationInMinutes"]));
+            user!.RefreshToken = refreshToken;
 
             await _userManager.UpdateAsync(user);
-            return new LoginResult { Token = token, RefreshToken = refreshToken, ExpiresIn = user.RefreshTokenExpiryTime, IsSuccessful = true };
+            return new LoginResult { Token = token, RefreshToken = refreshToken, IsSuccessful = true };
         }
         return new LoginResult { Errors = new() { "Invalid email or password" }, IsSuccessful = false };
     }
-    public async Task<LoginResult> Refresh(string token, string refreshToken)
+    public async Task<LoginResult> Refresh(string refreshToken)
     {
         var timeNow = DateTimeHelper.GetUtcNow();
-        var user = await _userManager.Users.SingleOrDefaultAsync(u => u.RefreshToken == _tokenService.HashToken(refreshToken));
-        if (user == null || user.RefreshTokenExpiryTime < DateTime.UtcNow)
+        var user = await _userManager.Users.SingleOrDefaultAsync(u => u.RefreshToken == refreshToken);
+        if (user == null)
         {
             return new LoginResult { Errors = ["Invalid or expired refresh token"], IsSuccessful = false };
         }
-        // Get user roles
         var userRoles = await _userManager.GetRolesAsync(user);
-
-        // Generate new JWT token
         var newJwtToken = _tokenService.Create(user, userRoles);
+        var newRefreshToken = _tokenService.CreateRefreshToken(user);
 
-        // Generate new refresh token
-        var newRefreshToken = _tokenService.CreateRefreshToken();
-        user.RefreshToken = _tokenService.HashToken(newRefreshToken);
-        user.RefreshTokenExpiryTime = timeNow.AddMinutes(Convert.ToDouble(_configuration["TokenSettings:RefreshTokenExpirationInMinutes"]));
+        user.RefreshToken = newRefreshToken;
         await _userManager.UpdateAsync(user);
-        return new LoginResult { Token = newJwtToken, RefreshToken = newRefreshToken, ExpiresIn = user.RefreshTokenExpiryTime, IsSuccessful = true };
+        return new LoginResult { Token = newJwtToken, RefreshToken = newRefreshToken, IsSuccessful = true };
     }
     public async Task<LogoutResult> Logout(string userId, string jti)
     {
@@ -118,8 +103,7 @@ public partial class AuthService : IAuthService
             return new LogoutResult { Message = "User not found", IsSuccessful = false };
         }
 
-        user.RefreshToken = "INVALIDATED_" + timeNow.ToString();
-        user.RefreshTokenExpiryTime = DateTime.UtcNow.AddMinutes(-5); 
+        user.RefreshToken = "INVALIDATED_" + Guid.NewGuid().ToString();
         await _userManager.UpdateAsync(user);
 
         if (!await _tokenBlacklistService.IsTokenBlacklistedAsync(jti)) await _tokenBlacklistService.AddTokenToBlacklistAsync(jti, timeNow);

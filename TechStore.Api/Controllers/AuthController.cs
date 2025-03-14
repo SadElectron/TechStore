@@ -36,6 +36,27 @@ public class AuthController : ControllerBase
         _tokenBlacklistService = tokenBlacklistService;
     }
 
+    [HttpPost("Register")]
+    [TypeFilter(typeof(ValidateByModelFilter<RegisterModel>))]
+    public async Task<IActionResult> Register([FromBody] RegisterModel model)
+    {
+        try
+        {
+            var user = new CustomIdentityUser { UserName = model.Email, Email = model.Email, };
+            RegisterUserResult result = await _authService.Register(user, model.Password);
+            if (result.IsSuccessful)
+            {
+                return Ok(new { result.Token, result.RefreshToken });
+            }
+            return BadRequest(new { message = "User registration failed", errors = result.Errors });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning($"Error in AuthController.Register {ex.Message}");
+            return Problem();
+        }
+    }
+
     [HttpPost("login")]
     [TypeFilter(typeof(ValidateByModelFilter<LoginModel>))]
     public async Task<IActionResult> Login([FromBody] LoginModel model)
@@ -45,13 +66,37 @@ public class AuthController : ControllerBase
             LoginResult result = await _authService.Login(model.Email, model.Password);
             if (result.IsSuccessful)
             {
-                return Ok(new { result.Token, result.RefreshToken, result.ExpiresIn });
+                return Ok(new { result.Token, result.RefreshToken});
             }
             return BadRequest(new { message = "Login failed", errors = result.Errors });
         }
         catch (Exception ex)
         {
             _logger.LogWarning($"Error in AuthController.Login {ex.Message}");
+            return Problem();
+        }
+    }
+
+    [Authorize]
+    [HttpGet("refresh")]
+    public async Task<IActionResult> Refresh()
+    {
+        try
+        {
+            
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            LoginResult result = await _authService.Refresh(token);
+            if (result.IsSuccessful)
+            {
+                return Ok(new { result.Token, result.RefreshToken});
+            }
+            return BadRequest(new { message = "Token refresh failed", errors = result.Errors });
+        }
+        catch (Exception ex)
+        {
+
+            _logger.LogWarning($"Error in AuthController.Refresh {ex.Message}");
             return Problem();
         }
     }
@@ -71,8 +116,8 @@ public class AuthController : ControllerBase
             return BadRequest(new { Message = "Unable to identify user" });
         }
 
-        LogoutResult result =  await _authService.Logout(userId, jti);
-        
+        LogoutResult result = await _authService.Logout(userId, jti);
+
         if (result.IsSuccessful)
         {
             return Ok(new { message = "Logged out successfully" });
@@ -81,46 +126,5 @@ public class AuthController : ControllerBase
 
     }
 
-    [Authorize]
-    [HttpPost("refresh")]
-    public async Task<IActionResult> Refresh([FromBody] TokenRefreshModel model)
-    {
-        _logger.LogInformation($"User {User}");
-        try
-        {
-            LoginResult result = await _authService.Refresh(model.Token, model.RefreshToken);
-            if (result.IsSuccessful)
-            {
-                return Ok(new { result.Token, result.RefreshToken, result.ExpiresIn });
-            }
-            return BadRequest(new { message = "Token refresh failed", errors = result.Errors });
-        }
-        catch (Exception ex)
-        {
 
-            _logger.LogWarning($"Error in AuthController.Refresh {ex.Message}");
-            return Problem();
-        }
-    }
-
-    [HttpPost("Register")]
-    [TypeFilter(typeof(ValidateByModelFilter<RegisterModel>))]
-    public async Task<IActionResult> Register([FromBody] RegisterModel model)
-    {
-        try
-        {
-            var user = new CustomIdentityUser { UserName = model.Email, Email = model.Email, };
-            RegisterUserResult result = await _authService.Register(user, model.Password);
-            if (result.IsSuccessful)
-            {
-                return Ok(new { result.Token, result.RefreshToken, result.ExpiresIn });
-            }
-            return BadRequest(new { message = "User registration failed", errors = result.Errors });
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning($"Error in AuthController.Register {ex.Message}");
-            return Problem();
-        }
-    }
 }

@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccess.Migrations.UserDb
 {
     [DbContext(typeof(UserDbContext))]
-    [Migration("20250310182348_Initial")]
+    [Migration("20250314144233_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -93,9 +93,6 @@ namespace DataAccess.Migrations.UserDb
 
                     b.Property<string>("RefreshToken")
                         .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("RefreshTokenExpiryTime")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("SecurityStamp")

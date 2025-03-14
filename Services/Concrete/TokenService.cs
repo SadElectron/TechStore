@@ -62,33 +62,28 @@ public class TokenService : ITokenService
         return token;
     }
 
-    public string CreateRefreshToken()
+    public string CreateRefreshToken(CustomIdentityUser user)
     {
-        var refreshToken = Guid.NewGuid().ToString();
-        return refreshToken;
-    }
-
-    public string HashToken(string token)
-    {
-        string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
-            password: token,
-            salt: _salt,
-            prf: KeyDerivationPrf.HMACSHA256,
-            iterationCount: 10000,
-            numBytesRequested: 256 / 8));
-
-        return hashed;
-    }
-
-    public bool VerifyToken(string token, string hashedToken)
-    {
-        string computedHash = Convert.ToBase64String(KeyDerivation.Pbkdf2(
-            password: token,
-            salt: _salt,
-            prf: KeyDerivationPrf.HMACSHA256,
-            iterationCount: 10000,
-            numBytesRequested: 256 / 8));
-
-        return computedHash == hashedToken;
+        var claims = new List<Claim>
+        {
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new Claim(JwtRegisteredClaimNames.Sub, user.Id),
+        };
+        var timeNow = DateTime.UtcNow;
+        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Secret"]!));
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            
+            Subject = new ClaimsIdentity(claims),
+            SigningCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256),
+            Issuer = _configuration["Jwt:Issuer"],
+            Audience = _configuration["Jwt:Audience"],
+            IssuedAt = timeNow,
+            NotBefore = timeNow,
+            Expires = timeNow.AddMinutes(Convert.ToDouble(_configuration["TokenSettings:RefreshTokenExpirationInMinutes"])),
+        };
+        var tokenHandler = new JsonWebTokenHandler();
+        var token = tokenHandler.CreateToken(tokenDescriptor);
+        return token;
     }
 }

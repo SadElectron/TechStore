@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Services.Abstract;
+using Services.Concrete;
 using TechStore.Api.Dtos;
 using TechStore.Api.Filters.Validation;
 using TechStore.Api.Models.Category;
@@ -57,6 +58,30 @@ public class CustomerController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogWarning($"Error in CustomerController.GetProductCount: {ex.Message}");
+            return Problem();
+        }
+
+    }
+
+    [HttpGet("categories/full/{Page}/{Count}/{ProductPage}/{ProductCount}")]
+    [TypeFilter(typeof(ValidateByModelFilter<GetCategoriesFullModel>))]
+    public async Task<IActionResult> GetCategoriesFull([FromRoute] GetCategoriesFullModel model, ICategoryService categoryService)
+    {
+        try
+        {
+
+            var categories = await categoryService.GetFullAsync(model.Page, model.Count, model.ProductPage, model.ProductCount);
+            if (categories.Count == 0)
+            {
+                return NotFound();
+            }
+            var dtos = _mapper.Map<IEnumerable<CustomerCategoryDto>>(categories);
+            return Ok(dtos);
+        }
+        catch (Exception ex)
+        {
+
+            _logger.LogWarning($"Error in CategoryController.GetCategoriesFull {ex.Message}");
             return Problem();
         }
 

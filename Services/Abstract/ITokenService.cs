@@ -10,7 +10,5 @@ namespace Services.Abstract;
 public interface ITokenService
 {
     string Create(CustomIdentityUser user, IList<string> roles);
-    string CreateRefreshToken();
-    string HashToken(string token);
-    bool VerifyToken(string token, string hashedToken);
+    string CreateRefreshToken(CustomIdentityUser user);
 }

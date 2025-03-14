@@ -92,9 +92,6 @@ namespace DataAccess.Migrations.UserDb
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("RefreshTokenExpiryTime")
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("TEXT");
 

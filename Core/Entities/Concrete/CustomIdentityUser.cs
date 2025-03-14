@@ -10,6 +10,5 @@ namespace Core.Entities.Concrete;
 public class CustomIdentityUser : IdentityUser
 {
     public string RefreshToken { get; set; }  = string.Empty;
-    public DateTime RefreshTokenExpiryTime { get; set; } 
     public DateTime Created { get; set; }
 }
