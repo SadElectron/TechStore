@@ -41,7 +41,6 @@ public class CustomerController : ControllerBase
         }
         catch (Exception ex)
         {
-
             _logger.LogWarning($"Error in CustomerController.GetProduct {ex.Message}");
             return Problem();
         }

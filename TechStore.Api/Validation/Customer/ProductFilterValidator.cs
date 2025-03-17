@@ -21,7 +21,7 @@ public class ProductFilterValidator : AbstractValidator<ProductFilterModel>
             fv.RuleFor(fv => fv).Cascade(CascadeMode.Stop)
                 .NotEmpty().WithMessage("FilterValue is empty.")
                 .Equal(x => x.Trim()).WithMessage("{PropertyValue} cannot have leading or trailing spaces.")
-                .MinimumLength(3).WithMessage("{PropertyValue} must be at least 3 characters long.")
+                .MinimumLength(1).WithMessage("{PropertyValue} must be at least 3 characters long.")
                 .MaximumLength(50).WithMessage("{PropertyValue} cannot be longer than 50 characters.")
                 .Matches(@"^[a-zA-Z0-9\-.\/]+(?:\s[a-zA-Z0-9\-.\/]+)*$").WithMessage("{PropertyValue} can only contain alphanumeric characters, spaces, hyphens, periods, and forward slashes.")
                 .Must(x => !ValidationUtils.ContainsSuspiciousCharacters(x)).WithMessage("{PropertyValue} contains invalid characters such as '--', single quotes, or semicolons.");
