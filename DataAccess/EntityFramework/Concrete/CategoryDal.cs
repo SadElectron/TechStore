@@ -62,16 +62,32 @@ public class CategoryDal : EfDbRepository<Category, EfDbContext>, ICategoryDal
     public override async Task<EntityDeleteResult> DeleteAsync(Guid id)
     {
         using var context = new EfDbContext();
-        double rowOrder = await context.Categories.Where(e => e.Id == id).Select(e => e.RowOrder).SingleOrDefaultAsync();
-        var category = await context.Categories.Include(c => c.Products).Include(c => c.Properties).AsNoTracking().SingleOrDefaultAsync(c => c.Id == id);
-        int deletedEntryCount = await context.Categories.Where(c => c.Id == id).ExecuteDeleteAsync();
-        if (deletedEntryCount > 0)
+        using var transaction = context.Database.BeginTransaction();
+        try
         {
-            await context.Categories.Where(c => c.RowOrder > rowOrder).ExecuteUpdateAsync(s => s.SetProperty(c => c.RowOrder, p => p.RowOrder - 1));
-            await _productDal.DeleteRangeAsync(category.Products);
-            await _propertyDal.DeleteRangeAsync(category.Properties);
+            double rowOrder = await context.Categories.Where(e => e.Id == id).Select(e => e.RowOrder).SingleOrDefaultAsync();
+            var category = await context.Categories.Include(c => c.Products).Include(c => c.Properties).AsNoTracking().SingleOrDefaultAsync(c => c.Id == id);
+            int deletedEntryCount = await context.Categories.Where(c => c.Id == id).ExecuteDeleteAsync();
+            if (deletedEntryCount > 0)
+            {
+                await context.Categories.Where(c => c.RowOrder > rowOrder).ExecuteUpdateAsync(s => s.SetProperty(c => c.RowOrder, p => p.RowOrder - 1));
+                await _productDal.DeleteRangeAsync(category.Products);
+                await _propertyDal.DeleteRangeAsync(category.Properties);
+                await transaction.CommitAsync();
+                return new EntityDeleteResult(true, "Entity deleted successfully");
+            }
+            await transaction.RollbackAsync();
+            return new EntityDeleteResult(false, "Entity not found");
         }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+            _logger.LogError($"Error in CategoryDal.DeleteAsync {ex.Message}");
+            return new EntityDeleteResult(false, "Failed to delete entity");
+        }
+        
+       
 
-        return deletedEntryCount;
+        
     }
 }

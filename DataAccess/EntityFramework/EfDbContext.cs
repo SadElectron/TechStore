@@ -18,9 +18,7 @@ public class EfDbContext : DbContext
     public DbSet<Category> Categories { get; set; }
     public DbSet<Property> Properties { get; set; }
     public DbSet<Image> Images { get; set; }
-    public DbSet<RefreshToken> RefreshTokens { get; set; }
 
-    
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         base.OnConfiguring(optionsBuilder);
@@ -38,6 +36,20 @@ public class EfDbContext : DbContext
     }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        base.OnModelCreating(modelBuilder);
+        modelBuilder.Entity<Category>()
+            .HasMany(c => c.Products).WithOne(p => p.Category).HasForeignKey(p => p.CategoryId).OnDelete(DeleteBehavior.NoAction);
+        modelBuilder.Entity<Category>()
+            .HasMany(c => c.Properties).WithOne(p => p.Category).HasForeignKey(p => p.CategoryId).OnDelete(DeleteBehavior.NoAction);
+        modelBuilder.Entity<Product>()
+            .HasMany(p => p.Details).WithOne(d => d.Product).HasForeignKey(d => d.ProductId).OnDelete(DeleteBehavior.NoAction);
+        modelBuilder.Entity<Product>()
+            .HasMany(p => p.Images).WithOne(i => i.Product).HasForeignKey(i => i.ProductId).OnDelete(DeleteBehavior.NoAction);
+        modelBuilder.Entity<Product>()
+            .HasMany(p => p.ProductOrders).WithOne(op => op.Product).HasForeignKey(op => op.ProductId).OnDelete(DeleteBehavior.NoAction);
+        modelBuilder.Entity<Property>()
+            .HasMany(p => p.Details).WithOne(d => d.Property).HasForeignKey(d => d.PropertyId).OnDelete(DeleteBehavior.NoAction);
+        modelBuilder.Entity<Order>()
+            .HasMany(o => o.ProductOrders).WithOne(op => op.Order).HasForeignKey(op => op.OrderId).OnDelete(DeleteBehavior.NoAction);
+
     }
 }

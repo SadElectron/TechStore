@@ -15,5 +15,6 @@ namespace DataAccess.EntityFramework.Abstract
         Task<int> DeleteImagesAsync(Guid productId);
         Task<Image?> UpdateImageOrderAsync(Guid imageId, double newOrder);
         Task<double> GetLastImageOrderAsync(Guid productId);
+        Task<int> DeleteRangeAsync(List<Image> images);
     }
 }

@@ -12,6 +12,6 @@ namespace Core.Entities.Concrete
         public Guid UserId { get; set; }
         public double TotalPrice { get; set; }
         public required string Adress { get; set; }
-        public required List<OrderProduct> OrderProducts { get; set; }
+        public required ICollection<OrderProduct> ProductOrders { get; set; }
     }
 }

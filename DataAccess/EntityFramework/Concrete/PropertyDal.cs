@@ -134,25 +134,29 @@ public class PropertyDal : EfDbRepository<Property, EfDbContext>, IPropertyDal
         using var transaction = context.Database.BeginTransaction();
         try
         {
-
             var firstRowOrder = properties.Min(d => d.RowOrder);
-            var lastRowOrder = properties.Max(d => d.RowOrder);
-            var diff = lastRowOrder - firstRowOrder + 1;
-
             var ids = properties.Select(d => d.Id).ToList();
+            var details = await context.Details.Where(d => ids.Contains(d.PropertyId)).ToListAsync();
 
             int deletedEntryCount = await context.Properties.Where(d => ids.Contains(d.Id)).ExecuteDeleteAsync();
             if (deletedEntryCount == ids.Count)
             {
-                await context.Properties.Where(c => c.RowOrder >= firstRowOrder).ExecuteUpdateAsync(s => s.SetProperty(c => c.RowOrder, p => p.RowOrder - diff));
+                var propertiesGreater = await context.Properties.Where(p => p.RowOrder >= firstRowOrder).ToListAsync();
+                double newRowOrder = firstRowOrder;
+                foreach (var property in propertiesGreater)
+                {
+                    property.RowOrder = newRowOrder;
+                    newRowOrder++;
+                }
+                context.Properties.UpdateRange(propertiesGreater);
+                await context.SaveChangesAsync();
+                await _detailDal.DeleteRangeAsync(details);
+                await transaction.CommitAsync();
+                return deletedEntryCount;
             }
-            else
-            {
-                await transaction.RollbackAsync();
-                return 0;
-            }
-            await transaction.CommitAsync();
-            return deletedEntryCount;
+            await transaction.RollbackAsync();
+            return 0;
+
         }
         catch (Exception ex)
         {

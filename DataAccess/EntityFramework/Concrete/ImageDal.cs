@@ -161,5 +161,48 @@ namespace DataAccess.EntityFramework.Concrete
                 return new EntityDeleteResult(false, $"Something Went Wrong {ex.Message}");
             }
         }
+
+        public async Task<int> DeleteRangeAsync(List<Image> images)
+        {
+            if (images == null || !images.Any()) return 0;
+
+            using var context = new EfDbContext();
+            using var transaction = context.Database.BeginTransaction();
+            try
+            {
+
+                var firstRowOrder = images.Min(d => d.RowOrder);
+
+                var ids = images.Select(d => d.Id).ToList();
+
+                int deletedEntryCount = await context.Images.Where(d => ids.Contains(d.Id)).ExecuteDeleteAsync();
+                if (deletedEntryCount == ids.Count)
+                {
+
+                    var imagesGreater = await context.Images.Where(c => c.RowOrder >= firstRowOrder).ToListAsync();
+                    double newRowOrder = firstRowOrder;
+                    foreach (var image in imagesGreater)
+                    {
+                        image.RowOrder = newRowOrder;
+                        newRowOrder++;
+                    }
+                    context.Images.UpdateRange(imagesGreater);
+                    await context.SaveChangesAsync();
+                    await transaction.CommitAsync();
+                    return deletedEntryCount;
+
+                }
+                await transaction.RollbackAsync();
+                return 0;
+
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                _logger.LogError($"Error in ImageDal.DeleteRangeAsync {ex.Message}");
+                return 0;
+            }
+
+        }
     }
 }

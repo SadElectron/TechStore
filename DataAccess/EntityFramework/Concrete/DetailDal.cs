@@ -61,25 +61,31 @@ namespace DataAccess.EntityFramework.Concrete
             using var transaction = context.Database.BeginTransaction();
             try
             {
-                
+
                 var firstRowOrder = details.Min(d => d.RowOrder);
-                var lastRowOrder = details.Max(d => d.RowOrder);
-                var diff = lastRowOrder - firstRowOrder + 1;
 
                 var ids = details.Select(d => d.Id).ToList();
 
                 int deletedEntryCount = await context.Details.Where(d => ids.Contains(d.Id)).ExecuteDeleteAsync();
                 if (deletedEntryCount == ids.Count)
                 {
-                    await context.Details.Where(c => c.RowOrder >= firstRowOrder).ExecuteUpdateAsync(s => s.SetProperty(c => c.RowOrder, p => p.RowOrder - diff));
+
+                    var detailsGreater = await context.Details.Where(c => c.RowOrder >= firstRowOrder).ToListAsync();
+                    double newRowOrder = firstRowOrder;
+                    foreach (var detail in detailsGreater)
+                    {
+                        detail.RowOrder = newRowOrder;
+                        newRowOrder++;
+                    }
+                    context.Details.UpdateRange(detailsGreater);
+                    await context.SaveChangesAsync();
+                    await transaction.CommitAsync();
+                    return deletedEntryCount;
+
                 }
-                else
-                {
-                    await transaction.RollbackAsync();
-                    return 0;
-                }
-                await transaction.CommitAsync();
-                return deletedEntryCount;
+                await transaction.RollbackAsync();
+                return 0;
+
             }
             catch (Exception ex)
             {

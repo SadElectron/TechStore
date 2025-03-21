@@ -1,4 +1,5 @@
 ﻿using Core.DataAccess.EntityFramework.Concrete;
+using Core.DataAccess.EntityFramework.QueryDtos;
 using Core.Entities.Concrete;
 using Core.RequestModels;
 using Core.Results;
@@ -15,11 +16,13 @@ public class ProductDal : EfDbRepository<Product, EfDbContext>, IProductDal
 {
     private readonly ILogger<Product> _logger;
     private readonly IDetailDal _detailDal;
+    private readonly IImageDal _imageDal;
 
-    public ProductDal(ILogger<Product> logger, IDetailDal detailDal) : base(logger)
+    public ProductDal(ILogger<Product> logger, IDetailDal detailDal, IImageDal imageDal) : base(logger)
     {
         _logger = logger;
         _detailDal = detailDal;
+        _imageDal = imageDal;
     }
     public async Task<Product?> GetFullForCustomer(Guid productId)
     {
@@ -266,23 +269,29 @@ public class ProductDal : EfDbRepository<Product, EfDbContext>, IProductDal
         {
             var firstRowOrder = products.Min(d => d.RowOrder);
             var ids = products.Select(d => d.Id).ToList();
+            var details = await context.Details.Where(d => ids.Contains(d.ProductId)).ToListAsync();
+            var images = await context.Images.Where(i => ids.Contains(i.ProductId)).ToListAsync();
+
             int deletedEntryCount = await context.Products.Where(d => ids.Contains(d.Id)).ExecuteDeleteAsync();
             if (deletedEntryCount == ids.Count)
             {
+                var productsGreater = await context.Products.Where(p => p.RowOrder >= firstRowOrder).ToListAsync();
+                double newRowOrder = firstRowOrder;
+                foreach (var product in productsGreater)
+                {
+                    product.RowOrder = newRowOrder;
+                    newRowOrder++;
+                }
+                context.Products.UpdateRange(productsGreater);
+                await context.SaveChangesAsync();
+                await _detailDal.DeleteRangeAsync(details);
+                await _imageDal.DeleteRangeAsync(images);
+                await transaction.CommitAsync();
+                return deletedEntryCount;
+            }
+            await transaction.RollbackAsync();
+            return 0;
 
-                await context.Database.ExecuteSqlRawAsync(@"
-WITH OrderedProducts AS (SELECT Id, ROW_NUMBER() OVER (ORDER BY RowOrder) + {0} - 1 AS NewRowOrder FROM Products WHERE RowOrder >= {0}) 
-UPDATE p SET p.RowOrder = o.NewRowOrder, p.LastUpdate = FORMAT(GETUTCDATE(), 'yyyy-MM-ddTHH:mm:ss') FROM Products p INNER JOIN OrderedProducts o ON p.Id = o.Id;"
-, firstRowOrder); // Reorder the products
-                await context.Details.Where(d => ids.Contains(d.ProductId)).ExecuteDeleteAsync();
-            }
-            else
-            {
-                await transaction.RollbackAsync();
-                return 0;
-            }
-            await transaction.CommitAsync();
-            return deletedEntryCount;
         }
         catch (Exception ex)
         {
