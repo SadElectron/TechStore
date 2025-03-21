@@ -24,16 +24,16 @@ public class EfDbContext : DbContext
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         base.OnConfiguring(optionsBuilder);
-        optionsBuilder.ConfigureWarnings(b => b.Log(
+        /*optionsBuilder.ConfigureWarnings(b => b.Log(
                 (CoreEventId.StartedTracking, LogLevel.Information),
                 (RelationalEventId.CommandExecuted, LogLevel.Information))).LogTo(Console.WriteLine, new[] {
             CoreEventId.StartedTracking,
             RelationalEventId.CommandExecuted
         },
-            LogLevel.Debug, DbContextLoggerOptions.SingleLine);
+            LogLevel.Debug, DbContextLoggerOptions.SingleLine);*/
 
-        optionsBuilder.EnableSensitiveDataLogging();
-        optionsBuilder.UseSqlite($"Data Source=../DataAccess/Application.db;Cache=Shared");
+        //optionsBuilder.EnableSensitiveDataLogging();
+        optionsBuilder.UseSqlServer(Environment.GetEnvironmentVariable("ASPNETCORE_ConnectionString"));
 
     }
     protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -17,4 +17,5 @@ public interface IProductDal : IEfDbRepository<Product>
     Task<double> GetLastProductOrderByProductIdAsync(Guid productId);
     Task<double> GetLastProductOrderByCategoryIdAsync(Guid categoryId);
     Task<Product> UpdateProductOrderAsync(Guid productId, double newOrder);
+    Task<int> DeleteRangeAsync(ICollection<Product> products);
 }

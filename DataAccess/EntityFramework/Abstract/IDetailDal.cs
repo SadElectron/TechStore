@@ -11,6 +11,7 @@ namespace DataAccess.EntityFramework.Abstract
 {
     public interface IDetailDal : IEfDbRepository<Detail>
     {
+        Task<int> DeleteRangeAsync(ICollection<Detail> details);
         Task<List<Detail>> GetAllWithPropsAsync(Guid productId);
         Task<List<Detail>> GetByIdsAsync(List<Guid> ids);
         Task<List<Detail>> UpdateDetailsAsync(List<Detail> details);

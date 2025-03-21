@@ -26,7 +26,7 @@ public class UserDbContext : IdentityDbContext<CustomIdentityUser, CustomIdentit
     {
         base.OnConfiguring(optionsBuilder);
 
-        optionsBuilder.ConfigureWarnings(b => b.Log(
+        /*optionsBuilder.ConfigureWarnings(b => b.Log(
                (CoreEventId.StartedTracking, LogLevel.Information),
                (RelationalEventId.CommandExecuted, LogLevel.Information)))
             .LogTo(Console.WriteLine, new[] {
@@ -34,7 +34,7 @@ public class UserDbContext : IdentityDbContext<CustomIdentityUser, CustomIdentit
             RelationalEventId.CommandExecuted
        }, LogLevel.Debug, DbContextLoggerOptions.SingleLine);
 
-        optionsBuilder.EnableSensitiveDataLogging();
+        optionsBuilder.EnableSensitiveDataLogging();*/
 
     }
 }

@@ -23,61 +23,51 @@ public abstract class EfDbRepository<TEntity, TContext> : IEfDbRepository<TEntit
         using var context = new TContext();
         return await context.Set<TEntity>().SingleOrDefaultAsync(filter);
     }
-
     public async Task<TEntity?> GetAsNoTrackingAsync(Expression<Func<TEntity, bool>> filter)
     {
         using var context = new TContext();
         return await context.Set<TEntity>().AsNoTracking().SingleOrDefaultAsync(filter);
     }
-
     public async Task<List<TEntity>> GetAllAsync()
     {
         using var context = new TContext();
         return await context.Set<TEntity>().ToListAsync();
     }
-
     public async Task<List<TEntity>> GetAllAsync<Tkey>(int page, int itemCount, Expression<Func<TEntity, Tkey>> orderFilter)
     {
         using var context = new TContext();
         return await context.Set<TEntity>().OrderBy(orderFilter).Skip((page - 1) * itemCount).Take(itemCount).ToListAsync();
     }
-
     public async Task<List<TEntity>> GetAllAsync<Tkey>(Expression<Func<TEntity, bool>> filter, int page, int itemCount, Expression<Func<TEntity, Tkey>> orderFilter)
     {
         using var context = new TContext();
         return await context.Set<TEntity>().Where(filter).OrderBy(orderFilter).Skip((page - 1) * itemCount).Take(itemCount).ToListAsync();
     }
-
     public async Task<List<TEntity>> GetAllAsync<Tkey>(Expression<Func<TEntity, bool>> filter, Expression<Func<TEntity, Tkey>> orderFilter)
     {
         using var context = new TContext();
         return await context.Set<TEntity>().Where(filter).OrderBy(orderFilter).ToListAsync();
     }
-
     public async Task<List<TEntity>> GetAllAsNoTrackingAsync<Tkey>(Expression<Func<TEntity, Tkey>> orderFilter)
     {
         using var context = new TContext();
         return await context.Set<TEntity>().OrderBy(orderFilter).AsNoTracking().ToListAsync();
     }
-
     public async Task<List<TEntity>> GetAllAsNoTrackingAsync<Tkey>(int page, int itemCount, Expression<Func<TEntity, Tkey>> orderFilter)
     {
         using var context = new TContext();
         return await context.Set<TEntity>().OrderBy(orderFilter).Skip((page - 1) * itemCount).Take(itemCount).AsNoTracking().ToListAsync();
     }
-
     public async Task<List<TEntity>> GetAllAsNoTrackingAsync<Tkey>(Expression<Func<TEntity, bool>> filter, Expression<Func<TEntity, Tkey>> orderFilter)
     {
         using var context = new TContext();
         return await context.Set<TEntity>().Where(filter).OrderBy(orderFilter).AsNoTracking().ToListAsync();
     }
-
     public async Task<List<TEntity>> GetAllAsNoTrackingAsync<Tkey>(Expression<Func<TEntity, bool>> filter, int page, int itemCount, Expression<Func<TEntity, Tkey>> orderFilter)
     {
         using var context = new TContext();
         return await context.Set<TEntity>().Where(filter).OrderBy(orderFilter).Skip((page - 1) * itemCount).Take(itemCount).AsNoTracking().ToListAsync();
     }
-
     public async Task<TEntity> AddAsync(TEntity entity)
     {
         using var context = new TContext();
@@ -85,14 +75,12 @@ public abstract class EfDbRepository<TEntity, TContext> : IEfDbRepository<TEntit
         await context.SaveChangesAsync();
         return addedEntity.Entity;
     }
-
     public async Task UpdateAllAsync(List<TEntity> entities)
     {
         using var context = new TContext();
         context.Set<TEntity>().UpdateRange(entities);
         await context.SaveChangesAsync();
     }
-
     public virtual async Task<EntityDeleteResult> DeleteAsync(Guid id)
     {
         using var context = new TContext();
@@ -103,13 +91,11 @@ public abstract class EfDbRepository<TEntity, TContext> : IEfDbRepository<TEntit
         }
         return new EntityDeleteResult(false, "Entity not found");
     }
-
     public async Task<int> GetEntryCountAsync()
     {
         using var context = new TContext();
         return await context.Set<TEntity>().CountAsync();
     }
-
     public async Task<int> GetEntryCountAsync(Expression<Func<TEntity, bool>> filter)
     {
         using var context = new TContext();
@@ -121,13 +107,11 @@ public abstract class EfDbRepository<TEntity, TContext> : IEfDbRepository<TEntit
 
         return await context.Set<TEntity>().MaxAsync(e => (double?)e.RowOrder) ?? 0;
     }
-
     public async Task SaveChangesAsync()
     {
         using var context = new TContext();
         await context.SaveChangesAsync();
     }
-
     public async Task<int> DeleteAndReorderAsync(Guid id)
     {
         using var context = new TContext();
@@ -183,7 +167,6 @@ public abstract class EfDbRepository<TEntity, TContext> : IEfDbRepository<TEntit
             throw;
         }
     }
-
     public async Task<bool> ExistsAsync(Guid id)
     {
         using var context = new TContext();

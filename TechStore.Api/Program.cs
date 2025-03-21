@@ -29,7 +29,6 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-
         // Add services to the container.
 
 
@@ -111,7 +110,7 @@ public class Program
             options.AddPolicy("Admin", p => p.Requirements.Add(new RoleRequirement("Admin")));
         });
 
-        builder.Services.AddDbContext<UserDbContext>(options => options.UseSqlite($"Data Source=../DataAccess/User.db;Cache=Shared;"));
+        builder.Services.AddDbContext<UserDbContext>(options => options.UseSqlServer(Environment.GetEnvironmentVariable("ASPNETCORE_ConnectionString")));
         builder.Services.AddIdentityCore<CustomIdentityUser>(o =>
         {
             o.Password.RequireDigit = false;
@@ -182,7 +181,7 @@ public class Program
         builder.Services.AddScoped<IImageDal, ImageDal>();
 
         builder.Services.AddHostedService<BlacklistRemovalService>();
-
+        
         var app = builder.Build();
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())

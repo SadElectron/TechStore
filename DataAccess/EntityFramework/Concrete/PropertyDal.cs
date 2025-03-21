@@ -11,9 +11,11 @@ namespace DataAccess.EntityFramework.Concrete;
 public class PropertyDal : EfDbRepository<Property, EfDbContext>, IPropertyDal
 {
     private readonly ILogger<Property> _logger;
-    public PropertyDal(ILogger<Property> logger): base(logger)
+    private readonly IDetailDal _detailDal;
+    public PropertyDal(ILogger<Property> logger, IDetailDal detailDal) : base(logger)
     {
         _logger = logger;
+        _detailDal = detailDal;
     }
 
     public async Task<double> GetLastPropOrderAsync(Guid categoryId)
@@ -99,7 +101,7 @@ public class PropertyDal : EfDbRepository<Property, EfDbContext>, IPropertyDal
     {
         using var context = new EfDbContext();
         var transaction = context.Database.BeginTransaction();
-        var property = await context.Properties.FindAsync(id);
+        var property = await context.Properties.Include(p => p.Details).SingleOrDefaultAsync( p => p.Id == id);
         try
         {
             var rowOrder = property!.RowOrder;
@@ -109,6 +111,7 @@ public class PropertyDal : EfDbRepository<Property, EfDbContext>, IPropertyDal
             {
                 await context.Properties.Where(p => p.RowOrder > rowOrder).ExecuteUpdateAsync(s => s.SetProperty(p => p.RowOrder, p => p.RowOrder - 1));
                 await context.Properties.Where(p => p.PropOrder > propOrder && p.CategoryId == property.CategoryId).ExecuteUpdateAsync(s => s.SetProperty(p => p.PropOrder, p => p.PropOrder - 1));
+                await _detailDal.DeleteRangeAsync(property.Details.ToList());
                 await transaction.CommitAsync();
                 return new EntityDeleteResult(true, "Property deleted successfully");
             }
@@ -122,6 +125,42 @@ public class PropertyDal : EfDbRepository<Property, EfDbContext>, IPropertyDal
             await transaction.RollbackAsync();
             return new EntityDeleteResult(false, $"Something Went Wrong {ex.Message}");
         }
+    }
+    public async Task<int> DeleteRangeAsync(ICollection<Property> properties)
+    {
+        if (properties == null || !properties.Any()) return 0;
+
+        using var context = new EfDbContext();
+        using var transaction = context.Database.BeginTransaction();
+        try
+        {
+
+            var firstRowOrder = properties.Min(d => d.RowOrder);
+            var lastRowOrder = properties.Max(d => d.RowOrder);
+            var diff = lastRowOrder - firstRowOrder + 1;
+
+            var ids = properties.Select(d => d.Id).ToList();
+
+            int deletedEntryCount = await context.Properties.Where(d => ids.Contains(d.Id)).ExecuteDeleteAsync();
+            if (deletedEntryCount == ids.Count)
+            {
+                await context.Properties.Where(c => c.RowOrder >= firstRowOrder).ExecuteUpdateAsync(s => s.SetProperty(c => c.RowOrder, p => p.RowOrder - diff));
+            }
+            else
+            {
+                await transaction.RollbackAsync();
+                return 0;
+            }
+            await transaction.CommitAsync();
+            return deletedEntryCount;
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+            _logger.LogError($"Error in PropertyDal.DeleteRangeAsync {ex.Message}");
+            return 0;
+        }
+
     }
 
 }

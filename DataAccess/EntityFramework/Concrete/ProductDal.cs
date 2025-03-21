@@ -14,9 +14,12 @@ namespace DataAccess.EntityFramework.Concrete;
 public class ProductDal : EfDbRepository<Product, EfDbContext>, IProductDal
 {
     private readonly ILogger<Product> _logger;
-    public ProductDal(ILogger<Product> logger) : base(logger)
+    private readonly IDetailDal _detailDal;
+
+    public ProductDal(ILogger<Product> logger, IDetailDal detailDal) : base(logger)
     {
         _logger = logger;
+        _detailDal = detailDal;
     }
     public async Task<Product?> GetFullForCustomer(Guid productId)
     {
@@ -226,7 +229,7 @@ public class ProductDal : EfDbRepository<Product, EfDbContext>, IProductDal
     {
         using var context = new EfDbContext();
         var transaction = context.Database.BeginTransaction();
-        var product = await context.Products.FindAsync(id);
+        var product = await context.Products.Include(p => p.Details).SingleOrDefaultAsync(p => p.Id == id);
         try
         {
             var rowOrder = product!.RowOrder;
@@ -236,6 +239,7 @@ public class ProductDal : EfDbRepository<Product, EfDbContext>, IProductDal
             {
                 await context.Products.Where(p => p.RowOrder > rowOrder).ExecuteUpdateAsync(s => s.SetProperty(p => p.RowOrder, p => p.RowOrder - 1));
                 await context.Products.Where(p => p.ProductOrder > productOrder && p.CategoryId == product.CategoryId).ExecuteUpdateAsync(s => s.SetProperty(p => p.ProductOrder, p => p.ProductOrder - 1));
+                await _detailDal.DeleteRangeAsync(product.Details);
                 await transaction.CommitAsync();
                 return new EntityDeleteResult(true, "Product deleted successfully");
             }
@@ -250,6 +254,41 @@ public class ProductDal : EfDbRepository<Product, EfDbContext>, IProductDal
         {
             await transaction.RollbackAsync();
             return new EntityDeleteResult(false, $"Something Went Wrong {ex.Message}");
+        }
+    }
+    public async Task<int> DeleteRangeAsync(ICollection<Product> products)
+    {
+        if (products == null || !products.Any()) return 0;
+
+        using var context = new EfDbContext();
+        using var transaction = context.Database.BeginTransaction();
+        try
+        {
+            var firstRowOrder = products.Min(d => d.RowOrder);
+            var ids = products.Select(d => d.Id).ToList();
+            int deletedEntryCount = await context.Products.Where(d => ids.Contains(d.Id)).ExecuteDeleteAsync();
+            if (deletedEntryCount == ids.Count)
+            {
+
+                await context.Database.ExecuteSqlRawAsync(@"
+WITH OrderedProducts AS (SELECT Id, ROW_NUMBER() OVER (ORDER BY RowOrder) + {0} - 1 AS NewRowOrder FROM Products WHERE RowOrder >= {0}) 
+UPDATE p SET p.RowOrder = o.NewRowOrder, p.LastUpdate = FORMAT(GETUTCDATE(), 'yyyy-MM-ddTHH:mm:ss') FROM Products p INNER JOIN OrderedProducts o ON p.Id = o.Id;"
+, firstRowOrder); // Reorder the products
+                await context.Details.Where(d => ids.Contains(d.ProductId)).ExecuteDeleteAsync();
+            }
+            else
+            {
+                await transaction.RollbackAsync();
+                return 0;
+            }
+            await transaction.CommitAsync();
+            return deletedEntryCount;
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+            _logger.LogError($"Error in ProductDal.DeleteRangeAsync {ex.Message}");
+            return 0;
         }
     }
 }

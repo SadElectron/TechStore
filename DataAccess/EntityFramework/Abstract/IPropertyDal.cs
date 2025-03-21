@@ -15,5 +15,6 @@ namespace DataAccess.EntityFramework.Abstract
         Task<double> GetLastPropOrderAsync(Guid categoryId);
         Task<List<Property>> GetProductFilters(Guid categoryId);
         Task<Property> UpdatePropOrderAsync(Guid id, double newPropOrder);
+        Task<int> DeleteRangeAsync(ICollection<Property> properties);
     }
 }

@@ -16,7 +16,6 @@ public class CategoryService : ICategoryService
     {
         _categoryDal = categoryDal;
     }
-
     public async Task<EntityCreateResult<Category>> AddAsync(Category entity)
     {
         var timeNowUtc = DateTimeHelper.GetUtcNow();
@@ -26,12 +25,10 @@ public class CategoryService : ICategoryService
         return new EntityCreateResult<Category>(true, await _categoryDal.AddAsync(entity));
         
     }
-
     public Task<List<Category>> GetAllAsync()
     {
         return _categoryDal.GetAllAsNoTrackingAsync(c => c.RowOrder);
     }
-
     public Task<List<Category>> GetAllAsync(int page, int itemCount)
     {
         return _categoryDal.GetAllAsNoTrackingAsync(page, itemCount, c => c.RowOrder);
@@ -40,7 +37,6 @@ public class CategoryService : ICategoryService
     {
         return _categoryDal.GetAllAsNoTrackingAsync( page, itemCount, c => c.RowOrder);
     }
-
     public Task<Category?> GetAsync(Guid id)
     {
         return _categoryDal.GetAsync(t => t.Id == id);
@@ -49,27 +45,22 @@ public class CategoryService : ICategoryService
     {
         return _categoryDal.GetAsNoTrackingAsync(t => t.Id == id);
     }
-
     public Task<Category?> GetAsync(Expression<Func<Category, bool>> filter)
     {
         return _categoryDal.GetAsync(filter);
     }
-
     public Task<int> GetEntryCountAsync()
     {
         return _categoryDal.GetEntryCountAsync();
     }
-
     public Task<int> GetProductCountAsync(Guid categoryId)
     {
         return _categoryDal.GetProductCountAsync(categoryId);
     }
-
     public Task<int> GetPropertyCount(Guid categoryId)
     {
         return _categoryDal.GetPropertyCountAsync(categoryId);
     }
-
     public Task<List<Category>> GetFullAsync(int page = 1, int count = 10, int productPage = 1, int productCount = 10)
     {
         return _categoryDal.GetFullAsync(page, count, productPage, productCount);
@@ -78,12 +69,10 @@ public class CategoryService : ICategoryService
     {
         return _categoryDal.GetLastOrderAsync();
     }
-
     public Task<Category> UpdateAsync(Category entity)
     {
         return _categoryDal.UpdateAsync(entity);
     }
-
     public async Task<EntityDeleteResult> DeleteAndReorderAsync(Guid id)
     {
         var i = await _categoryDal.DeleteAndReorderAsync(id);
