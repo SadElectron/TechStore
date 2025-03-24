@@ -105,24 +105,34 @@ public class AuthController : ControllerBase
     [HttpGet("logout")]
     public async Task<IActionResult> Logout()
     {
-        var jti = User.FindFirstValue(JwtRegisteredClaimNames.Jti);
-        if (string.IsNullOrEmpty(jti))
-            return BadRequest(new { message = "Invalid token format" });
-
-
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (string.IsNullOrEmpty(userId))
+        try
         {
-            return BadRequest(new { Message = "Unable to identify user" });
+            var jti = User.FindFirstValue(JwtRegisteredClaimNames.Jti);
+            if (string.IsNullOrEmpty(jti))
+                return BadRequest(new { message = "Invalid token format" });
+
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return BadRequest(new { Message = "Unable to identify user" });
+            }
+
+            LogoutResult result = await _authService.Logout(userId, jti);
+
+            if (result.IsSuccessful)
+            {
+                return Ok(new { message = "Logged out successfully" });
+            }
+            return BadRequest(new { message = "Logout failed" });
         }
-
-        LogoutResult result = await _authService.Logout(userId, jti);
-
-        if (result.IsSuccessful)
+        catch (Exception ex)
         {
-            return Ok(new { message = "Logged out successfully" });
+
+            _logger.LogWarning($"Error in AuthController.Logout {ex.Message}");
+            return Problem();
         }
-        return BadRequest(new { message = "Logout failed" });
+        
 
     }
 

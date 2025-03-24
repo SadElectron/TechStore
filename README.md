@@ -2,23 +2,19 @@
 
 **⚠️ THIS REPOSITORY IS FOR DEVELOPMENT AND TEST PURPOSES ONLY ⚠️**
 
-## Overview
-
-TechStore is a RESTful API for managing an electronics store inventory. This project demonstrates a modern ASP.NET Core API application for accessing products, managing inventory, and processing orders.
-
 ## Technology Stack
 
 - **Framework**: ASP.NET Core
-- **Database**: Sqlite
+- **Database**: Sqlite / Sql Server
 - **Authentication**: JWT
 
 ## Project Structure
 
 ```
-TechStore/
-├── Core/
-├── Services/
-├── DataAccess/
+TechStore
+├── Core
+├── Services
+├── DataAccess
 └── API
 ```
 
