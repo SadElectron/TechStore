@@ -156,7 +156,6 @@ public class PropertyDal : EfDbRepository<Property, EfDbContext>, IPropertyDal
             }
             await transaction.RollbackAsync();
             return 0;
-
         }
         catch (Exception ex)
         {
