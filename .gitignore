@@ -365,3 +365,5 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/TechStore.Api/Properties/ServiceDependencies/TechStore - Zip Deploy/profile.arm.json
+/TechStore.Api/Properties/serviceDependencies.json
